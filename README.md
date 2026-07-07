@@ -1,5 +1,8 @@
 # Stellar-infra (Pay3)
 
+welcome to pay3
+
+
 Autonomous payment layer for the AI economy — Stellar-native, x402 micropayments.
 
 ## Docs
