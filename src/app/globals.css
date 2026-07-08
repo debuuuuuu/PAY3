@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pay3-black: #000000;
+  --color-pay3-white: #ffffff;
+  --color-pay3-gray-100: #f4f4f5;
+  --color-pay3-gray-200: #e4e4e7;
+  --color-pay3-gray-400: #8a8a8e;
+  --color-pay3-gray-600: #3a3a3c;
+  --color-pay3-gray-800: #1a1a1c;
+  --color-pay3-gray-900: #0d0d0e;
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: auto;
+  scroll-padding-top: 5.5rem;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  background: var(--color-pay3-black);
+  color: var(--color-pay3-white);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100%;
+  z-index: 200;
+  border-radius: 9999px;
+  background: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: black;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.glass-nav {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-nav--scrolled {
+  background: rgba(0, 0, 0, 0.75);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.faq-chevron {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.faq-item[data-open="true"] .faq-chevron {
+  transform: rotate(180deg);
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-medium text-black transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center rounded-full border border-white/80 px-7 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-white hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
+}
+
+.section-light {
+  background: var(--color-pay3-white);
+  color: var(--color-pay3-black);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
