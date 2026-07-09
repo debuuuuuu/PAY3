@@ -46,6 +46,7 @@ export const metadata: Metadata = {
     description:
       "Give AI assistants financial superpowers on Stellar — inside programmable policies.",
     images: ["/pay3-logo.png"],
+    creator: "@PAYThreeWallet",
   },
 };
 

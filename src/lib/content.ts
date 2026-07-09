@@ -1,6 +1,8 @@
 export const NAV_LINKS = [
   { label: "Features", href: "#features", external: false },
-  { label: "Official X", href: "https://x.com/pay3", external: true },
+  { label: "Official X", href: "https://x.com/PAYThreeWallet", external: true },
+  { label: "GitHub", href: "https://github.com/debuuuuuu/PAY3", external: true },
+  { label: "Contact Us", href: "mailto:pay3wallet@gmail.com", external: true },
   { label: "Pay3 for Business", href: "#how-it-works", external: false },
 ] as const;
 
