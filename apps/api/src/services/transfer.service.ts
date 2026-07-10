@@ -1,6 +1,6 @@
 import type { PolicySnapshot } from "@pay3/database";
 import { assertBalanceReadAllowed, assertHistoryReadAllowed } from "@pay3/policy-engine";
-import { getAssetBalance } from "@pay3/stellar";
+import { getAssetBalance, getVaultBalance } from "@pay3/stellar";
 import type { ServiceContext } from "./context.js";
 
 export class TransferAppService {
@@ -15,17 +15,18 @@ export class TransferAppService {
     const snapshot = session.policySnapshot as PolicySnapshot;
     assertBalanceReadAllowed(snapshot);
 
-    const balance = await getAssetBalance(
-      this.ctx.stellar,
-      session.sessionPublicKey,
-      asset,
-    );
+    const contractId = session.smartAccount.contractId;
+    const balance =
+      contractId && asset.toUpperCase() === "USDC"
+        ? await getVaultBalance(this.ctx.stellar, contractId, session.sessionPublicKey)
+        : await getAssetBalance(this.ctx.stellar, session.sessionPublicKey, asset);
 
     return {
       asset: asset.toUpperCase(),
       balance,
       sessionId: session.id,
       smartAccountId: session.smartAccountId,
+      source: contractId ? "soroban_vault" : "horizon",
     };
   }
 

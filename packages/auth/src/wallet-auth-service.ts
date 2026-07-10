@@ -130,7 +130,9 @@ export class WalletAuthService {
       signature: input.signature,
     });
 
-    const session = await this.prisma.$transaction(async (tx) => {
+    // Neon interactive tx can exceed Prisma's 5s default under latency.
+    const session = await this.prisma.$transaction(
+      async (tx) => {
       const consumed = await tx.authChallenge.updateMany({
         where: {
           id: challenge.id,
@@ -200,8 +202,9 @@ export class WalletAuthService {
         walletId,
         walletSessionId: walletSession.id,
       };
-    });
-
+    },
+      { timeout: 20_000 },
+    );
     return {
       sessionToken: session.sessionToken,
       expiresAt: session.expiresAt.toISOString(),

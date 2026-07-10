@@ -16,5 +16,13 @@ export async function linkSmartAccount(req: Request, res: Response): Promise<voi
     walletId: req.auth!.walletId,
     contractId,
   });
-  sendData(req, res, account, 201);
+  sendData(req, res, {
+    ...account,
+    onChain: {
+      usdcSacContractId: res.locals.config.stellar.usdcSacContractId,
+      templateContractId: res.locals.config.stellar.smartAccountContractId,
+      initializeHint:
+        "Deploy contracts/smart-account, then invoke initialize(owner, usdc_token) before deposit/add_session.",
+    },
+  }, 201);
 }

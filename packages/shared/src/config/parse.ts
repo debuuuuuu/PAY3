@@ -233,6 +233,7 @@ export function parsePay3Config(
       sorobanRpcUrl: env.STELLAR_SOROBAN_RPC_URL?.trim() || defaults.sorobanRpcUrl,
       networkPassphrase: STELLAR_NETWORK_PASSPHRASES[stellarNetwork],
       smartAccountContractId: parseContractId(env.SOROBAN_SMART_ACCOUNT_CONTRACT_ID),
+      usdcSacContractId: parseContractId(env.STELLAR_USDC_SAC_CONTRACT_ID),
     },
     transactions: {
       maxRetries: TRANSACTION_MAX_RETRIES,

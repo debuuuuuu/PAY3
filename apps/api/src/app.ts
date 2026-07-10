@@ -62,6 +62,12 @@ export function createApp(): Express {
   app.locals.services = services;
   app.locals.config = config;
 
+  app.use((req, res, next) => {
+    res.locals.services = app.locals.services;
+    res.locals.config = app.locals.config;
+    next();
+  });
+
   app.use("/api", createApiRouter(requireAuth));
 
   app.use(notFoundHandler);

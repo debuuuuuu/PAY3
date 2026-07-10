@@ -1,14 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { extractLogoPixels } from "@/lib/pixel-logo";
 import { ScrollTrigger } from "@/lib/gsap";
 import { PixelLoader } from "./PixelLoader";
 import { SiteRevealedCtx } from "./site-revealed";
 
+function isAppRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname.startsWith("/dashboard") || pathname.startsWith("/login");
+}
+
 export function LoadingGate({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = useState(false);
-  const [revealed, setRevealed] = useState(false);
+  const pathname = usePathname();
+  const skipLoader = isAppRoute(pathname);
+  const [ready, setReady] = useState(skipLoader);
+  const [revealed, setRevealed] = useState(skipLoader);
   const doneRef = useRef(false);
 
   const finish = () => {
@@ -19,6 +27,13 @@ export function LoadingGate({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    if (skipLoader) {
+      document.body.style.overflow = "";
+      setReady(true);
+      setRevealed(true);
+      return;
+    }
+
     void extractLogoPixels("/pay3-logo.png");
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -38,7 +53,7 @@ export function LoadingGate({ children }: { children: React.ReactNode }) {
       window.clearTimeout(fallback);
       document.body.style.overflow = "";
     };
-  }, []);
+  }, [skipLoader]);
 
   useEffect(() => {
     if (!revealed) return;
@@ -48,7 +63,7 @@ export function LoadingGate({ children }: { children: React.ReactNode }) {
 
   return (
     <SiteRevealedCtx.Provider value={revealed}>
-      {!ready && (
+      {!ready && !skipLoader && (
         <PixelLoader
           onReveal={() => setRevealed(true)}
           onDone={finish}
@@ -57,8 +72,8 @@ export function LoadingGate({ children }: { children: React.ReactNode }) {
       <div
         className="transition-opacity duration-500 ease-out"
         style={{
-          opacity: revealed ? 1 : 0,
-          pointerEvents: revealed ? "auto" : "none",
+          opacity: revealed || skipLoader ? 1 : 0,
+          pointerEvents: revealed || skipLoader ? "auto" : "none",
         }}
       >
         {children}

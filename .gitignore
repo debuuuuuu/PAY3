@@ -33,6 +33,8 @@ contracts/**/.soroban
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+debug-*.log
+.cursor/debug-*.log
 
 # typescript
 next-env.d.ts

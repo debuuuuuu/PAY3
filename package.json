@@ -7,9 +7,9 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3000",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 3000",
     "lint": "next lint",
     "dev:api": "npm run dev -w @pay3/api",
     "build:api": "npm run build -w @pay3/api",
@@ -19,7 +19,7 @@
     "build:packages": "npm run build -w @pay3/shared -w @pay3/database -w @pay3/auth -w @pay3/stellar -w @pay3/session-manager -w @pay3/policy-engine -w @pay3/transaction-engine -w @pay3/recipient-resolver",
     "build:backend": "npm run build:packages && npm run build:api && npm run build:mcp",
     "test": "npm run test:backend",
-    "test:backend": "npm run test -w @pay3/shared && npm run test -w @pay3/database && npm run test -w @pay3/auth && npm run test -w @pay3/policy-engine && npm run test -w @pay3/recipient-resolver && npm run test -w @pay3/session-manager && npm run test -w @pay3/transaction-engine && npm run test -w @pay3/api && npm run test -w @pay3/mcp-server",
+    "test:backend": "npm run test -w @pay3/shared && npm run test -w @pay3/database && npm run test -w @pay3/auth && npm run test -w @pay3/stellar && npm run test -w @pay3/policy-engine && npm run test -w @pay3/recipient-resolver && npm run test -w @pay3/session-manager && npm run test -w @pay3/transaction-engine && npm run test -w @pay3/api && npm run test -w @pay3/mcp-server",
     "config:check": "npm run self-check -w @pay3/shared",
     "db:check": "npm run self-check -w @pay3/database",
     "db:validate": "npm run db:validate -w @pay3/database",
@@ -32,14 +32,17 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@stellar/freighter-api": "^6.0.1",
     "gsap": "^3.15.0",
     "next": "^16.2.10",
+    "qrcode": "^1.5.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.2",
     "@types/node": "^26.1.1",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.4",

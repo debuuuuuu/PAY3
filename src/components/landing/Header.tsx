@@ -100,11 +100,11 @@ export function Header() {
 
         <div className="flex items-center gap-3">
           <a
-            href="#how-it-works"
+            href="/login"
             data-nav-item
             className="btn-primary hidden text-sm sm:inline-flex"
           >
-            Get Started
+            Open Dashboard
           </a>
           <button
             type="button"
@@ -138,11 +138,11 @@ export function Header() {
               </a>
             ))}
             <a
-              href="#how-it-works"
+              href="/login"
               className="btn-primary mt-2 w-fit text-sm"
               onClick={() => setMenuOpen(false)}
             >
-              Get Started
+              Open Dashboard
             </a>
           </div>
         </nav>

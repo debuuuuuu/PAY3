@@ -31,6 +31,7 @@ export interface Pay3Config {
     sorobanRpcUrl: string;
     networkPassphrase: string;
     smartAccountContractId: string | null;
+    usdcSacContractId: string | null;
   };
   transactions: {
     maxRetries: number;

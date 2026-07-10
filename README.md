@@ -54,3 +54,16 @@ Every AI agent should be able to:
 ## Documentation
 
 For more in-depth architectural and product context, please refer to our single source of truth: [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md).
+
+## Local development (backend + dashboard)
+
+```bash
+cp .env.example .env   # fill DATABASE_URL, AUTH_SESSION_SECRET, SESSION_KEY_ENCRYPTION_KEY
+npm install
+npm run db:push
+npm run dev:api        # http://localhost:3001
+npm run dev            # http://localhost:3000 — landing + /login + /dashboard
+npm run test:backend
+```
+
+Soroban vault: see [contracts/smart-account/README.md](contracts/smart-account/README.md). End-to-end smoke steps: [apps/api/README.md](apps/api/README.md).

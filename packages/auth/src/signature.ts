@@ -1,6 +1,14 @@
+import { createHash } from "node:crypto";
 import { Keypair, StrKey } from "@stellar/stellar-sdk";
 import { AuthError } from "./errors.js";
 import { normalizeWalletAddress } from "./network.js";
+
+/** SEP-53: SHA256("Stellar Signed Message:\\n" + message) */
+function sep53MessageHash(message: string): Buffer {
+  return createHash("sha256")
+    .update(Buffer.from(`Stellar Signed Message:\n${message}`, "utf8"))
+    .digest();
+}
 
 export function assertValidWalletAddress(walletAddress: string): string {
   const normalized = normalizeWalletAddress(walletAddress);
@@ -49,7 +57,10 @@ export function verifyWalletSignature(input: {
     throw new AuthError("INVALID_WALLET_ADDRESS", "Unable to parse wallet public key.");
   }
 
-  const valid = keypair.verify(messageBytes, signatureBytes);
+  // Freighter signMessage uses SEP-53; keep raw verify for programmatic/self-check signatures.
+  const valid =
+    keypair.verify(messageBytes, signatureBytes) ||
+    keypair.verify(sep53MessageHash(input.message), signatureBytes);
   if (!valid) {
     throw new AuthError(
       "INVALID_SIGNATURE",

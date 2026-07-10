@@ -13,7 +13,12 @@ import type { PolicySnapshot } from "@pay3/database";
 import { evaluateTransferPolicy } from "@pay3/policy-engine";
 import { resolveRecipient } from "@pay3/recipient-resolver";
 import { APPROVAL_EXPIRY_MS, TRANSACTION_MAX_RETRIES } from "@pay3/shared";
-import { buildAndSubmitPayment, createStellarClient, type StellarClient } from "@pay3/stellar";
+import {
+  buildAndSubmitPayment,
+  createStellarClient,
+  invokeVaultTransfer,
+  type StellarClient,
+} from "@pay3/stellar";
 import type { Pay3Config } from "@pay3/shared";
 import { Decimal } from "@prisma/client/runtime/library";
 import type { AiSessionManager } from "@pay3/session-manager";
@@ -219,7 +224,7 @@ export class TransactionEngine {
   async submitTransfer(transactionId: string) {
     const transaction = await this.prisma.transaction.findUnique({
       where: { id: transactionId },
-      include: { aiSession: true },
+      include: { aiSession: true, smartAccount: true },
     });
 
     if (!transaction) {
@@ -255,13 +260,21 @@ export class TransactionEngine {
           data: { status: TransactionStatus.SUBMITTING, retryCount },
         });
 
-        const hash = await buildAndSubmitPayment(this.stellar, {
-          sourcePublicKey: transaction.aiSession.sessionPublicKey,
-          destinationPublicKey: transaction.recipientAddress!,
-          assetCode: transaction.asset,
-          amount: transaction.amount!.toString(),
-          signerSecret,
-        });
+        const hash = transaction.smartAccount.contractId
+          ? await invokeVaultTransfer(this.stellar, {
+              contractId: transaction.smartAccount.contractId,
+              sessionPublicKey: transaction.aiSession.sessionPublicKey,
+              sessionSecret: signerSecret,
+              destinationPublicKey: transaction.recipientAddress!,
+              amount: transaction.amount!.toString(),
+            })
+          : await buildAndSubmitPayment(this.stellar, {
+              sourcePublicKey: transaction.aiSession.sessionPublicKey,
+              destinationPublicKey: transaction.recipientAddress!,
+              assetCode: transaction.asset,
+              amount: transaction.amount!.toString(),
+              signerSecret,
+            });
 
         const completed = await this.prisma.$transaction(async (tx) => {
           const updated = await tx.transaction.update({
@@ -285,7 +298,12 @@ export class TransactionEngine {
               transactionId: transaction.id,
               action: "TRANSFER_SUCCESS",
               actor: AuditActor.AI_SESSION,
-              details: { hash, amount: transaction.amount?.toString(), asset: transaction.asset },
+              details: {
+                hash,
+                amount: transaction.amount?.toString(),
+                asset: transaction.asset,
+                via: transaction.smartAccount.contractId ? "soroban_vault" : "horizon",
+              },
             },
           });
 

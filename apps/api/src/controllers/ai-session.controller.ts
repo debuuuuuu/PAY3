@@ -45,6 +45,7 @@ export async function createAiSession(req: Request, res: Response): Promise<void
         },
       },
     },
+    onChainRegistration: result.onChainRegistration,
   }, 201);
 }
 

@@ -68,7 +68,21 @@ MVP constants from `PROJECT_CONTEXT.md` are fixed in code (not overridable via e
 
 ```bash
 npm install          # install all workspaces
-npm run dev:api      # start Express API (after env config)
-npm run dev:mcp      # start MCP server
+npm run dev          # Next.js landing + dashboard (port 3000)
+npm run dev:api      # Express API (port 3001)
+npm run dev:mcp      # MCP server (needs PAY3_MCP_AUTH_TOKEN)
 npm run build:backend
+npm run test:backend
 ```
+
+## Dashboard smoke path
+
+1. `npm run db:push` then `npm run dev:api` and `npm run dev`.
+2. Open http://localhost:3000/login — connect Freighter (testnet), sign challenge.
+3. Deploy vault per [contracts/smart-account/README.md](../../contracts/smart-account/README.md); set `SOROBAN_SMART_ACCOUNT_CONTRACT_ID` and `STELLAR_USDC_SAC_CONTRACT_ID`.
+4. Dashboard → Sessions → link contract ID → create policy → create AI session.
+5. Owner runs on-chain `add_session` (CLI) using `onChainRegistration` from the create response.
+6. Deposit USDC into the vault; paste `mcpAuthToken` into MCP client / `.env`.
+7. MCP `get_balance` / `transfer` → vault transfer when contract is linked; Approvals / Transactions update in the dashboard.
+
+Without a linked contract, transfers fall back to classic Horizon payments from the session G-account (dev bootstrap only).

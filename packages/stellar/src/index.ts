@@ -7,3 +7,12 @@ export {
   type AssetBalance,
   type PaymentParams,
 } from "./payments.js";
+export {
+  amountToI128,
+  buildAddSessionArgs,
+  getVaultBalance,
+  i128ToAmount,
+  invokeVaultTransfer,
+  USDC_DECIMALS,
+  type VaultTransferParams,
+} from "./vault.js";

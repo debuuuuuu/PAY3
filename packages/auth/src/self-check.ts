@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { Keypair } from "@stellar/stellar-sdk";
 import { buildAuthChallengeMessage } from "./challenge-message.js";
 import { AuthError } from "./errors.js";
@@ -23,6 +24,14 @@ const signature = keypair.sign(Buffer.from(message, "utf8")).toString("base64");
 
 verifyWalletSignature({ walletAddress, message, signature });
 
+// Freighter / SEP-53: sign SHA256("Stellar Signed Message:\\n" + message)
+{
+  const hash = createHash("sha256")
+    .update(Buffer.from(`Stellar Signed Message:\n${message}`, "utf8"))
+    .digest();
+  const sep53Sig = keypair.sign(hash).toString("base64");
+  verifyWalletSignature({ walletAddress, message, signature: sep53Sig });
+}
 assert.throws(
   () =>
     verifyWalletSignature({
