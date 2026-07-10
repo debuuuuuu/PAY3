@@ -1,6 +1,6 @@
 # dependencies
-/node_modules
-/.pnp
+node_modules
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -9,16 +9,25 @@
 !.yarn/versions
 
 # next.js
-/.next/
+**/.next/
 /out/
 
 # production
+**/dist/
 /build
+
+# env / secrets
+.env
+.env*.local
+!.env.example
+!**/.env.example
+
+# vercel
+.vercel
 
 # misc
 .DS_Store
 *.pem
-.env*.local
 
 # debug
 npm-debug.log*
@@ -26,5 +35,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # typescript
-next-env.d.ts
-.vercel
+**/next-env.d.ts
+
+# local db
+*.db
+*.db-journal

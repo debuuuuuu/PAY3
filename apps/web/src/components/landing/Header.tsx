@@ -100,7 +100,7 @@ export function Header() {
 
         <div className="flex items-center gap-3">
           <a
-            href="#how-it-works"
+            href="/dashboard"
             data-nav-item
             className="btn-primary hidden text-sm sm:inline-flex"
           >
@@ -138,7 +138,7 @@ export function Header() {
               </a>
             ))}
             <a
-              href="#how-it-works"
+              href="/dashboard"
               className="btn-primary mt-2 w-fit text-sm"
               onClick={() => setMenuOpen(false)}
             >

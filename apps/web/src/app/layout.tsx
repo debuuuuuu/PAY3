@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { DM_Sans, JetBrains_Mono, Space_Grotesk } from "next/font/google";
-import { LoadingGate } from "@/components/landing/LoadingGate";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -63,9 +62,7 @@ export default function RootLayout({
       <head>
         <link rel="preload" href="/pay3-logo.png" as="image" />
       </head>
-      <body className="antialiased">
-        <LoadingGate>{children}</LoadingGate>
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
