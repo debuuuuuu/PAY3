@@ -1,0 +1,34 @@
+{
+  "name": "@pay3/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "typecheck": "prisma generate && tsc -p tsconfig.json --noEmit",
+    "self-check": "prisma generate && tsx src/self-check.ts",
+    "db:generate": "tsx scripts/run-prisma.ts generate",
+    "db:push": "tsx scripts/run-prisma.ts db push",
+    "db:migrate": "tsx scripts/run-prisma.ts migrate dev",
+    "db:studio": "tsx scripts/run-prisma.ts studio",
+    "db:validate": "tsx scripts/validate-schema.ts",
+    "test": "tsx src/self-check.ts"
+  },
+  "dependencies": {
+    "@pay3/shared": "*",
+    "@prisma/client": "^6.16.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "prisma": "^6.16.1",
+    "tsx": "^4.20.5"
+  }
+}

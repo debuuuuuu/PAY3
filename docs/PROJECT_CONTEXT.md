@@ -1,220 +1,1574 @@
-# Pay3 — Project Context & Technical Specification
+Pay3 — Full Canonical Project Context
 
-> **Version:** 1.1
-> **Status:** Active / Vision & Product Context
-> **Last Updated:** July 2026
-> **Purpose:** This document is the single source of truth for the Pay3 project. Any AI assistant, developer, or contributor must read and adhere to this document before making architectural, design, or implementation decisions.
+Version: 2.0
+Status: Canonical Product and Architecture Context
+Purpose: This document defines what Pay3 is, what we are building, how it works, its MVP scope, security model, architecture, payment flow, AI authorization model, and future direction. It should serve as the primary context for developers and AI coding assistants working on Pay3.
 
----
+1. What Is Pay3?
 
-## 1. Vision
+Pay3 is an AI-native financial infrastructure layer built on the Stellar ecosystem that enables external AI assistants to securely perform financial actions on behalf of users within strict, programmable permissions.
 
-**Pay3 is the autonomous payment layer for the AI economy.**
+Pay3 is not an AI chatbot.
 
-It is a Stellar-native payment infrastructure that enables autonomous AI agents to securely discover, purchase, and consume paid digital services without human intervention. By providing programmable wallets, policy-controlled spending, and seamless micropayments via the **x402 protocol**, Pay3 removes the friction of human-centric billing.
+Pay3 is not another crypto wallet.
 
-Rather than requiring humans to manage API keys, subscriptions, or credit cards, Pay3 allows AI agents to pay *only for what they use*, strictly adhering to predefined budgets and security policies.
+Pay3 does not replace the user's existing wallet.
 
----
+Instead, Pay3 acts as the secure bridge between:
 
-## 2. Problem Statement
+User
+    ↓
+External AI Assistant
+    ↓
+Pay3 Infrastructure
+    ↓
+Stellar Blockchain
 
-Today's payment and authentication systems are designed exclusively for humans. Modern AI agents cannot independently participate in the digital economy because they cannot:
+A user can interact naturally with an AI assistant:
 
-* Own and manage programmable wallets.
-* Autonomously purchase APIs or compute resources.
-* Enforce complex spending limits and security policies.
-* Cryptographically verify payments and receipts.
-* Discover and interact with monetized MCP (Model Context Protocol) servers.
+"Pay 5 USDC to Hurain."
 
-Current systems rely on credit cards, static API keys, monthly SaaS subscriptions, and manual human approval. **These models do not scale to autonomous software agents.** Pay3 solves this by introducing a machine-native payment infrastructure.
+"What is my balance?"
 
----
+"Show me my recent transactions."
 
-## 3. Mission
+The AI does not directly control the user's primary wallet. It calls Pay3 through MCP, and Pay3 handles authorization, recipient resolution, policy validation, transaction construction, cryptographic authorization, submission, and status tracking.
 
-**Build the financial infrastructure that enables AI agents to become autonomous economic participants.**
+2. The Core Problem
 
-Every AI agent should be able to:
-* **Own** assets (via Stellar keypairs).
-* **Spend** assets (via x402 micropayments).
-* **Earn** assets (by providing services/tools).
-* **Verify** transactions (cryptographic proof of payment).
-* **Discover** paid tools (via the API/MCP Marketplace).
-* **Obey** programmable financial policies (budgets, allowlists).
+Today's AI assistants can understand financial commands, but they cannot safely act as autonomous financial agents.
 
----
+A user may tell an AI:
 
-## 4. Target Users
+"Pay my supplier 50 USDC."
 
-### 1. AI Agents (Primary Consumers)
-* *Examples:* Personal assistants, coding agents, research bots, workflow automations.
-* *Needs:* Frictionless, programmatic payment execution, identity management, and strict adherence to spending policies.
+But several critical questions arise:
 
-### 2. Developers & AI Builders
-* *Needs:* SDKs, clear APIs, robust documentation, wallet management tools, and sandbox environments for testing agent transactions.
+Which wallet should be used?
+How does the AI prove it has permission?
+How much is it allowed to spend?
+Which assets can it use?
+Which recipients can receive funds?
+How long should the permission remain valid?
+What happens if the AI attempts an unauthorized transaction?
+What happens if the AI or MCP client is compromised?
+How can the user revoke access?
+How can duplicate payments be prevented?
 
-### 3. API & MCP Server Providers
-* *Needs:* Easy monetization of endpoints, usage tracking, automated payment verification, analytics, and revenue management without building custom billing systems.
+Giving an AI access to a user's primary private key would create unacceptable risk.
 
-### 4. Enterprises
-* *Needs:* Organization-level wallets, strict spending controls, compliance, policy management, and immutable audit logs for autonomous AI deployments.
+Pay3 solves this by introducing a controlled financial authorization layer between AI assistants and blockchain assets.
 
----
+3. The Core Solution
 
-## 5. Glossary of Core Terms
+Pay3 allows a user to:
 
-* **Stellar Network:** The underlying Layer-1 blockchain providing fast, low-cost settlement and native asset support.
-* **x402 Protocol:** An HTTP-based payment protocol utilizing the `402 Payment Required` status code. It enables stateless, pay-per-request micropayments where the client pays, receives a cryptographic receipt, and immediately accesses the resource.
-* **MCP (Model Context Protocol):** An open standard for connecting AI agents to external data and tools. Pay3 acts as the monetization layer for MCP servers.
-* **Agent Identity:** A cryptographic identity (Stellar keypair) uniquely representing an AI agent, allowing it to sign transactions and prove ownership.
+Connect an existing Stellar wallet.
+Authenticate by proving ownership of that wallet.
+Control a Soroban smart account.
+Allocate a limited amount of funds for AI operations.
+Create an independent session for each AI assistant.
+Define exactly what each AI is allowed to do.
+Connect external MCP-compatible AI assistants to Pay3.
+Allow those assistants to request financial actions.
+Validate every request through off-chain and on-chain security controls.
+Automatically execute safe actions, request approval for sensitive actions, or reject prohibited actions.
 
----
+The fundamental security principle is:
 
-## 6. Technology Stack
+The AI never receives the user's primary wallet private key.
 
-### Blockchain Layer
-* **Network:** Stellar Network (Public/Testnet).
-* **Why:** 3-5 second finality, fractions of a penny in fees, native multi-asset support, and a mature developer ecosystem.
+4. What Pay3 Is Not
 
-### Payment Protocol
-* **Protocol:** x402 (HTTP 402 Payment Required).
-* **Use Case:** Stateless API payments, pay-per-token micropayments, and autonomous machine-to-machine (M2M) transactions.
+Pay3 is explicitly not building its own traditional crypto wallet system for the MVP.
 
-### AI & Integration Layer
-* **Protocols:** MCP (Model Context Protocol) compatible.
-* **Frameworks:** Designed to integrate seamlessly with LangChain, AutoGen, CrewAI, and custom agent loops.
+Pay3 will not:
 
----
+Generate and custody the user's main wallet private key.
+Replace existing Stellar wallets.
+Require users to move their entire portfolio into Pay3.
+Give AI assistants unrestricted wallet access.
+Allow AI models to directly hold the user's primary private key.
+Build another general-purpose AI chatbot as the primary interface.
+Automatically trust every transaction generated by an AI.
+Automatically retry financial or security failures.
+Guess ambiguous payment recipients.
 
-## 7. High-Level Architecture & Flow
+Instead, users connect an existing Stellar wallet and selectively allocate limited funds for AI-controlled operations.
 
-### 7.1 System Interaction Flow (x402 Payment)
-```mermaid
-sequenceDiagram
-    participant Agent as AI Agent
-    participant SDK as Pay3 SDK
-    participant API as MCP Server / API
-    participant Stellar as Stellar Network
+5. Product Vision
 
-    Agent->>API: 1. HTTP Request (No Auth)
-    API-->>Agent: 2. HTTP 402 Payment Required (Price, Asset, Memo)
-    Agent->>SDK: 3. Request Payment Execution
-    SDK->>Stellar: 4. Sign & Submit Transaction
-    Stellar-->>SDK: 5. Tx Confirmed (Tx Hash)
-    SDK-->>Agent: 6. Return Payment Proof (x402 Token)
-    Agent->>API: 7. HTTP Request + x402 Payment Proof
-    API->>Stellar: 8. Verify Tx Hash & Memo
-    Stellar-->>API: 9. Tx Valid
-    API-->>Agent: 10. HTTP 200 OK (Resource Delivered)
-```
+The long-term vision is:
 
-### 7.2 Core Components
-* **Frontend:** Dashboard for humans to manage agent wallets, view analytics, configure policies, and browse the marketplace.
-* **Backend (Orchestrator):** Handles authentication, policy enforcement, budget tracking, and API routing.
-* **Wallet Service:** Manages Stellar account creation, keypair encryption, balance tracking, and multi-sig setups.
-* **Payment Engine:** Implements the x402 protocol, generates payment challenges, verifies receipts, and handles refunds.
-* **Policy & Budget Engine:** The "brain" that blocks or allows transactions based on daily limits, API allowlists, and risk rules.
-* **Marketplace:** A registry of monetized APIs and MCP servers, complete with pricing metadata and documentation.
+Make AI agents trusted economic participants capable of securely making payments, managing financial operations, interacting with DeFi, purchasing services, and participating in autonomous commerce within user-defined boundaries.
 
----
+The goal is not merely to allow an AI to send tokens.
 
-## 8. Core Domain Entities
+The larger vision is to create a financial operating layer through which AI agents can eventually:
 
-1. **Organization / User:** The human or entity that owns the infrastructure.
-2. **Agent:** An autonomous identity (linked to a specific Stellar public key) with assigned policies.
-3. **Wallet:** A Stellar account holding assets. Can be linked to multiple agents (with spending limits).
-4. **Policy:** A set of rules (e.g., `max_spend_per_day: 10 XLM`, `allowed_domains: ['api.openai.com']`).
-5. **Transaction:** A record of a payment, linking a Stellar tx hash, an Agent, a Wallet, and the specific API endpoint consumed.
+Make payments.
+Pay merchants.
+Purchase APIs.
+Pay SaaS subscriptions.
+Manage recurring expenses.
+Swap assets.
+Supply assets to lending protocols.
+Borrow and repay.
+Manage liquidity.
+Rebalance portfolios.
+Prevent liquidation.
+Discover suppliers.
+Compare quotes.
+Execute procurement workflows.
+Use smart-contract escrow.
+Participate in autonomous machine-to-machine commerce.
 
----
+However, these future capabilities must be built on a secure core first.
 
-## 9. Major Product Features
+6. Primary Product Interface
 
-### Identity & Wallets
-* Agent identity generation (Stellar keypairs).
-* Wallet creation, funding, and backup.
-* Multi-asset balance tracking (XLM, USDC, etc.).
+External AI assistants are the primary interaction layer for financial commands.
 
-### Payments & x402
-* Automated x402 challenge/response handling.
-* Micropayment batching (to save on network fees if applicable).
-* Cryptographic receipt generation and verification.
+Examples include:
 
-### Policy & Budget Management
-* Hard and soft spending limits (Daily/Monthly/Per-API).
-* Allowlists and blocklists for domains/endpoints.
-* Human-in-the-loop approval workflows for high-value transactions.
+Claude
+ChatGPT
+Cursor
+Gemini
+Other MCP-compatible clients
 
-### API & MCP Marketplace
-* Discovery of paid tools and MCP servers.
-* Standardized pricing metadata.
-* Provider onboarding and revenue dashboards.
+The user should eventually be able to say:
 
-### Dashboard & Analytics
-* Real-time wallet and spending overview.
-* Agent activity logs and cost attribution.
-* Provider revenue analytics.
+"Pay 5 USDC to Hurain."
 
----
+"What's my XLM balance?"
 
-## 10. Security & Non-Functional Requirements
+"Show my last five transactions."
 
-### Security Goals (Priority #1)
-* **Secret Management:** Private keys must never be stored in plain text. Use HSMs or robust encryption (e.g., AES-256) at rest.
-* **Agent Isolation:** Compromised agents must not be able to drain the parent organization's wallet.
-* **Replay Protection:** x402 payment proofs must include nonces/timestamps to prevent replay attacks.
-* **Auditability:** Every policy decision (approve/deny) and transaction must be immutably logged.
+"Swap 100 XLM to USDC."
 
-### Non-Functional Requirements
-* **Modularity:** Microservices or well-defined modular monolith.
-* **Performance:** < 500ms latency for policy checks; < 5s for Stellar settlement.
-* **Observability:** Distributed tracing, structured logging, and Prometheus metrics.
-* **Extensibility:** Easy to add new blockchain networks or payment protocols in the future.
+"Invest my idle USDC."
 
----
+"Repay my loan before liquidation."
 
-## 11. MVP Scope (Phase 1)
+The AI then calls Pay3's MCP tools.
 
-- [ ] User/Agent Authentication.
-- [ ] Stellar Testnet/Mainnet wallet creation and funding.
-- [ ] Basic x402 payment flow (Agent pays API, API verifies).
-- [ ] Human dashboard for wallet overview and transaction history.
-- [ ] Basic Policy Engine (Hard daily spend limits, domain allowlists).
-- [ ] REST API for all core functions.
-- [ ] TypeScript/Python SDK for AI agents.
-- [ ] Comprehensive Developer Documentation.
+The Pay3 website is not primarily an AI chat interface. It is the user's control, configuration, security, and observability dashboard.
 
-*Anything outside this list is Phase 2+.*
+7. Pay3 Dashboard
 
----
+After wallet authentication, the dashboard should eventually provide:
 
-## 12. Future Vision (Phase 2 & Beyond)
+Wallet overview
+Smart-account balances
+Monthly spending and usage reports
+Transaction history
+Active AI sessions
+Session permissions
+Policy management
+Budget usage
+Pending approvals
+Saved contacts
+Verified recipients
+Audit logs
+Security controls
+Emergency revoke-all
+DeFi positions in later phases
 
-* **Streaming Payments:** Pay-by-the-second for continuous API usage.
-* **Multi-Chain Support:** Expand beyond Stellar to Solana, Base, or Arbitrum for specific asset ecosystems.
-* **Escrow & Dispute Resolution:** For high-value, long-running agent tasks.
-* **AI Reputation System:** On-chain reputation for reliable API providers and trustworthy agents.
-* **Decentralized Identity (DID):** Moving agent identities to W3C DIDs.
-* **Browser Extension & Mobile:** For human oversight and quick approvals.
+For the MVP, the core dashboard contains:
 
----
+Dashboard
+├── Wallet Overview
+├── Monthly Usage
+├── Transaction History
+├── Active AI Sessions
+├── Policy Management
+├── Pending Approvals
+└── Emergency Revoke All
+8. Core Architecture
 
-## 13. Engineering Principles
+The high-level architecture is:
 
-1. **AI-First Design:** APIs and SDKs must be easily parsable and usable by LLMs, not just humans.
-2. **Modularity over Monolith:** Keep business logic, blockchain interaction, and UI strictly separated.
-3. **Design APIs First:** Define the OpenAPI/GraphQL schema before writing implementation code.
-4. **Security by Default:** Assume the network is hostile. Validate all inputs, verify all signatures.
-5. **Developer Experience (DX):** If an integration takes more than 5 minutes, the SDK is failing.
-6. **Avoid Premature Optimization:** Build for the MVP first, but design the interfaces to support the Future Vision.
-7. **Treat this Document as Law:** If code conflicts with this document, the code is wrong. Update the document if the vision changes.
+                        USER
+                          │
+                          ▼
+             Existing Stellar Wallet
+                          │
+                 Wallet Authentication
+                          │
+                          ▼
+                Pay3 Web Dashboard
+                          │
+                          ▼
+                 Soroban Smart Account
+                          │
+              Limited Funds Allocated
+                          │
+                          ▼
+          Independent AI Sessions + Policies
+                          │
+                          ▼
+    ┌─────────────────────────────────────────┐
+    │ Claude │ ChatGPT │ Cursor │ Gemini │ MCP │
+    └─────────────────────────────────────────┘
+                          │
+                          ▼
+                   Pay3 MCP Server
+                          │
+                          ▼
+                Recipient Resolution
+                          │
+                          ▼
+              Off-Chain Policy Engine
+                          │
+                          ▼
+          AUTO / APPROVAL REQUIRED / REJECT
+                          │
+                          ▼
+                  Transaction Engine
+                          │
+                          ▼
+                Session-Key Authorization
+                          │
+                          ▼
+            On-Chain Soroban Enforcement
+                          │
+                          ▼
+                   Stellar Network
+9. Existing Wallet Model
 
----
+Pay3 does not create the user's primary wallet.
 
-## 14. Source of Truth & Conflict Resolution
+The user connects an existing compatible Stellar wallet.
 
-1. **This Document (`docs/PROJECT_CONTEXT.md`)** — The canonical product vision.
-2. **The Roadmap (`docs/master_task.md`)** — The immediate execution plan.
-3. **Architecture Decision Records (`docs/adr/`)** — Specific technical choices made during development.
-4. **Core Directives:** Preserve modularity, security, and scalability. If a conflict exists, prioritize the long-term vision of Pay3 as the payment infrastructure for autonomous AI agents.
+The wallet serves several purposes:
+
+Proves user identity.
+Establishes ownership.
+Controls the Soroban smart account.
+Authorizes AI sessions.
+Approves sensitive transactions.
+Revokes AI authorization.
+Funds the Soroban smart account.
+Withdraws allocated funds.
+
+The user's primary private key is never stored by Pay3.
+
+10. Wallet-Only Authentication for the MVP
+
+For the MVP, Pay3 uses wallet-signature authentication.
+
+No email/password authentication is required initially.
+
+The intended authentication flow is:
+
+User opens Pay3
+        ↓
+Connects existing Stellar wallet
+        ↓
+Backend creates unique authentication challenge/nonce
+        ↓
+User signs challenge with wallet
+        ↓
+Backend verifies signature
+        ↓
+Authenticated web session created
+        ↓
+User enters dashboard
+
+The authentication challenge should be:
+
+Unique.
+Short-lived.
+Single-use.
+Bound to the wallet address.
+Protected against replay attacks.
+
+Pay3 stores the public wallet address, never the primary private key.
+
+11. Soroban Smart Account Model
+
+The user's existing Stellar wallet remains the ultimate owner.
+
+It controls a Soroban smart account used for autonomous AI financial operations.
+
+The model is:
+
+Existing Stellar Wallet
+        ↓ owns/controls
+Soroban Smart Account
+        ↓ delegates limited authority
+AI Session Keys
+
+The smart account creates an additional security boundary between the user's main funds and autonomous AI operations.
+
+12. Hybrid Fund Allocation Model
+
+Users should not expose their entire wallet balance to AI automation.
+
+Instead:
+
+Main Stellar Wallet
+├── User keeps majority of funds here
+└── User allocates limited funds
+              ↓
+      Soroban Smart Account
+              ↓
+      Available for AI operations
+
+Example:
+
+Main Wallet:
+10,000 USDC
+
+Allocated to Smart Account:
+200 USDC
+
+AI exposure:
+Limited to allocated funds
+and further restricted by policies.
+
+This means a compromised AI session should not automatically expose the user's complete wallet balance.
+
+13. Hybrid Funding Model
+
+For the MVP, funding the smart account is manual.
+
+User's Main Wallet
+        ↓
+User selects asset and amount
+        ↓
+User approves transfer
+        ↓
+Funds enter smart account
+        ↓
+Available for authorized AI operations
+
+Later, Pay3 may support explicitly authorized automatic refill policies.
+
+Example:
+
+IF smart account USDC balance < 20
+THEN request refill to 100 USDC
+
+Automatic refill is not required for the initial MVP.
+
+14. AI Session Keys
+
+Each AI assistant receives an independent, temporary, restricted session.
+
+A session contains:
+
+Unique session identity.
+Unique session key.
+Associated AI client.
+Creation time.
+Expiration time.
+Spending limits.
+Allowed assets.
+Allowed actions.
+Allowed protocols.
+Allowed smart contracts.
+Recipient restrictions.
+Approval thresholds.
+Rate limits.
+Revocation status.
+
+Example:
+
+Claude Session
+
+Duration: 24 hours
+Daily budget: 100 USDC
+Per-transaction limit: 20 USDC
+Manual approval above: 15 USDC
+
+Allowed:
+✓ Check balance
+✓ Transfer
+✓ View transaction history
+
+Blocked:
+✗ Unknown contracts
+✗ Unapproved assets
+✗ Actions outside policy
+15. Independent Sessions for Every AI Assistant
+
+Every connected AI client receives its own isolated session.
+
+User's Smart Account
+        │
+        ├── Claude Session
+        │   ├── Unique key
+        │   ├── Own policy
+        │   ├── Own budget
+        │   ├── Own expiration
+        │   └── Own audit history
+        │
+        ├── Cursor Session
+        │   ├── Different key
+        │   ├── Different policy
+        │   └── Independently revocable
+        │
+        └── Other MCP Client
+            └── Independent session
+
+Revoking one AI assistant should not affect other sessions unless the user explicitly selects Revoke All AI Access.
+
+16. Session-Key Storage Strategy
+
+For the MVP, temporary AI session private keys may be stored encrypted in backend infrastructure.
+
+They must never be stored as plaintext.
+
+They must never be exposed to:
+
+AI assistants.
+Frontend applications.
+API responses.
+Logs.
+Analytics.
+Error messages.
+
+The MVP model is:
+
+AI Session Key
+        ↓
+Strong encryption
+        ↓
+Encrypted persistent storage
+        ↓
+Only authorized backend signing logic may use it
+
+For production, this should migrate toward:
+
+KMS / HSM / Dedicated Secure Signer
+        ↓
+Pay3 requests cryptographic signatures
+        ↓
+Raw key does not enter normal application code
+
+The user's main wallet private key is never stored by Pay3 under any circumstances.
+
+17. Explicit Permission Review
+
+No AI assistant receives financial authority silently.
+
+Before creating an AI session, the user sees a clear permission summary.
+
+Example:
+
+Create AI Session: Claude
+
+Duration:              24 hours
+Daily Budget:          100 USDC
+Per Transaction:       20 USDC
+Approval Above:        15 USDC
+
+ALLOWED
+✓ Check balances
+✓ Send payments
+✓ View transaction history
+
+BLOCKED
+✗ Unknown contracts
+✗ Unapproved assets
+✗ Actions outside policy
+
+[ Authorize Session ]
+
+The user explicitly authorizes the session using the connected Stellar wallet.
+
+18. Session Expiration
+
+When a session expires:
+
+Session expires
+        ↓
+Session key immediately loses authorization
+        ↓
+AI cannot execute further financial actions
+        ↓
+Funds remain in smart account
+
+The user may then:
+
+Renew the session.
+Create a new session.
+Change permissions.
+Revoke it permanently.
+Withdraw allocated funds.
+
+Expired session keys must not remain capable of executing transactions.
+
+19. Emergency Revoke All
+
+The MVP includes an emergency security control:
+
+[ REVOKE ALL AI ACCESS ]
+
+When activated:
+
+User triggers emergency revoke
+        ↓
+All active AI sessions invalidated
+        ↓
+Claude ✗
+Cursor ✗
+Other MCP Clients ✗
+        ↓
+No further AI-authorized financial actions
+        ↓
+Funds remain in smart account
+
+This revocation should be enforced by the security-critical authorization layer rather than relying only on a database flag.
+
+20. Hybrid Policy Engine
+
+Pay3 uses two levels of policy enforcement.
+
+Off-Chain Policy Engine
+
+Handles flexible and intelligent checks such as:
+
+Recipient resolution.
+Rate limits.
+Complex conditional policies.
+Risk checks.
+Approval determination.
+Budget calculations.
+Application-level controls.
+On-Chain Soroban Enforcement
+
+Handles critical security boundaries such as:
+
+Session validity.
+Cryptographic authorization.
+Hard spending limits.
+Allowed actions.
+Allowed contracts.
+Session expiration.
+Revocation state where appropriate.
+
+The principle is:
+
+Off-chain policies provide flexibility and intelligence. On-chain policies enforce critical security guarantees that should not be bypassable by a compromised backend.
+
+21. Hybrid Policy Configuration
+
+Pay3 supports simple presets and advanced customization.
+
+For beginner users:
+
+Conservative
+Balanced
+DeFi
+Custom
+
+For advanced users:
+
+Daily budget.
+Monthly budget.
+Per-transaction maximum.
+Allowed assets.
+Allowed actions.
+Allowed protocols.
+Allowed smart contracts.
+Allowed recipients.
+Session duration.
+Rate limits.
+Manual approval threshold.
+
+Example:
+
+Preset: Balanced
+
+Daily Budget:          500 USDC
+Per Transaction:       100 USDC
+Session Duration:      7 days
+Approval Above:        250 USDC
+
+Allowed:
+✓ Payments
+✓ Swaps
+✓ Lending
+
+Blocked:
+✗ Borrowing
+✗ Unknown contracts
+22. Three-Level Execution Model
+
+Every financial action results in one of three decisions.
+
+Level 1 — Auto-Execute
+
+The transaction is completely within autonomous permissions.
+
+Example:
+
+Per-transaction maximum: 500 USDC
+Manual approval above:   200 USDC
+
+Payment request: 50 USDC
+
+Result:
+AUTO-EXECUTE
+Level 2 — Require Approval
+
+The action is permitted but crosses a manual approval threshold.
+
+Payment request: 300 USDC
+
+Result:
+PENDING_APPROVAL
+Level 3 — Reject
+
+The action violates a hard policy.
+
+Payment request: 600 USDC
+Maximum allowed: 500 USDC
+
+Result:
+REJECTED
+
+The model is:
+
+AI Financial Request
+        ↓
+Policy Evaluation
+        ↓
+┌──────────────────┬──────────────────┬──────────────────┐
+│ AUTO-EXECUTE     │ REQUIRE APPROVAL │ REJECT           │
+│ Within limits    │ Sensitive action │ Policy violation │
+└──────────────────┴──────────────────┴──────────────────┘
+23. Hybrid Recipient Resolution
+
+Users should not always need to enter long blockchain addresses.
+
+Pay3 supports multiple recipient formats:
+
+Direct Stellar address.
+Saved verified contacts.
+Supported aliases.
+Verified merchants in future phases.
+
+Example:
+
+User:
+"Pay 5 USDC to Hurain."
+
+        ↓
+
+Pay3 Recipient Resolver
+
+        ↓
+
+Saved verified contact found:
+
+Hurain → GABC...XYZ
+
+        ↓
+
+Continue to policy validation.
+
+A critical security rule is:
+
+Pay3 must never guess a financial recipient.
+
+If recipient resolution is ambiguous:
+
+Two contacts named Hurain found
+        ↓
+Transaction stops
+        ↓
+AI asks user for clarification
+
+No payment should execute until the recipient is uniquely and safely resolved.
+
+24. Complete Payment Flow
+
+Consider the command:
+
+"Pay 5 USDC to Hurain."
+
+The full intended flow is:
+
+1. USER COMMAND
+
+"Pay 5 USDC to Hurain."
+
+        ↓
+
+2. AI ASSISTANT
+
+Claude understands the user's intent.
+
+        ↓
+
+3. PAY3 MCP TOOL CALL
+
+transfer({
+    recipient: "Hurain",
+    asset: "USDC",
+    amount: "5"
+})
+
+        ↓
+
+4. SESSION AUTHENTICATION
+
+Pay3 identifies:
+• AI client
+• AI session
+• User
+• Smart account
+• Session policy
+
+        ↓
+
+5. RECIPIENT RESOLUTION
+
+"Hurain"
+        ↓
+Saved verified contact
+        ↓
+Unique Stellar address found
+
+        ↓
+
+6. OFF-CHAIN POLICY VALIDATION
+
+Check:
+• Is session active?
+• Is session expired?
+• Is transfer allowed?
+• Is USDC allowed?
+• Is 5 USDC within per-transaction limit?
+• Is daily budget available?
+• Is recipient permitted?
+• Has rate limit been exceeded?
+
+        ↓
+
+7. EXECUTION DECISION
+
+AUTO-EXECUTE
+or
+PENDING_APPROVAL
+or
+REJECTED
+
+        ↓
+
+8. TRANSACTION CONSTRUCTION
+
+Transaction Engine builds transaction.
+
+        ↓
+
+9. SIMULATION
+
+Transaction is simulated where appropriate.
+
+        ↓
+
+10. SESSION-KEY AUTHORIZATION
+
+Restricted AI session key authorizes the operation.
+
+        ↓
+
+11. ON-CHAIN POLICY ENFORCEMENT
+
+Soroban smart account validates:
+• Session validity
+• Cryptographic authorization
+• Hard limits
+• Allowed action
+• Allowed contract
+• Revocation state
+
+        ↓
+
+12. SUBMISSION
+
+Transaction submitted to Stellar.
+
+        ↓
+
+13. CONFIRMATION
+
+Stellar confirms transaction.
+
+        ↓
+
+14. RESPONSE
+
+AI tells user:
+
+"5 USDC was successfully sent to Hurain."
+
+        ↓
+
+15. RECORDING
+
+Pay3 records:
+• Transaction ID/hash
+• AI session
+• User
+• Recipient
+• Amount
+• Asset
+• Timestamp
+• Policy decision
+• Final status
+• Audit information
+25. Manual Approval Flow
+
+Suppose the policy is:
+
+Per-transaction maximum: 500 USDC
+Manual approval above:   200 USDC
+
+The user asks:
+
+"Pay Hurain 300 USDC."
+
+The flow becomes:
+
+AI requests payment
+        ↓
+Policy Engine evaluates
+        ↓
+Payment allowed but requires approval
+        ↓
+Status: PENDING_APPROVAL
+        ↓
+AI tells user:
+"This transaction requires manual approval."
+        ↓
+Pending request appears in Pay3 dashboard
+        ↓
+User reviews:
+• AI assistant
+• Amount
+• Asset
+• Recipient
+• Action
+• Reason/context
+• Policy decision
+        ↓
+User signs with existing Stellar wallet
+        ↓
+Transaction executes
+26. Two-Minute Approval Expiry
+
+Every pending manual approval expires after exactly 2 minutes for the MVP.
+
+PENDING_APPROVAL
+        ↓
+2-minute countdown
+        ↓
+┌──────────────────────┐
+│                      │
+Approved            Not approved
+within 2 min         within 2 min
+│                      │
+▼                      ▼
+Continue             EXPIRED
+                       ↓
+               Payment not executed
+                       ↓
+                New request needed
+
+Internally, the correct status is:
+
+EXPIRED
+
+Not:
+
+FAILED
+
+Because an expired approval was never submitted to the blockchain.
+
+The user-facing AI message can be:
+
+"Payment was not executed because the approval request expired after 2 minutes. Create a new payment request to try again."
+
+27. Smart Retry Model
+
+Pay3 automatically retries only temporary technical failures.
+
+Examples that may be safely retried:
+
+RPC timeout.
+Temporary network interruption.
+Temporary infrastructure failure.
+Temporary service unavailability.
+
+Examples that must not automatically retry:
+
+Insufficient balance.
+Policy rejection.
+Expired session.
+Invalid recipient.
+User cancellation.
+Approval expiry.
+Invalid authorization.
+
+For the MVP:
+
+Initial attempt
+        ↓
+Temporary technical failure
+        ↓
+Retry 1
+        ↓
+Temporary technical failure
+        ↓
+Retry 2
+        ↓
+Still unsuccessful
+        ↓
+FAILED
+
+Maximum:
+
+2 additional automatic retry attempts.
+
+28. Idempotency Protection
+
+Every financial request must have a unique idempotency key.
+
+This ensures that retries cannot accidentally produce duplicate payments.
+
+Original Payment Request
+Idempotency Key: abc-123
+        ↓
+RPC timeout
+        ↓
+Retry using same key: abc-123
+        ↓
+Pay3 detects whether transaction already executed
+        ↓
+Never send twice
+
+A fundamental rule is:
+
+Retrying the same financial request must never result in duplicate payment execution.
+
+29. Transaction Lifecycle
+
+The canonical transaction lifecycle is:
+
+CREATED
+    ↓
+VALIDATING
+    ↓
+┌─────────────────────────────┐
+│                             │
+AUTO_APPROVED          PENDING_APPROVAL
+│                             │
+│                    User has 2 minutes
+│                             │
+│                   ┌─────────┴─────────┐
+│                   │                   │
+│                APPROVED           EXPIRED
+│                   │                   │
+└───────────────────┘             Not executed
+         ↓
+      SIGNING
+         ↓
+     SUBMITTING
+         ↓
+   ┌─────┴──────┐
+   │            │
+SUCCESS       FAILED
+
+Additional terminal states:
+
+REJECTED — Policy violation.
+EXPIRED — Approval not received within 2 minutes.
+FAILED — Technical or on-chain failure after permitted retries.
+CANCELLED — User explicitly cancelled the request.
+30. MCP Server
+
+The MCP server is the bridge between AI assistants and Pay3's financial infrastructure.
+
+For the MVP, the basic tools are:
+
+get_balance()
+transfer()
+get_transaction_history()
+
+Conceptually:
+
+AI Assistant
+        ↓
+Calls Pay3 MCP Tool
+        ↓
+MCP Server authenticates AI session
+        ↓
+Policy validation
+        ↓
+Transaction processing
+        ↓
+Result returned to AI
+
+Example:
+
+User:
+"What's my USDC balance?"
+
+Claude
+    ↓
+get_balance({ asset: "USDC" })
+    ↓
+Pay3
+    ↓
+Returns authorized balance data
+    ↓
+Claude:
+"Your available Pay3 smart-account balance is 125 USDC."
+31. Hybrid MCP Connection Model
+
+For the MVP, users manually configure Pay3's MCP server in compatible AI clients.
+
+User
+    ↓
+Gets Pay3 MCP configuration
+    ↓
+Adds configuration to Claude / Cursor / compatible client
+    ↓
+Client authenticates with specific Pay3 AI session
+    ↓
+AI gains only explicitly delegated capabilities
+
+Later, Pay3 may provide:
+
+Pay3 Dashboard
+        ↓
+[ Connect AI Assistant ]
+        ↓
+Choose Claude / Cursor / Other
+        ↓
+Review permissions
+        ↓
+Authorize
+        ↓
+Automatic configuration
+
+The architecture should be designed so one-click AI connection can be added later without rebuilding the core authorization model.
+
+32. Official MVP Scope
+
+The official Pay3 MVP includes:
+
+Connect an existing Stellar wallet.
+Wallet-signature authentication.
+Soroban smart account.
+Limited fund allocation.
+AI session keys.
+Independent sessions for every AI client.
+Explicit permission review before authorization.
+Session expiration and revocation.
+Emergency revoke-all.
+Hybrid policy engine.
+Three-level execution model.
+Pay3 MCP server.
+Basic MCP tools:
+get_balance
+transfer
+get_transaction_history
+Hybrid recipient resolution.
+Manual approval flow.
+Two-minute approval expiry.
+Smart retry.
+Idempotency protection.
+Transaction lifecycle tracking.
+Manual MCP configuration.
+Pay3 dashboard containing:
+Wallet overview.
+Monthly usage.
+Transaction history.
+Active AI sessions.
+Policy management.
+Pending approvals.
+Emergency revoke-all.
+33. MVP Technology Stack
+Frontend
+Next.js
+React
+TypeScript
+Tailwind CSS
+shadcn/ui
+Backend
+Node.js
+Express.js
+TypeScript
+Database
+PostgreSQL
+Neon managed hosting
+Prisma ORM
+Blockchain
+Stellar
+Stellar JavaScript SDK
+Soroban
+Smart Contracts
+Rust
+Soroban SDK
+AI Integration
+Model Context Protocol
+Official MCP TypeScript SDK
+Authentication
+Stellar wallet-signature authentication
+
+For the MVP, Redis is not required unless a concrete technical need emerges.
+
+The objective is to keep the initial infrastructure affordable and manageable.
+
+34. Database Responsibilities
+
+PostgreSQL should store application-level persistent data such as:
+
+Users
+Connected wallet public addresses
+Smart-account references
+AI sessions
+Encrypted session-key material
+Policies
+Budgets
+Saved contacts
+Recipient mappings
+Transaction records
+Approval requests
+Usage reports
+Audit logs
+Idempotency records
+
+The database must never store:
+
+User's primary wallet private key
+Unencrypted session private keys
+Secrets in logs
+Sensitive signing material in plaintext
+35. Suggested Logical Data Model
+
+At a conceptual level:
+
+User
+├── Wallet
+├── SmartAccount
+├── AISessions[]
+├── Policies[]
+├── Transactions[]
+├── Contacts[]
+├── ApprovalRequests[]
+├── UsageRecords[]
+└── AuditLogs[]
+
+AISession
+├── ClientType
+├── EncryptedSessionKey
+├── Policy
+├── CreatedAt
+├── ExpiresAt
+├── RevokedAt
+└── Status
+
+Transaction
+├── IdempotencyKey
+├── SessionId
+├── Action
+├── Asset
+├── Amount
+├── Recipient
+├── PolicyDecision
+├── Status
+├── StellarTransactionHash
+├── RetryCount
+├── CreatedAt
+└── CompletedAt
+
+This is a logical product model, not a final database schema.
+
+36. Security Principles
+
+Pay3 should follow these non-negotiable security rules:
+
+Never store the user's primary private key.
+Never expose session private keys to AI models.
+Never expose session private keys to frontend code.
+Never log private signing material.
+Every AI assistant gets an independent session.
+Every session must expire.
+Every session must be individually revocable.
+Users must be able to revoke all AI access.
+Critical authorization boundaries should be enforced on-chain.
+Every financial request passes through policy validation.
+Ambiguous recipients must never be guessed.
+Duplicate financial execution must be prevented with idempotency.
+Temporary infrastructure failures may retry.
+Financial, authorization, and policy failures must not automatically retry.
+Manual approvals expire after two minutes.
+Main wallet funds should remain isolated from allocated AI funds.
+AI permissions must be explicitly reviewed before authorization.
+The backend should not possess unrestricted authority over user assets.
+37. MVP User Journey
+
+A complete first-time user journey is:
+
+1. User visits Pay3 website.
+
+2. User connects existing Stellar wallet.
+
+3. User signs authentication challenge.
+
+4. Pay3 verifies wallet ownership.
+
+5. User accesses dashboard.
+
+6. User creates or links controlled Soroban smart account.
+
+7. User manually allocates limited XLM/USDC.
+
+8. User creates an AI session.
+
+9. User selects:
+   • AI client
+   • Session duration
+   • Budget
+   • Per-transaction limit
+   • Approval threshold
+   • Allowed assets
+   • Allowed actions
+
+10. User reviews permission summary.
+
+11. User authorizes session with existing wallet.
+
+12. Pay3 provides manual MCP configuration.
+
+13. User connects Claude/Cursor/another MCP client.
+
+14. User says:
+    "Pay 5 USDC to Hurain."
+
+15. AI calls Pay3 MCP.
+
+16. Pay3 authenticates session.
+
+17. Recipient is resolved.
+
+18. Policy is evaluated.
+
+19. Result:
+    • Auto-execute
+    • Require approval
+    • Reject
+
+20. If executable:
+    Transaction is authorized and submitted.
+
+21. AI receives result.
+
+22. Dashboard updates transaction history and usage.
+
+23. User can revoke individual sessions or all AI access at any time.
+38. Example User Command
+
+User:
+
+"Claude, pay 5 USDC to Hurain."
+
+Execution:
+
+Claude
+    ↓
+Pay3 MCP: transfer
+    ↓
+Authenticate Claude's session
+    ↓
+Resolve "Hurain"
+    ↓
+Validate policy
+    ↓
+5 USDC is below autonomous threshold
+    ↓
+Build transaction
+    ↓
+Authorize with restricted session key
+    ↓
+Enforce critical Soroban rules
+    ↓
+Submit to Stellar
+    ↓
+SUCCESS
+    ↓
+Claude:
+"5 USDC was successfully sent to Hurain."
+
+At no point does Claude receive the user's main wallet private key.
+
+39. Future Phase — DeFi
+
+Once the secure MVP core is working, Pay3 can expand into agentic DeFi.
+
+Blend
+
+Potential capabilities:
+
+Supply assets.
+Borrow assets.
+Repay loans.
+Monitor loan health.
+Prevent liquidation.
+Automate lending strategies.
+Phoenix
+
+Potential capabilities:
+
+Swap XLM.
+Swap USDC.
+Token exchange.
+Portfolio rebalancing.
+Aquarius
+
+Potential capabilities:
+
+Add liquidity.
+Remove liquidity.
+Claim rewards.
+Compare pools.
+Optimize yield.
+
+These integrations should use the same fundamental security system:
+
+AI Request
+    ↓
+Independent AI Session
+    ↓
+Policy Engine
+    ↓
+Auto / Approval / Reject
+    ↓
+Session-Key Authorization
+    ↓
+On-Chain Enforcement
+    ↓
+Protocol Interaction
+40. Future Phase — Merchant Payments
+
+AI assistants may eventually make direct merchant payments.
+
+Example:
+
+Restaurant AI
+    ↓
+Determines inventory requirement
+    ↓
+Orders vegetables from supplier
+    ↓
+Pay3 validates payment policy
+    ↓
+Payment authorized
+    ↓
+USDC transferred
+    ↓
+Supplier receives payment
+
+Potential future capabilities:
+
+Vendor payments.
+Subscription payments.
+SaaS billing.
+API payments.
+Recurring payments.
+41. Future Phase — Procurement Automation
+
+Long-term:
+
+Business requires inventory
+        ↓
+AI discovers suppliers
+        ↓
+Collects quotes
+        ↓
+Compares structured offers
+        ↓
+Recommends supplier
+        ↓
+Human approval if required
+        ↓
+Smart-contract escrow
+        ↓
+Delivery confirmation
+        ↓
+Automatic payment
+
+This is outside the MVP but aligned with Pay3's long-term autonomous commerce vision.
+
+42. Future Roadmap
+Phase 1 — Secure AI Payment Core
+Existing-wallet connection.
+Wallet authentication.
+Soroban smart account.
+Limited fund allocation.
+Session keys.
+Policy engine.
+MCP server.
+Stellar transfers.
+Transaction history.
+Dashboard.
+Emergency controls.
+Phase 2 — Agentic DeFi
+Phoenix swaps.
+Blend lending and borrowing.
+Aquarius liquidity management.
+Portfolio rebalancing.
+Yield optimization.
+Loan health monitoring.
+Phase 3 — Merchant and Machine Payments
+Merchant payments.
+API payments.
+Subscription billing.
+Vendor payments.
+Recurring payment policies.
+Phase 4 — Autonomous Procurement
+Supplier discovery.
+Quote collection.
+AI comparison.
+Smart-contract escrow.
+Delivery verification.
+Automatic settlement.
+Phase 5 — AI Commerce Infrastructure
+Enterprise dashboards.
+Organization-level policies.
+Team-controlled smart accounts.
+Agent identities.
+Advanced audit systems.
+Autonomous business workflows.
+43. High-Level Repository Architecture
+
+A reasonable future repository structure could conceptually look like:
+
+pay3/
+│
+├── apps/
+│   ├── web/                 # Next.js dashboard
+│   ├── api/                 # Express backend
+│   └── mcp-server/          # Pay3 MCP server
+│
+├── packages/
+│   ├── database/            # Prisma schema and database logic
+│   ├── stellar/             # Stellar integration
+│   ├── policy-engine/       # Off-chain policy evaluation
+│   ├── transaction-engine/  # Transaction lifecycle
+│   ├── recipient-resolver/  # Recipient resolution
+│   ├── auth/                # Wallet authentication
+│   ├── session-manager/     # AI sessions and keys
+│   └── shared/              # Shared types and utilities
+│
+├── contracts/
+│   └── smart-account/       # Soroban Rust contracts
+│
+└── docs/
+    ├── PROJECT_CONTEXT.md
+    ├── ARCHITECTURE.md
+    └── SECURITY.md
+
+This is a conceptual structure and should not be treated as a mandatory implementation detail until the technical design phase.
+
+44. Engineering Principles
+
+All implementation decisions should follow these principles:
+
+Security before convenience.
+Keep the MVP focused.
+Do not build unnecessary infrastructure prematurely.
+Prefer modular architecture.
+Separate business logic from UI.
+Separate policy evaluation from transaction execution.
+Treat every financial operation as security-sensitive.
+Make every transaction auditable.
+Prevent duplicate execution.
+Never silently expand AI permissions.
+Design for revocation from the beginning.
+Use simple infrastructure where possible.
+Do not add Redis, microservices, AWS complexity, or enterprise systems without a real need.
+Preserve the ability to migrate toward stronger production security later.
+Validate critical Stellar/Soroban assumptions against actual protocol capabilities before implementation.
+45. Important Technical Validation Required
+
+One area must be validated before implementation is finalized:
+
+The exact relationship between the existing Stellar wallet, Soroban smart account, asset custody, session-key authorization, and delegated transaction execution must be confirmed against current Stellar and Soroban protocol capabilities.
+
+The intended product model is clear:
+
+Existing Wallet
+    ↓ owns/controls
+Soroban Smart Account
+    ↓ holds limited allocated funds
+AI Session
+    ↓ receives restricted authority
+Policy Engine
+    ↓ validates
+Transaction Engine
+    ↓ executes
+Stellar
+
+However, the precise smart-contract and authorization implementation must be based on actual Stellar/Soroban capabilities rather than architectural assumptions.
+
+This should be treated as the first major technical research task before contract implementation.
+
+46. Final Core Value Proposition
+
+Traditional crypto wallets require humans to manually perform every action.
+
+Basic smart wallets offer limited automation.
+
+Pay3 introduces a different model:
+
+AI assistants can securely perform financial actions through delegated, temporary, policy-controlled authority without receiving the user's primary private key or unrestricted access to the user's main funds.
+
+The user remains the ultimate owner.
+
+The AI receives only limited authority.
+
+The policies define the boundaries.
+
+The smart account enforces critical security rules.
+
+Pay3 orchestrates the interaction.
+
+47. One-Line Pitch
+
+Pay3 is an MCP-powered AI financial infrastructure layer on Stellar that enables external AI assistants to securely make payments and perform blockchain financial actions through Soroban smart accounts, restricted session keys, and programmable policies—without exposing the user's primary wallet private key.
+
+48. Short Pitch
+
+Pay3 lets users connect their existing Stellar wallet, allocate limited funds to a Soroban smart account, and give AI assistants temporary, restricted financial permissions. External AI assistants such as Claude, ChatGPT, Cursor, and Gemini can then make payments and perform authorized financial actions through Pay3's MCP server while every request is controlled by programmable policies, session keys, approval thresholds, and on-chain security enforcement.
+
+49. The Simplest Possible Explanation
+
+Think of Pay3 like giving an AI assistant a controlled company expense card instead of the keys to your entire bank account.
+
+The AI gets:
+
+A limited amount of money
++ A spending limit
++ A list of allowed actions
++ An expiration time
++ Rules about when to ask for approval
+
+The AI does not get:
+
+Your main wallet private key
+Your entire balance
+Unlimited spending authority
+Permission to bypass your rules
+
+That is the fundamental idea behind Pay3.
+
+

@@ -18,7 +18,16 @@
 # misc
 .DS_Store
 *.pem
+.env
 .env*.local
+
+# backend
+apps/*/dist
+packages/*/dist
+
+# rust / soroban
+contracts/**/target
+contracts/**/.soroban
 
 # debug
 npm-debug.log*

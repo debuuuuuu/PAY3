@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "tests"],
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/database" },
+    { "path": "../../packages/auth" },
+    { "path": "../../packages/stellar" },
+    { "path": "../../packages/session-manager" },
+    { "path": "../../packages/policy-engine" },
+    { "path": "../../packages/transaction-engine" },
+    { "path": "../../packages/recipient-resolver" }
+  ]
+}

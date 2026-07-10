@@ -1,0 +1,33 @@
+{
+  "name": "@pay3/mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "pay3-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "self-check": "tsx scripts/mcp-self-check.ts",
+    "test": "npm run self-check"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "@pay3/auth": "*",
+    "@pay3/database": "*",
+    "@pay3/policy-engine": "*",
+    "@pay3/recipient-resolver": "*",
+    "@pay3/session-manager": "*",
+    "@pay3/shared": "*",
+    "@pay3/stellar": "*",
+    "@pay3/transaction-engine": "*",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.5"
+  }
+}

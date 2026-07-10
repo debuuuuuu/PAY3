@@ -1,0 +1,427 @@
+// Pay3 PostgreSQL schema — PROJECT_CONTEXT.md §34–35, §29
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum StellarNetwork {
+  TESTNET
+  PUBLIC
+}
+
+enum PolicyPreset {
+  CONSERVATIVE
+  BALANCED
+  DEFI
+  CUSTOM
+}
+
+enum AiClientType {
+  CLAUDE
+  CHATGPT
+  CURSOR
+  GEMINI
+  OTHER
+}
+
+enum AiSessionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+enum PolicyDecision {
+  AUTO_EXECUTE
+  PENDING_APPROVAL
+  REJECTED
+}
+
+enum TransactionAction {
+  CHECK_BALANCE
+  TRANSFER
+  VIEW_TRANSACTION_HISTORY
+}
+
+enum TransactionStatus {
+  CREATED
+  VALIDATING
+  AUTO_APPROVED
+  PENDING_APPROVAL
+  APPROVED
+  SIGNING
+  SUBMITTING
+  SUCCESS
+  FAILED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  EXPIRED
+  CANCELLED
+}
+
+enum IdempotencyStatus {
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum BudgetPeriodType {
+  DAILY
+  MONTHLY
+}
+
+enum AuditActor {
+  USER
+  AI_SESSION
+  SYSTEM
+}
+
+// ---------------------------------------------------------------------------
+// Core identity
+// ---------------------------------------------------------------------------
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  wallets          Wallet[]
+  smartAccounts    SmartAccount[]
+  policies         Policy[]
+  aiSessions       AiSession[]
+  contacts         Contact[]
+  transactions     Transaction[]
+  approvalRequests ApprovalRequest[]
+  usageRecords     UsageRecord[]
+  auditLogs        AuditLog[]
+  walletSessions   WalletSession[]
+
+  @@map("users")
+}
+
+model Wallet {
+  id            String         @id @default(uuid()) @db.Uuid
+  userId        String         @map("user_id") @db.Uuid
+  publicAddress String         @map("public_address") @db.VarChar(56)
+  network       StellarNetwork
+  isPrimary     Boolean        @default(true) @map("is_primary")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  smartAccounts  SmartAccount[]
+  walletSessions WalletSession[]
+  authChallenges AuthChallenge[]
+
+  @@unique([publicAddress, network])
+  @@index([userId])
+  @@map("wallets")
+}
+
+model AuthChallenge {
+  id            String         @id @default(uuid()) @db.Uuid
+  walletAddress String         @map("wallet_address") @db.VarChar(56)
+  network       StellarNetwork
+  nonce         String         @unique @db.VarChar(64)
+  message       String
+  expiresAt     DateTime       @map("expires_at")
+  consumedAt    DateTime?      @map("consumed_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  walletId String? @map("wallet_id") @db.Uuid
+  wallet   Wallet? @relation(fields: [walletId], references: [id], onDelete: SetNull)
+
+  @@index([walletAddress, network])
+  @@index([expiresAt])
+  @@map("auth_challenges")
+}
+
+model WalletSession {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  walletId        String    @map("wallet_id") @db.Uuid
+  sessionTokenHash String   @unique @map("session_token_hash") @db.VarChar(128)
+  expiresAt       DateTime  @map("expires_at")
+  revokedAt       DateTime? @map("revoked_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("wallet_sessions")
+}
+
+model SmartAccount {
+  id         String         @id @default(uuid()) @db.Uuid
+  userId     String         @map("user_id") @db.Uuid
+  walletId   String         @map("wallet_id") @db.Uuid
+  contractId String         @map("contract_id") @db.VarChar(56)
+  network    StellarNetwork
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallet       Wallet        @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  aiSessions   AiSession[]
+  transactions Transaction[]
+  usageRecords UsageRecord[]
+  budgetUsages BudgetUsage[]
+
+  @@unique([contractId, network])
+  @@index([userId])
+  @@map("smart_accounts")
+}
+
+// ---------------------------------------------------------------------------
+// Policies & AI sessions
+// ---------------------------------------------------------------------------
+
+model Policy {
+  id                       String       @id @default(uuid()) @db.Uuid
+  userId                   String       @map("user_id") @db.Uuid
+  name                     String       @db.VarChar(120)
+  preset                   PolicyPreset @default(CUSTOM)
+  dailyBudget              Decimal      @map("daily_budget") @db.Decimal(24, 7)
+  monthlyBudget            Decimal?     @map("monthly_budget") @db.Decimal(24, 7)
+  perTransactionMax        Decimal      @map("per_transaction_max") @db.Decimal(24, 7)
+  manualApprovalThreshold  Decimal      @map("manual_approval_threshold") @db.Decimal(24, 7)
+  sessionDurationHours     Int          @map("session_duration_hours")
+  allowedAssets            String[]     @map("allowed_assets")
+  allowedActions           String[]     @map("allowed_actions")
+  allowedProtocols         String[]     @default([]) @map("allowed_protocols")
+  allowedContracts         String[]     @default([]) @map("allowed_contracts")
+  allowedRecipientIds      String[]     @default([]) @map("allowed_recipient_ids") @db.Uuid
+  rateLimitPerMinute       Int?         @map("rate_limit_per_minute")
+  isActive                 Boolean      @default(true) @map("is_active")
+  createdAt                DateTime     @default(now()) @map("created_at")
+  updatedAt                DateTime     @updatedAt @map("updated_at")
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiSessions AiSession[]
+
+  @@index([userId, isActive])
+  @@map("policies")
+}
+
+model AiSession {
+  id                   String          @id @default(uuid()) @db.Uuid
+  userId               String          @map("user_id") @db.Uuid
+  smartAccountId       String          @map("smart_account_id") @db.Uuid
+  policyId             String          @map("policy_id") @db.Uuid
+  clientType           AiClientType    @map("client_type")
+  sessionPublicKey     String          @map("session_public_key") @db.VarChar(56)
+  encryptedSessionKey  String          @map("encrypted_session_key")
+  encryptionKeyVersion Int             @default(1) @map("encryption_key_version")
+  mcpAuthTokenHash     String          @unique @map("mcp_auth_token_hash") @db.VarChar(128)
+  policySnapshot       Json            @map("policy_snapshot")
+  status               AiSessionStatus @default(ACTIVE)
+  expiresAt            DateTime        @map("expires_at")
+  revokedAt            DateTime?       @map("revoked_at")
+  authorizedAt         DateTime        @map("authorized_at")
+  authorizationTxHash  String?         @map("authorization_tx_hash") @db.VarChar(64)
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime        @updatedAt @map("updated_at")
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  smartAccount     SmartAccount      @relation(fields: [smartAccountId], references: [id], onDelete: Cascade)
+  policy           Policy            @relation(fields: [policyId], references: [id], onDelete: Restrict)
+  transactions     Transaction[]
+  approvalRequests ApprovalRequest[]
+  idempotencyKeys  IdempotencyRecord[]
+  budgetUsages     BudgetUsage[]
+  auditLogs        AuditLog[]
+
+  @@index([userId, status])
+  @@index([smartAccountId, status])
+  @@index([expiresAt])
+  @@map("ai_sessions")
+}
+
+// ---------------------------------------------------------------------------
+// Contacts & recipient resolution
+// ---------------------------------------------------------------------------
+
+model Contact {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  displayName    String    @map("display_name") @db.VarChar(120)
+  stellarAddress String    @map("stellar_address") @db.VarChar(56)
+  alias          String?   @db.VarChar(120)
+  verifiedAt     DateTime  @map("verified_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId, displayName])
+  @@index([userId, alias])
+  @@unique([userId, stellarAddress])
+  @@map("contacts")
+}
+
+// ---------------------------------------------------------------------------
+// Transactions, approvals, idempotency
+// ---------------------------------------------------------------------------
+
+model Transaction {
+  id                    String            @id @default(uuid()) @db.Uuid
+  userId                String            @map("user_id") @db.Uuid
+  aiSessionId           String            @map("ai_session_id") @db.Uuid
+  smartAccountId        String            @map("smart_account_id") @db.Uuid
+  idempotencyKey        String            @map("idempotency_key") @db.VarChar(128)
+  action                TransactionAction
+  asset                 String            @db.VarChar(32)
+  amount                Decimal?          @db.Decimal(24, 7)
+  recipientInput        String?           @map("recipient_input") @db.VarChar(256)
+  recipientAddress      String?           @map("recipient_address") @db.VarChar(56)
+  contactId             String?           @map("contact_id") @db.Uuid
+  policyDecision        PolicyDecision    @map("policy_decision")
+  status                TransactionStatus @default(CREATED)
+  stellarTransactionHash String?          @map("stellar_transaction_hash") @db.VarChar(64)
+  retryCount            Int               @default(0) @map("retry_count")
+  rejectionReason       String?           @map("rejection_reason")
+  metadata              Json              @default("{}")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+  completedAt           DateTime?         @map("completed_at")
+
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiSession        AiSession          @relation(fields: [aiSessionId], references: [id], onDelete: Restrict)
+  smartAccount     SmartAccount       @relation(fields: [smartAccountId], references: [id], onDelete: Restrict)
+  contact          Contact?           @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  approvalRequest  ApprovalRequest?
+  idempotencyRecord IdempotencyRecord?
+  auditLogs        AuditLog[]
+
+  @@unique([aiSessionId, idempotencyKey])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status])
+  @@index([smartAccountId, createdAt(sort: Desc)])
+  @@map("transactions")
+}
+
+model ApprovalRequest {
+  id                      String         @id @default(uuid()) @db.Uuid
+  transactionId           String         @unique @map("transaction_id") @db.Uuid
+  userId                  String         @map("user_id") @db.Uuid
+  aiSessionId             String         @map("ai_session_id") @db.Uuid
+  status                  ApprovalStatus @default(PENDING)
+  expiresAt               DateTime       @map("expires_at")
+  approvedAt              DateTime?      @map("approved_at")
+  approvalWalletSignature String?        @map("approval_wallet_signature")
+  createdAt               DateTime       @default(now()) @map("created_at")
+  updatedAt               DateTime       @updatedAt @map("updated_at")
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiSession   AiSession   @relation(fields: [aiSessionId], references: [id], onDelete: Restrict)
+
+  @@index([status, expiresAt])
+  @@index([userId, status])
+  @@map("approval_requests")
+}
+
+model IdempotencyRecord {
+  id               String            @id @default(uuid()) @db.Uuid
+  aiSessionId      String            @map("ai_session_id") @db.Uuid
+  idempotencyKey   String            @map("idempotency_key") @db.VarChar(128)
+  requestHash      String            @map("request_hash") @db.VarChar(128)
+  status           IdempotencyStatus @default(IN_PROGRESS)
+  transactionId    String?           @unique @map("transaction_id") @db.Uuid
+  responseSnapshot Json?             @map("response_snapshot")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  expiresAt        DateTime          @map("expires_at")
+
+  aiSession   AiSession    @relation(fields: [aiSessionId], references: [id], onDelete: Cascade)
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@unique([aiSessionId, idempotencyKey])
+  @@index([expiresAt])
+  @@map("idempotency_records")
+}
+
+// ---------------------------------------------------------------------------
+// Budget tracking & usage reports
+// ---------------------------------------------------------------------------
+
+model BudgetUsage {
+  id             String           @id @default(uuid()) @db.Uuid
+  aiSessionId    String           @map("ai_session_id") @db.Uuid
+  smartAccountId String           @map("smart_account_id") @db.Uuid
+  periodType     BudgetPeriodType @map("period_type")
+  periodStart    DateTime         @map("period_start") @db.Date
+  asset          String           @db.VarChar(32)
+  spentAmount    Decimal          @default(0) @map("spent_amount") @db.Decimal(24, 7)
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  aiSession    AiSession    @relation(fields: [aiSessionId], references: [id], onDelete: Cascade)
+  smartAccount SmartAccount @relation(fields: [smartAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([aiSessionId, periodType, periodStart, asset])
+  @@index([smartAccountId, periodStart])
+  @@map("budget_usages")
+}
+
+model UsageRecord {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  smartAccountId   String   @map("smart_account_id") @db.Uuid
+  aiSessionId      String?  @map("ai_session_id") @db.Uuid
+  periodYear       Int      @map("period_year")
+  periodMonth      Int      @map("period_month")
+  asset            String   @db.VarChar(32)
+  totalAmount      Decimal  @map("total_amount") @db.Decimal(24, 7)
+  transactionCount Int      @map("transaction_count")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  smartAccount SmartAccount @relation(fields: [smartAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, smartAccountId, aiSessionId, periodYear, periodMonth, asset])
+  @@index([userId, periodYear, periodMonth])
+  @@map("usage_records")
+}
+
+// ---------------------------------------------------------------------------
+// Audit
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id            String     @id @default(uuid()) @db.Uuid
+  userId        String?    @map("user_id") @db.Uuid
+  aiSessionId   String?    @map("ai_session_id") @db.Uuid
+  transactionId String?    @map("transaction_id") @db.Uuid
+  action        String     @db.VarChar(120)
+  actor         AuditActor
+  details       Json       @default("{}")
+  ipAddress     String?    @map("ip_address") @db.VarChar(45)
+  createdAt     DateTime   @default(now()) @map("created_at")
+
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  aiSession   AiSession?   @relation(fields: [aiSessionId], references: [id], onDelete: SetNull)
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([aiSessionId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}

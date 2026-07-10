@@ -1,12 +1,34 @@
 {
-  "name": "pay3-landing",
+  "name": "pay3",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:api": "npm run dev -w @pay3/api",
+    "build:api": "npm run build -w @pay3/api",
+    "start:api": "npm run start -w @pay3/api",
+    "dev:mcp": "npm run dev -w @pay3/mcp-server",
+    "build:mcp": "npm run build -w @pay3/mcp-server",
+    "build:packages": "npm run build -w @pay3/shared -w @pay3/database -w @pay3/auth -w @pay3/stellar -w @pay3/session-manager -w @pay3/policy-engine -w @pay3/transaction-engine -w @pay3/recipient-resolver",
+    "build:backend": "npm run build:packages && npm run build:api && npm run build:mcp",
+    "test": "npm run test:backend",
+    "test:backend": "npm run test -w @pay3/shared && npm run test -w @pay3/database && npm run test -w @pay3/auth && npm run test -w @pay3/policy-engine && npm run test -w @pay3/recipient-resolver && npm run test -w @pay3/session-manager && npm run test -w @pay3/transaction-engine && npm run test -w @pay3/api && npm run test -w @pay3/mcp-server",
+    "config:check": "npm run self-check -w @pay3/shared",
+    "db:check": "npm run self-check -w @pay3/database",
+    "db:validate": "npm run db:validate -w @pay3/database",
+    "db:generate": "npm run db:generate -w @pay3/database",
+    "db:push": "npm run db:push -w @pay3/database",
+    "db:migrate": "npm run db:migrate -w @pay3/database",
+    "auth:check": "npm run self-check -w @pay3/auth",
+    "api:check": "npm run self-check -w @pay3/api",
+    "mcp:check": "npm run self-check -w @pay3/mcp-server"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
