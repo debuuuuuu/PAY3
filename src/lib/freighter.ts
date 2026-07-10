@@ -110,7 +110,7 @@ export async function freighterSignChallenge(message: string): Promise<string> {
   if (typeof sig === "string") {
     return sig;
   }
-  const bytes = new Uint8Array(sig as ArrayBuffer);
+  const bytes = Uint8Array.from(sig as Uint8Array);
   let binary = "";
   for (const byte of bytes) {
     binary += String.fromCharCode(byte);
