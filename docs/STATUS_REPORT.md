@@ -41,9 +41,9 @@ Think of the repo as **three apps + a database**:
 
 | Piece | What it is | URL / place |
 |-------|------------|-------------|
-| **Landing page** | Marketing site (the pretty Pay3 homepage) | http://localhost:3000 |
-| **Dashboard** | Your control panel after login | http://localhost:3000/dashboard |
-| **API** | Backend brain (auth, accounts, balances) | http://localhost:4000 |
+| **Landing page** | Marketing site (the pretty Pay3 homepage) | https://paythreewallet.vercel.app |
+| **Dashboard** | Your control panel after login | https://paythreewallet.vercel.app/dashboard |
+| **API** | Backend brain (auth, accounts, balances) | https://pay3-api.vercel.app |
 | **Neon database** | Cloud Postgres — remembers users & accounts | Neon (internet) |
 
 You run **two terminals**:

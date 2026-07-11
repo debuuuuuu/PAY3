@@ -1,7 +1,12 @@
 import { config } from "dotenv";
+import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
-const apiDir = resolve(fileURLToPath(new URL(".", import.meta.url)), "..");
-config({ path: resolve(apiDir, ".env") });
-config({ path: resolve(apiDir, "../../.env") });
+// ponytail: cwd-based dotenv so CJS/Vercel bundles don't need import.meta
+for (const p of [
+  resolve(process.cwd(), ".env"),
+  resolve(process.cwd(), "apps/api/.env"),
+  resolve(process.cwd(), "../../.env"),
+]) {
+  if (existsSync(p)) config({ path: p });
+}

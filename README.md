@@ -42,11 +42,17 @@ npm run smoke:mcp
 Full steps: [`docs/MCP_SETUP.md`](docs/MCP_SETUP.md).  
 **claude.ai browser “custom connector” is not supported** (needs hosted HTTPS MCP).
 
-Production MCP: set `PAY3_API_URL` to your deployed API origin.
+Production MCP: set `PAY3_API_URL=https://pay3-api.vercel.app`.
 
-## Production deploy
+## Live beta URLs
 
-See [`docs/PRODUCTION.md`](docs/PRODUCTION.md).
+| | |
+|--|--|
+| Web | https://paythreewallet.vercel.app |
+| API | https://pay3-api.vercel.app |
+| Health | https://pay3-api.vercel.app/health |
+
+Deploy notes: [`docs/PRODUCTION.md`](docs/PRODUCTION.md). Smoke: `node scripts/smoke-prod.mjs`
 
 ## Status
 

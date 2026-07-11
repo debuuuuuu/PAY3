@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
-const apiOrigin = process.env.API_PROXY_ORIGIN ?? "http://localhost:4000";
+// ponytail: Vercel build must not fall back to localhost if API_PROXY_ORIGIN missing
+const apiOrigin =
+  process.env.API_PROXY_ORIGIN ??
+  (process.env.VERCEL
+    ? "https://pay3-api.vercel.app"
+    : "http://localhost:4000");
 
 // Only proxy Pay3 API routes — ignore browser-extension /api/ext/* noise.
 const nextConfig: NextConfig = {
@@ -20,15 +25,17 @@ const nextConfig: NextConfig = {
       "mcp",
       "health",
     ];
-    return routes.map((route) => ({
-      source: `/api/${route}/:path*`,
-      destination: `${apiOrigin}/${route}/:path*`,
-    })).concat(
-      routes.map((route) => ({
-        source: `/api/${route}`,
-        destination: `${apiOrigin}/${route}`,
+    return routes
+      .map((route) => ({
+        source: `/api/${route}/:path*`,
+        destination: `${apiOrigin}/${route}/:path*`,
       }))
-    );
+      .concat(
+        routes.map((route) => ({
+          source: `/api/${route}`,
+          destination: `${apiOrigin}/${route}`,
+        }))
+      );
   },
 };
 

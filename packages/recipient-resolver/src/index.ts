@@ -124,12 +124,14 @@ export function recipientResolverSelfCheck(): void {
   }
 
   const none = resolveRecipient("Nobody", one);
-  if (none.ok || none.reason !== "not_found") {
+  if (none.ok) throw new Error("self-check: not_found failed");
+  if (none.reason !== "not_found") {
     throw new Error("self-check: not_found failed");
   }
 
   const amb = resolveRecipient("Hurain", contacts);
-  if (amb.ok || amb.reason !== "ambiguous") {
+  if (amb.ok) throw new Error("self-check: ambiguous failed");
+  if (amb.reason !== "ambiguous") {
     throw new Error("self-check: ambiguous failed");
   }
 }

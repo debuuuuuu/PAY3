@@ -28,6 +28,9 @@ node_modules
 # vercel
 .vercel
 
+# API serverless bundle (scripts/bundle-api.mjs)
+api/server.cjs
+
 # misc
 .DS_Store
 *.pem
@@ -43,3 +46,6 @@ yarn-error.log*
 # local db
 *.db
 *.db-journal
+
+.vercel
+.env*

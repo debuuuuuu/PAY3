@@ -45,6 +45,15 @@ export function sep53SelfCheck(): boolean {
   return verifySep53Signature(kp.publicKey(), message, sig);
 }
 
-if (import.meta.url === `file://${process.argv[1]?.replace(/\\/g, "/")}`) {
-  console.assert(sep53SelfCheck(), "SEP-53 self-check failed");
+// CLI self-check only when run directly under tsx/node ESM
+try {
+  if (
+    typeof import.meta.url === "string" &&
+    import.meta.url.length > 0 &&
+    import.meta.url === `file://${process.argv[1]?.replace(/\\/g, "/")}`
+  ) {
+    console.assert(sep53SelfCheck(), "SEP-53 self-check failed");
+  }
+} catch {
+  /* cjs bundle */
 }

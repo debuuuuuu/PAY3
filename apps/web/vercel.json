@@ -1,5 +1,3 @@
 {
-  "buildCommand": "cd ../.. && npm install && npm run build -w @pay3/web",
-  "installCommand": "cd ../.. && npm install",
   "framework": "nextjs"
 }

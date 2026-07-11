@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // ponytail: Vercel serverless + local Windows; upgrade if hosts change
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
