@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { SmartAccountView, UserProfile } from "@pay3/shared";
+import type { SmartAccountView, UsageView, UserProfile } from "@pay3/shared";
 import { AddressQr } from "@/components/dashboard/AddressQr";
 import { apiFetch } from "@/lib/api";
 import { fetchCurrentUser, truncateKey } from "@/lib/wallet";
@@ -9,19 +9,22 @@ import { fetchCurrentUser, truncateKey } from "@/lib/wallet";
 export default function DashboardOverviewPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [account, setAccount] = useState<SmartAccountView | null>(null);
+  const [usage, setUsage] = useState<UsageView | null>(null);
   const [linking, setLinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const refresh = useCallback(async () => {
-    const [user, sa] = await Promise.all([
+    const [user, sa, usageRes] = await Promise.all([
       fetchCurrentUser(),
       apiFetch<{ smartAccount: SmartAccountView | null }>("/smart-account").catch(
         () => ({ smartAccount: null })
       ),
+      apiFetch<{ usage: UsageView }>("/usage").catch(() => ({ usage: null })),
     ]);
     setProfile(user);
     setAccount(sa.smartAccount);
+    setUsage(usageRes.usage);
   }, []);
 
   useEffect(() => {
@@ -69,7 +72,7 @@ export default function DashboardOverviewPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[
           {
             label: "Smart account",
@@ -84,6 +87,12 @@ export default function DashboardOverviewPage() {
           {
             label: "Active sessions",
             value: profile ? String(profile.activeSessions) : "…",
+          },
+          {
+            label: usage ? `Usage ${usage.month}` : "Monthly usage",
+            value: usage
+              ? `${usage.txCount} tx · ${usage.volume} ${usage.asset}`
+              : "…",
           },
         ].map((card) => (
           <div

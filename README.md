@@ -1,32 +1,53 @@
 # Pay3
 
-AI-native financial infrastructure on Stellar — landing site + MVP monorepo.
+**Public Stellar testnet beta** — AI-native financial infrastructure via MCP.
+
+> Not mainnet. Not USDC yet. Custody today is an **interim encrypted G-address** allocation account. Soroban WASM is built (`contracts/smart-account/artifacts/`) but **not cut over**.
 
 ## Structure
 
 ```
 apps/web/          Next.js — landing (/) + dashboard (/dashboard)
 apps/api/          Express API — wallet auth, sessions, transfers
-apps/mcp-server/   MCP stdio server (Claude / Cursor)
-packages/database/ Prisma schema + client (Neon Postgres)
-packages/shared/   Shared types
+apps/mcp-server/   MCP stdio server (Cursor / Claude Desktop)
+packages/database/ Prisma + Neon Postgres
 packages/*         Policy, session, recipient, stellar, transaction engines
-contracts/         Soroban smart account (later)
-docs/              Architecture, security, implementation plan
+contracts/         Soroban smart-account (WASM ready; API not wired yet)
+docs/              Architecture, security, MCP setup, launch notes
 ```
 
-## Quick start
+## Quick start (local)
 
 ```bash
 npm install
-cp .env.example apps/api/.env    # set DATABASE_URL (Neon)
+cp .env.example apps/api/.env    # set DATABASE_URL (Neon) + SMART_ACCOUNT_ENCRYPTION_KEY
 cp .env.example apps/web/.env
 
 npm run db:generate
-npm run db:push                   # requires DATABASE_URL
+npm run db:push
 
 npm run dev                       # web → http://localhost:3000
 npm run dev:api                   # api → http://localhost:4000
 ```
 
-See `docs/DATABASE.md`, `docs/MCP_SETUP.md`, and `docs/STATUS_REPORT.md`.
+## MCP (Cursor / Claude Desktop)
+
+```bash
+npm run build:mcp
+copy .cursor\mcp.json.example .cursor\mcp.json   # paste pay3_… token
+$env:PAY3_MCP_TOKEN="pay3_…"
+npm run smoke:mcp
+```
+
+Full steps: [`docs/MCP_SETUP.md`](docs/MCP_SETUP.md).  
+**claude.ai browser “custom connector” is not supported** (needs hosted HTTPS MCP).
+
+Production MCP: set `PAY3_API_URL` to your deployed API origin.
+
+## Production deploy
+
+See [`docs/PRODUCTION.md`](docs/PRODUCTION.md).
+
+## Status
+
+See [`docs/STATUS_REPORT.md`](docs/STATUS_REPORT.md).

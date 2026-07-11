@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
       "policy",
       "transactions",
       "approvals",
+      "audit",
+      "usage",
       "mcp",
       "health",
     ];

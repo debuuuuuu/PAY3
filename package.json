@@ -10,9 +10,12 @@
     "dev": "npm run dev -w @pay3/web",
     "dev:api": "npm run dev -w @pay3/api",
     "dev:mcp": "npm run dev -w @pay3/mcp-server",
+    "mcp": "npm run start -w @pay3/mcp-server",
     "build": "npm run build -w @pay3/web",
     "build:api": "npm run build -w @pay3/api",
     "build:mcp": "npm run build -w @pay3/mcp-server",
+    "start:api": "npm run start -w @pay3/api",
+    "smoke:mcp": "node scripts/smoke-mcp.mjs",
     "lint": "npm run lint -w @pay3/web",
     "db:generate": "npm run generate -w @pay3/database",
     "db:push": "npm run push -w @pay3/database"

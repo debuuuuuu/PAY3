@@ -25,6 +25,14 @@ export function getNetworkPassphrase(): string {
   );
 }
 
+/** Interim G-account vs future Soroban contract id (`C…`). */
+export type CustodyMode = "interim_g_account" | "soroban_contract";
+
+export function custodyModeFromRef(contractRef: string | null | undefined): CustodyMode {
+  if (contractRef && contractRef.startsWith("C")) return "soroban_contract";
+  return "interim_g_account";
+}
+
 export function getHorizonServer(): Horizon.Server {
   return new Horizon.Server(DEFAULT_HORIZON);
 }

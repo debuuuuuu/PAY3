@@ -1,6 +1,6 @@
 # Pay3 — Plain-English Status Report
 
-**Date:** 10 Jul 2026  
+**Date:** 11 Jul 2026 — **Public Stellar testnet beta**  
 **Audience:** You (founder / builder) — not engineers only  
 **Goal of this doc:** Explain *what* we built, *why*, and *where you are* without jargon overload.
 
@@ -25,13 +25,13 @@ So Pay3’s design is:
 Your main Freighter wallet  →  keeps most of your money
          ↓ (you choose to send a little)
 A separate “AI money pot”   →  only this pot can be used by AI
-         ↓ (later)
+         ↓
 Rules + approvals           →  AI can only do what you allowed
-         ↓ (later)
+         ↓
 Claude / Cursor via MCP     →  AI asks Pay3; Pay3 decides & executes
 ```
 
-Everything we’ve built so far is the **foundation** for that story. Claude cannot pay anyone yet — that comes later on purpose.
+Phases 0–7 are live on testnet XLM (interim G-account, not Soroban yet). MCP `transfer` to a saved contact has been proven end-to-end.
 
 ---
 
@@ -100,13 +100,13 @@ Copy address or scan **QR** → send testnet XLM from Freighter → **Refresh ba
 
 | Feature | Status | Why not yet |
 |---------|--------|-------------|
-| Claude / Cursor paying someone | ❌ | Needs sessions + policy + MCP (later phases) |
-| Contacts (“Hurain” → address) | ❌ | Next phase |
-| Policy engine (auto / approve / reject) | ❌ | After sessions |
-| Real Soroban smart contract | ❌ | Research + contracts later |
-| Mainnet real money | ❌ | Still on **testnet** (fake/test XLM) |
+| Claude / Cursor paying someone (testnet XLM) | ✅ | Proven via MCP `transfer` + contact resolve |
+| Contacts (“debu” / Hurain → address) | ✅ | Dashboard Contacts + resolver |
+| Policy engine (auto / approve / reject) | ✅ | Off-chain three-level engine |
+| Real Soroban smart contract | ❌ | Phase 9 — interim G-account for now |
+| Mainnet / USDC | ❌ | Still **testnet XLM** |
 
-If you expected “AI pays people today,” that expectation is ahead of the build. We’re still in **foundation + funding pot**.
+What’s left for product polish: Phase 8 (approvals UX / emergency controls) and Phase 9 (on-chain Soroban limits).
 
 ---
 
@@ -176,30 +176,32 @@ So we can break things without losing real money.
 | 4 | AI sessions + permission review | ✅ Done |
 | 5 | Policy engine | ✅ Done |
 | 6 | Transaction engine | ✅ Done |
-| 7 | MCP (Claude can call Pay3) | ✅ Done — see `docs/MCP_SETUP.md` |
-| 9 | Real Soroban contracts | ⬜ Later |
+| 7 | MCP (Claude / Cursor) | ✅ Done — see `docs/MCP_SETUP.md` |
+| 8 | Approvals + emergency revoke | ✅ Done |
+| 10 | Dashboard completion (audit + usage) | ✅ Done |
+| 9 | Soroban technical validation + scaffold | ✅ |
+| 9b | Contract source + local WASM build | ✅ Built (`artifacts/pay3_smart_account.wasm`) |
+| 9c | Deploy testnet + wire API | ⬜ Next optional step |
 
-**Roughly:** ~25–30% of the MVP path by *user-visible* journey steps; more of the *plumbing* is ready than the *AI payment* demo.
+**Roughly:** Off-chain MVP complete + Soroban WASM built. Shipped as **public testnet beta** (interim G-account). See `docs/PRODUCTION.md` for hosting.
 
 ---
 
 ## 10. What you should do next (simple)
 
-1. Keep both servers running (`dev` + `dev:api`).  
-2. Connect Freighter → Link smart account → fund with a little test XLM → check History.  
-3. When that feels clear, we build **Contacts** (save a name → address).  
-4. Then **AI sessions**.  
-5. Only then **Claude pays someone**.
+1. Deploy per `docs/PRODUCTION.md` (API Node host + Vercel web).  
+2. Smoke Freighter + MCP against prod URLs.  
+3. Phase **9c** later: deploy WASM + wire on-chain `__check_auth`.  
 
 ---
 
 ## 11. Bottom line
 
-**What’s happening:** We’re building Pay3 step by step from a landing page into a real product that can safely let AI move limited funds.
+**What’s happening:** Pay3 testnet beta — Freighter → pot → contacts → session → policy → MCP pay → approvals / revoke / audit.
 
-**Why it’s happening this way:** Security first — separate pot, no primary key storage, no AI access until rules exist.
+**Why it’s happening this way:** Security first — separate pot, encrypted session material, off-chain policy; Soroban hardens critical limits on-chain next.
 
-**Where you are:** Logged-in dashboard + fundable testnet pot. Not yet “talk to Claude and pay.”
+**Where you are:** Product is launchable as a **testnet beta**. Not mainnet. Soroban not cut over yet.
 
 If one sentence for a teammate:  
-> *“Wallet login and a separate encrypted testnet money pot work; AI payments are the next chapters, not this one.”*
+> *“Testnet beta: MCP payments work with interim G-account custody; Soroban WASM ready for cutover.”*

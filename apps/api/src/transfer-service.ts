@@ -106,6 +106,35 @@ async function writeAudit(
   });
 }
 
+function currentMonthKey(d = new Date()): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+async function bumpMonthlyUsage(userId: string, amount: string) {
+  const month = currentMonthKey();
+  const n = Number(amount);
+  const add = Number.isFinite(n) ? n : 0;
+  const existing = await prisma.usageRecord.findUnique({
+    where: { userId_month: { userId, month } },
+  });
+  const prev = Number(existing?.volumeUsd ?? "0");
+  const volume = Number.isFinite(prev) ? prev + add : add;
+  await prisma.usageRecord.upsert({
+    where: { userId_month: { userId, month } },
+    create: {
+      userId,
+      month,
+      txCount: 1,
+      // ponytail: volumeUsd holds native XLM volume until USDC lands
+      volumeUsd: String(volume),
+    },
+    update: {
+      txCount: { increment: 1 },
+      volumeUsd: String(volume),
+    },
+  });
+}
+
 async function submitWithRetry(
   txId: string,
   secret: string,
@@ -367,6 +396,7 @@ export async function finalizeAndSubmit(
       transactionId: tx.id,
       hash,
     });
+    await bumpMonthlyUsage(opts.userId, opts.amount);
     return {
       transaction: toTxView(tx),
       policy: { decision: "AUTO_EXECUTE" as const },

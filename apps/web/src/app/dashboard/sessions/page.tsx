@@ -138,6 +138,10 @@ export default function SessionsPage() {
   }
 
   async function revokeAll() {
+    const ok = window.confirm(
+      "Revoke ALL AI sessions? MCP tokens stop working immediately."
+    );
+    if (!ok) return;
     setError(null);
     try {
       await apiFetch("/sessions/revoke-all", { method: "POST" });

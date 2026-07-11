@@ -13,6 +13,7 @@ import { smartAccountRouter } from "./routes/smart-account.js";
 import { transactionsRouter } from "./routes/transactions.js";
 import { approvalsRouter } from "./routes/approvals.js";
 import { mcpRouter } from "./routes/mcp.js";
+import { auditRouter, usageRouter } from "./routes/audit.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 4000);
@@ -35,6 +36,8 @@ app.use("/sessions", sessionsRouter);
 app.use("/policy", policyRouter);
 app.use("/transactions", transactionsRouter);
 app.use("/approvals", approvalsRouter);
+app.use("/audit", auditRouter);
+app.use("/usage", usageRouter);
 app.use("/mcp", mcpRouter);
 
 app.listen(port, () => {

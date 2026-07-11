@@ -27,7 +27,7 @@ User (Freighter G-address)
 | `packages/database` | Prisma + PostgreSQL (Neon) |
 | `packages/shared` | Shared types and constants |
 | `packages/stellar` | Horizon, Friendbot, balances |
-| `contracts/smart-account` | Soroban Rust (later) |
+| `contracts/smart-account` | Soroban Rust — Phase 9 scaffold (see TECHNICAL_VALIDATION) |
 
 ## Phase 2 interim custody model (until Soroban)
 
@@ -47,13 +47,15 @@ AI session keys + policy            ← Phase 4+
 | Allocation secret encrypted (AES-GCM), never in API responses | ✅ |
 | Manual funding only | ✅ |
 | Friendbot seeds new testnet account so it exists on-chain | ✅ |
-| Soroban on-chain policy enforcement | ❌ Phase 9 |
+| Soroban on-chain policy enforcement | 🟡 Phase 9 spike (`docs/TECHNICAL_VALIDATION.md`) |
 
-### §45 open questions (still open)
+### §45 open questions
 
-1. Exact Soroban contract interface for session-key authorization
-2. How wallet “owns” the contract vs interim G-account
-3. Testnet USDC issuer + trustline UX
-4. Simulate-before-submit coverage for all transfer paths
+Resolved / narrowed in [`docs/TECHNICAL_VALIDATION.md`](./TECHNICAL_VALIDATION.md):
 
-When contracts land, `SmartAccount.contractRef` becomes the contract id; `encryptedSecret` for the interim G-account can be retired or used only for migration.
+1. ~~Exact Soroban contract interface~~ → `CustomAccountInterface` + `__check_auth` (prefer OpenZeppelin accounts)
+2. How wallet owns the contract → owner `Address` + `require_auth` on admin methods; Freighter UX still maturing
+3. Testnet USDC → deferred; MVP stays XLM
+4. Simulate-before-submit → required before API cutover to contract path
+
+Interim G-account remains the live custody path until a contract is deployed and wired.

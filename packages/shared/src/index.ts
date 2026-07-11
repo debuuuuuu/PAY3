@@ -108,6 +108,20 @@ export type ApprovalView = {
   transaction?: TransactionView | null;
 };
 
+export type AuditLogView = {
+  id: string;
+  action: string;
+  metadata: unknown;
+  createdAt: string;
+};
+
+export type UsageView = {
+  month: string;
+  txCount: number;
+  volume: string;
+  asset: string;
+};
+
 export type ApiHealth = {
   ok: boolean;
   service: "pay3-api";
@@ -121,6 +135,7 @@ export const DASHBOARD_NAV = [
   { href: "/dashboard/policies", label: "Policies" },
   { href: "/dashboard/history", label: "History" },
   { href: "/dashboard/approvals", label: "Approvals" },
+  { href: "/dashboard/audit", label: "Audit" },
   { href: "/dashboard/settings", label: "Settings" },
 ] as const;
 
