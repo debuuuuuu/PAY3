@@ -9,7 +9,7 @@ export const GUIDE_PAGES = [
     href: "/guide/cursor-mcp",
     title: "Cursor MCP setup",
     description:
-      "Paste your token into Cursor, enable Pay3 tools, and send your first AI payment.",
+      "Paste your token into Cursor with the hosted MCP URL — no repo clone required.",
   },
   {
     href: "/guide/safety",
@@ -48,16 +48,12 @@ export const GETTING_STARTED_STEPS = [
 
 export const CURSOR_MCP_STEPS = [
   {
-    title: "Build the MCP server once",
-    body: "From the Pay3 repo root, run npm run build:mcp so apps/mcp-server/dist/index.js exists.",
+    title: "Copy your session token",
+    body: "Create an AI session in the dashboard and copy the MCP token (shown once). Use a token from the same environment you will call (production dashboard → production API).",
   },
   {
-    title: "Point Cursor at Pay3",
-    body: "Create or edit .cursor/mcp.json in your Pay3 workspace with the config below. Paste the token from your session.",
-  },
-  {
-    title: "API must be reachable",
-    body: "Local: npm run dev:api (http://localhost:4000). Production: set PAY3_API_URL to https://pay3-api.vercel.app — use a session token created against that same API.",
+    title: "Point Cursor at the hosted MCP URL",
+    body: "Create or edit .cursor/mcp.json with the hosted config below — no repo clone or npm install required. Paste your token into the Authorization header.",
   },
   {
     title: "Enable tools in Cursor",
@@ -66,6 +62,17 @@ export const CURSOR_MCP_STEPS = [
 ] as const;
 
 export const MCP_JSON_EXAMPLE = `{
+  "mcpServers": {
+    "pay3": {
+      "url": "https://pay3-api.vercel.app/mcp",
+      "headers": {
+        "Authorization": "Bearer pay3_PASTE_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}`;
+
+export const MCP_LOCAL_JSON_EXAMPLE = `{
   "mcpServers": {
     "pay3": {
       "command": "node",

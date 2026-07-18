@@ -16,6 +16,7 @@
     "build:mcp": "npm run build -w @pay3/mcp-server",
     "start:api": "npm run start -w @pay3/api",
     "smoke:mcp": "node scripts/smoke-mcp.mjs",
+    "smoke:mcp-http": "node scripts/smoke-mcp-http.mjs",
     "smoke:prod": "node scripts/smoke-prod.mjs",
     "smoke:qr": "npm run smoke:qr -w @pay3/api",
     "smoke:stellar": "npm run selfcheck -w @pay3/stellar",

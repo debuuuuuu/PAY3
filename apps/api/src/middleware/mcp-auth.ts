@@ -8,19 +8,30 @@ export type McpAuthedRequest = Request & {
   walletPublicKey: string;
 };
 
-export async function requireMcpAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  const header = req.headers.authorization ?? "";
-  const token = header.startsWith("Bearer ")
-    ? header.slice(7).trim()
-    : String(req.headers["x-pay3-mcp-token"] ?? "").trim();
+export type McpAuthOk = {
+  ok: true;
+  userId: string;
+  sessionId: string;
+  walletPublicKey: string;
+};
 
+export type McpAuthFail = {
+  ok: false;
+  status: number;
+  error: string;
+};
+
+export function extractMcpToken(req: Request): string {
+  const header = req.headers.authorization ?? "";
+  if (header.startsWith("Bearer ")) return header.slice(7).trim();
+  return String(req.headers["x-pay3-mcp-token"] ?? "").trim();
+}
+
+export async function resolveMcpToken(
+  token: string
+): Promise<McpAuthOk | McpAuthFail> {
   if (!token) {
-    res.status(401).json({ error: "MCP token required (Bearer)" });
-    return;
+    return { ok: false, status: 401, error: "MCP token required (Bearer)" };
   }
 
   const mcpTokenHash = hashMcpToken(token);
@@ -30,8 +41,7 @@ export async function requireMcpAuth(
   });
 
   if (!session?.user?.wallet) {
-    res.status(401).json({ error: "invalid MCP token" });
-    return;
+    return { ok: false, status: 401, error: "invalid MCP token" };
   }
 
   // Lazy expire
@@ -49,12 +59,34 @@ export async function requireMcpAuth(
   }
 
   if (!isSessionActive(session)) {
-    res.status(403).json({ error: "session inactive, expired, or revoked" });
+    return {
+      ok: false,
+      status: 403,
+      error: "session inactive, expired, or revoked",
+    };
+  }
+
+  return {
+    ok: true,
+    userId: session.userId,
+    sessionId: session.id,
+    walletPublicKey: session.user.wallet.publicKey,
+  };
+}
+
+export async function requireMcpAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const auth = await resolveMcpToken(extractMcpToken(req));
+  if (!auth.ok) {
+    res.status(auth.status).json({ error: auth.error });
     return;
   }
 
-  (req as McpAuthedRequest).userId = session.userId;
-  (req as McpAuthedRequest).sessionId = session.id;
-  (req as McpAuthedRequest).walletPublicKey = session.user.wallet.publicKey;
+  (req as McpAuthedRequest).userId = auth.userId;
+  (req as McpAuthedRequest).sessionId = auth.sessionId;
+  (req as McpAuthedRequest).walletPublicKey = auth.walletPublicKey;
   next();
 }

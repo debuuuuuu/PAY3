@@ -74,6 +74,25 @@ For **WalletConnect** on `/login/qr/:id`, set `NEXT_PUBLIC_WALLETCONNECT_PROJECT
 
 ## 4. MCP against production
 
+**Hosted (recommended):**
+
+```json
+{
+  "mcpServers": {
+    "pay3": {
+      "url": "https://pay3-api.vercel.app/mcp",
+      "headers": {
+        "Authorization": "Bearer pay3_…"
+      }
+    }
+  }
+}
+```
+
+Create a **new** AI session after launch; revoke tokens that were shared in chat. Guide: `/guide/cursor-mcp`.
+
+**Local stdio (developers):**
+
 ```json
 {
   "mcpServers": {
@@ -89,7 +108,7 @@ For **WalletConnect** on `/login/qr/:id`, set `NEXT_PUBLIC_WALLETCONNECT_PROJECT
 }
 ```
 
-Build MCP once: `npm run build:mcp`. Create a **new** AI session after launch; revoke tokens that were shared in chat.
+Build MCP once: `npm run build:mcp`. Smoke hosted: `npm run smoke:mcp-http`.
 
 ## 5. Launch smoke checklist
 
@@ -100,7 +119,8 @@ Automated: `node scripts/smoke-prod.mjs`
 - [x] Same-origin `/api/health` proxy
 - [ ] Freighter connect (testnet) — manual in browser
 - [ ] Link allocation account → fund → History
-- [ ] MCP `get_balance` + small `transfer` (`PAY3_API_URL=https://pay3-api.vercel.app`)
+- [ ] MCP hosted `POST /mcp` initialize + tools/list (`npm run smoke:mcp-http`)
+- [ ] MCP `get_balance` + small `transfer` (hosted or local stdio)
 - [ ] Approvals + Settings → REVOKE ALL AI ACCESS
 - [ ] Audit + monthly usage
 

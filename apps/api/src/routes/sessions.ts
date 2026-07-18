@@ -283,7 +283,11 @@ sessionsRouter.post("/", async (req, res) => {
       session: toSessionView(session),
       mcpToken,
       mcpConfigHint: {
-        note: "Copy this token now — it is shown only once. Paste into your MCP client config later.",
+        note: "Copy this token now — it is shown only once.",
+        hostedMcp: {
+          url: "https://pay3-api.vercel.app/mcp",
+          headers: { Authorization: "Bearer <token>" },
+        },
       },
       onchainRegister: onchain
         ? {

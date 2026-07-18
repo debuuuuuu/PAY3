@@ -404,7 +404,9 @@ export default function SessionsPage() {
             MCP token — copy now
           </h2>
           <p className="mt-1 text-sm text-white/60">
-            Shown once. Paste into Cursor MCP config — see{" "}
+            Shown once. Hosted Cursor config uses{" "}
+            <code className="text-white/80">https://pay3-api.vercel.app/mcp</code>{" "}
+            — see{" "}
             <Link
               href="/guide/cursor-mcp"
               className="text-white underline underline-offset-4"
@@ -416,6 +418,18 @@ export default function SessionsPage() {
           <code className="mt-3 block break-all rounded-lg border border-white/10 bg-black/40 px-3 py-2 font-[family-name:var(--font-jetbrains-mono)] text-xs">
             {mcpToken}
           </code>
+          <pre className="mt-3 overflow-x-auto rounded-lg border border-white/10 bg-black/40 p-3 font-[family-name:var(--font-jetbrains-mono)] text-[11px] leading-relaxed text-white/70">
+{`{
+  "mcpServers": {
+    "pay3": {
+      "url": "https://pay3-api.vercel.app/mcp",
+      "headers": {
+        "Authorization": "Bearer ${mcpToken}"
+      }
+    }
+  }
+}`}
+          </pre>
           <button
             type="button"
             onClick={copyToken}

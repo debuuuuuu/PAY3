@@ -10,6 +10,7 @@
     "smoke:qr": "tsx src/qr-login-selfcheck.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
     "@pay3/database": "*",
     "@pay3/shared": "*",
     "@pay3/stellar": "*",
@@ -21,7 +22,8 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.9",
