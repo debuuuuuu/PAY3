@@ -75,7 +75,7 @@ export function Header() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         <a
-          href="#top"
+          href="/"
           data-nav-item
           className="text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
         >

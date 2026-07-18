@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import type { SessionPolicyRules, SessionView } from "@pay3/shared";
 import { apiFetch } from "@/lib/api";
 import {
@@ -403,8 +404,14 @@ export default function SessionsPage() {
             MCP token — copy now
           </h2>
           <p className="mt-1 text-sm text-white/60">
-            Shown once. Paste into Claude/Cursor MCP config — see{" "}
-            <code className="text-white/80">docs/MCP_SETUP.md</code>.
+            Shown once. Paste into Cursor MCP config — see{" "}
+            <Link
+              href="/guide/cursor-mcp"
+              className="text-white underline underline-offset-4"
+            >
+              Cursor MCP setup
+            </Link>
+            .
           </p>
           <code className="mt-3 block break-all rounded-lg border border-white/10 bg-black/40 px-3 py-2 font-[family-name:var(--font-jetbrains-mono)] text-xs">
             {mcpToken}

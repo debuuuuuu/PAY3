@@ -102,8 +102,8 @@ export function Footer() {
             ))}
           </nav>
 
-          <a href="#how-it-works" className="btn-primary shrink-0 text-sm">
-            Get Started
+          <a href="/guide/getting-started" className="btn-primary shrink-0 text-sm">
+            Getting started
           </a>
         </div>
 

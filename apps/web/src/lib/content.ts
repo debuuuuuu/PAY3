@@ -1,9 +1,9 @@
 export const NAV_LINKS = [
-  { label: "Features", href: "#features", external: false },
+  { label: "Guide", href: "/guide", external: false },
+  { label: "Features", href: "/#features", external: false },
   { label: "Official X", href: "https://x.com/PAYThreeWallet", external: true },
   { label: "GitHub", href: "https://github.com/debuuuuuu/PAY3", external: true },
   { label: "Contact Us", href: "mailto:pay3wallet@gmail.com", external: true },
-  { label: "Pay3 for Business", href: "#how-it-works", external: false },
 ] as const;
 
 export const TECH_STACK = [
@@ -83,21 +83,24 @@ export const FLOW_STEPS = [
 export const HOW_IT_WORKS = [
   {
     step: "01",
-    badge: "Under 1 min",
-    title: "Connect your AI client to the Pay3 MCP server",
-    description: "Add Pay3 to Claude Desktop, Cursor, or any MCP-compatible assistant in under a minute.",
+    badge: "Dashboard",
+    title: "Connect Freighter and fund your allocation pot",
+    description:
+      "Sign in with Freighter on testnet. Pay3 links a separate allocation account — only that pot is available to AI sessions.",
     screen: "config" as const,
   },
   {
     step: "02",
-    title: "Define your policy and issue session keys",
-    description: "Set spending limits, allowed protocols, and session duration. Your wallet stays yours — always.",
+    title: "Authorize an AI session with spend limits",
+    description:
+      "Set duration, daily budget, per-tx max, and approval threshold. Review permissions, then sign with Freighter and copy the one-time MCP token.",
     screen: "policy-setup" as const,
   },
   {
     step: "03",
-    title: "Your AI is ready to manage finance on Stellar",
-    description: "Transfer, swap, lend, borrow, and pay merchants — all within the boundaries you programmed.",
+    title: "Connect Cursor and pay by name or address",
+    description:
+      "Add Pay3 to Cursor MCP. Ask for balance or “pay Hurain 0.5 XLM.” Policy checks every transfer; revoke anytime from the dashboard.",
     screen: "ready" as const,
   },
 ] as const;
@@ -105,33 +108,32 @@ export const HOW_IT_WORKS = [
 export const FAQ_ITEMS = [
   {
     q: "What is Pay3?",
-    a: "Pay3 is an MCP-powered AI financial operating system on Stellar. It lets AI agents securely manage wallets, interact with DeFi, and make autonomous payments using Soroban session keys and programmable policies — without ever accessing your private key.",
+    a: "Pay3 lets an AI assistant send Stellar testnet payments from a separate allocation pot you fund — under session limits you authorize in Freighter. Your primary wallet key never leaves Freighter.",
   },
   {
     q: "How does Pay3 work?",
-    a: "You connect an MCP-compatible AI assistant to Pay3, define policies and session keys, then issue natural-language commands. The AI calls Pay3 tools, every action passes through the policy engine, and approved transactions execute on the Stellar network.",
+    a: "Connect Freighter, fund the allocation account, save contacts, create an AI session, then connect Cursor with your MCP token. Natural-language commands call Pay3 tools; every transfer passes the policy engine before it settles on Stellar testnet.",
   },
   {
     q: "What wallets are supported?",
-    a: "Pay3 integrates with Stellar wallets you already control. The MCP server operates on delegated session keys — your private key never leaves your wallet or secure enclave.",
+    a: "Freighter for sign-in and session authorization on Stellar testnet. Pay3 never stores your Freighter private key. AI spends use encrypted session material and the allocation pot only.",
   },
   {
     q: "What are the fees?",
-    a: "Stellar's sub-cent fees make AI micro-transactions economically viable — frequent rebalancing, auto-compounding, and small recurring payments all become practical.",
+    a: "On Stellar testnet, network fees are negligible. Pay3 itself does not charge a product fee in this beta. Mainnet fee policy will be documented before any mainnet launch.",
   },
   {
     q: "Which AI assistants are supported?",
-    a: "Any MCP-compatible client works: Claude Desktop, ChatGPT, Cursor, Gemini, and custom agents built with the official MCP TypeScript SDK.",
+    a: "Cursor is the recommended client for this beta (local MCP). Claude Desktop can use the same stdio config. Browser claude.ai custom connectors need a hosted HTTPS MCP URL, which is not shipped yet.",
   },
   {
-    q: "What DeFi protocols are integrated?",
-    a: "Blend (lending/borrowing), Phoenix (token swaps), and Aquarius (liquidity management) — with more Stellar ecosystem integrations on the roadmap.",
+    q: "Is DeFi / USDC live?",
+    a: "Not in this beta. Testnet native XLM transfers are supported. USDC, DeFi protocols, and mainnet are later milestones — the marketing roadmap describes the vision, not today’s live surface.",
   },
 ] as const;
 
 export const EXAMPLE_COMMANDS = [
-  '"Claude, pay 5 USDC to John."',
-  '"Swap 100 XLM to USDC."',
-  '"Invest idle USDC in the highest yield."',
-  '"Rebalance my portfolio."',
+  '"What’s my Pay3 balance?"',
+  '"Pay 0.5 XLM to Hurain."',
+  '"Show my recent Pay3 transactions."',
 ] as const;
