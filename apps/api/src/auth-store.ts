@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { prisma } from "@pay3/database";
-import type { UserProfile } from "@pay3/shared";
+import type { QrLoginStatus, UserProfile } from "@pay3/shared";
 
 export type StoredChallenge = {
   id: string;
@@ -15,9 +15,20 @@ export type StoredUser = {
   publicKey: string;
 };
 
+export type StoredQrLogin = {
+  id: string;
+  status: QrLoginStatus;
+  publicKey: string | null;
+  userId: string | null;
+  claimToken: string | null;
+  expiresAt: Date;
+  claimedAt: Date | null;
+};
+
 // ponytail: in-memory auth when DATABASE_URL unset; single-process dev only
 const memoryChallenges = new Map<string, StoredChallenge>();
 const memoryUsersByKey = new Map<string, StoredUser>();
+const memoryQrLogins = new Map<string, StoredQrLogin>();
 
 function isConfiguredDatabaseUrl(): boolean {
   const url = process.env.DATABASE_URL ?? "";
@@ -204,4 +215,113 @@ export async function findUserProfileById(
     activeSessions: 0,
     storage,
   };
+}
+
+function mapQrRow(row: {
+  id: string;
+  status: string;
+  publicKey: string | null;
+  userId: string | null;
+  claimToken: string | null;
+  expiresAt: Date;
+  claimedAt: Date | null;
+}): StoredQrLogin {
+  return {
+    id: row.id,
+    status: row.status as QrLoginStatus,
+    publicKey: row.publicKey,
+    userId: row.userId,
+    claimToken: row.claimToken,
+    expiresAt: row.expiresAt,
+    claimedAt: row.claimedAt,
+  };
+}
+
+export async function createQrLogin(expiresAt: Date): Promise<StoredQrLogin> {
+  if (useDatabase()) {
+    const row = await prisma.qrLoginSession.create({
+      data: { expiresAt, status: "pending" },
+    });
+    return mapQrRow(row);
+  }
+
+  const session: StoredQrLogin = {
+    id: randomBytes(16).toString("hex"),
+    status: "pending",
+    publicKey: null,
+    userId: null,
+    claimToken: null,
+    expiresAt,
+    claimedAt: null,
+  };
+  memoryQrLogins.set(session.id, session);
+  return session;
+}
+
+export async function findQrLogin(id: string): Promise<StoredQrLogin | null> {
+  if (useDatabase()) {
+    const row = await prisma.qrLoginSession.findUnique({ where: { id } });
+    return row ? mapQrRow(row) : null;
+  }
+  return memoryQrLogins.get(id) ?? null;
+}
+
+export async function approveQrLogin(
+  id: string,
+  publicKey: string,
+  userId: string,
+  claimToken: string
+): Promise<StoredQrLogin | null> {
+  if (useDatabase()) {
+    const row = await prisma.qrLoginSession.update({
+      where: { id },
+      data: {
+        status: "approved",
+        publicKey,
+        userId,
+        claimToken,
+      },
+    });
+    return mapQrRow(row);
+  }
+
+  const session = memoryQrLogins.get(id);
+  if (!session) return null;
+  session.status = "approved";
+  session.publicKey = publicKey;
+  session.userId = userId;
+  session.claimToken = claimToken;
+  memoryQrLogins.set(id, session);
+  return session;
+}
+
+export async function claimQrLogin(
+  id: string,
+  claimToken: string
+): Promise<StoredQrLogin | null> {
+  const session = await findQrLogin(id);
+  if (
+    !session ||
+    session.status !== "approved" ||
+    !session.claimToken ||
+    session.claimToken !== claimToken ||
+    session.expiresAt < new Date()
+  ) {
+    return null;
+  }
+
+  if (useDatabase()) {
+    const row = await prisma.qrLoginSession.update({
+      where: { id },
+      data: { status: "claimed", claimedAt: new Date(), claimToken: null },
+    });
+    return mapQrRow({ ...row, claimToken: session.claimToken });
+  }
+
+  session.status = "claimed";
+  session.claimedAt = new Date();
+  const token = session.claimToken;
+  session.claimToken = null;
+  memoryQrLogins.set(id, session);
+  return { ...session, claimToken: token };
 }

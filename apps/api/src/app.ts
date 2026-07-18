@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import { authRouter } from "./routes/auth.js";
+import { authQrRouter } from "./routes/auth-qr.js";
 import { healthRouter } from "./routes/health.js";
 import { historyRouter } from "./routes/history.js";
 import { contactsRouter } from "./routes/contacts.js";
@@ -28,6 +29,7 @@ export function createApp() {
 
   app.use(healthRouter);
   app.use("/auth", authRouter);
+  app.use("/auth", authQrRouter);
   app.use("/smart-account", smartAccountRouter);
   app.use("/history", historyRouter);
   app.use("/contacts", contactsRouter);

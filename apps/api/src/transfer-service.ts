@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { prisma } from "@pay3/database";
-import { APPROVAL_TTL_MS } from "@pay3/shared";
+import { APPROVAL_TTL_MS, MAX_TECHNICAL_RETRIES } from "@pay3/shared";
 import { evaluatePolicy } from "@pay3/policy-engine";
 import { resolveRecipient } from "@pay3/recipient-resolver";
 import {
@@ -12,10 +12,16 @@ import {
   nextRetryCount,
 } from "@pay3/transaction-engine";
 import {
+  buildSimulateSignContractPayment,
+  classifySorobanFailure,
+  isRetryableSorobanFailure,
   isTechnicalSubmitError,
   submitNativePayment,
+  submitSignedSorobanXdr,
+  type SorobanFailureClass,
 } from "@pay3/stellar";
 import { decryptSecret } from "./crypto.js";
+import { isContractCustody } from "./onchain-session.js";
 
 function asRules(json: unknown): SessionPolicyRules | null {
   if (!json || typeof json !== "object") return null;
@@ -75,6 +81,15 @@ export function toTxView(t: {
   };
 }
 
+function isUniqueConflict(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    (err as { code?: string }).code === "P2002"
+  );
+}
+
 async function spentToday(sessionId: string, asset: string): Promise<string> {
   const start = new Date();
   start.setUTCHours(0, 0, 0, 0);
@@ -99,15 +114,15 @@ async function spentToday(sessionId: string, asset: string): Promise<string> {
 async function writeAudit(
   userId: string,
   action: string,
-  metadata: object
+  metadata: Record<string, unknown>
 ) {
   await prisma.auditLog.create({
     data: { userId, action, metadata },
   });
 }
 
-function currentMonthKey(d = new Date()): string {
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+function currentMonthKey(): string {
+  return new Date().toISOString().slice(0, 7);
 }
 
 async function bumpMonthlyUsage(userId: string, amount: string) {
@@ -135,18 +150,28 @@ async function bumpMonthlyUsage(userId: string, amount: string) {
   });
 }
 
-async function submitWithRetry(
-  txId: string,
+function requireRelayerSecret(): string {
+  const s = process.env.RELAYER_SECRET?.trim();
+  if (!s || !s.startsWith("S")) {
+    throw Object.assign(new Error("RELAYER_SECRET not configured"), {
+      status: 503,
+      failureClass: "unknown" as SorobanFailureClass,
+    });
+  }
+  return s;
+}
+
+async function submitLegacyWithRetry(
+  transactionId: string,
   secret: string,
   destination: string,
   amount: string,
-  startRetryCount: number
+  startRetry: number
 ): Promise<{ hash: string; retryCount: number }> {
-  let retryCount = startRetryCount;
-  // First attempt + up to MAX additional technical retries
+  let retryCount = startRetry;
   for (;;) {
     await prisma.transaction.update({
-      where: { id: txId },
+      where: { id: transactionId },
       data: { status: "SUBMITTING", retryCount },
     });
     try {
@@ -161,6 +186,69 @@ async function submitWithRetry(
         throw err;
       }
       retryCount = nextRetryCount(retryCount);
+      if (retryCount > MAX_TECHNICAL_RETRIES) throw err;
+    }
+  }
+}
+
+/**
+ * Build+sign once, then retry the same signed XDR only (never rebuild payment).
+ */
+async function submitContractWithRetry(opts: {
+  transactionId: string;
+  contractAccountId: string;
+  sessionSecret: string;
+  destination: string;
+  amount: string;
+  startRetry: number;
+}): Promise<{ hash: string; retryCount: number; signedXdr: string }> {
+  const relayerSecret = requireRelayerSecret();
+  const built = await buildSimulateSignContractPayment({
+    relayerSecret,
+    contractAccountId: opts.contractAccountId,
+    sessionSecret: opts.sessionSecret,
+    destination: opts.destination,
+    amountXlm: opts.amount,
+    submit: false,
+  });
+
+  let retryCount = opts.startRetry;
+  let lastHash: string | undefined;
+
+  for (;;) {
+    await prisma.transaction.update({
+      where: { id: opts.transactionId },
+      data: { status: "SUBMITTING", retryCount },
+    });
+    try {
+      const { hash } = await submitSignedSorobanXdr({
+        signedXdr: built.signedXdr,
+        knownHash: lastHash,
+      });
+      return { hash, retryCount, signedXdr: built.signedXdr };
+    } catch (err) {
+      const cls: SorobanFailureClass =
+        err && typeof err === "object" && "failureClass" in err
+          ? ((err as { failureClass: SorobanFailureClass }).failureClass)
+          : classifySorobanFailure(
+              err instanceof Error ? err.message : String(err)
+            );
+      if (
+        err &&
+        typeof err === "object" &&
+        "hash" in err &&
+        typeof (err as { hash?: string }).hash === "string"
+      ) {
+        lastHash = (err as { hash: string }).hash;
+      }
+      if (!isRetryableSorobanFailure(cls) || !canRetrySubmit(retryCount)) {
+        throw Object.assign(
+          err instanceof Error ? err : new Error(String(err)),
+          { failureClass: cls }
+        );
+      }
+      retryCount = nextRetryCount(retryCount);
+      if (retryCount > MAX_TECHNICAL_RETRIES) throw err;
     }
   }
 }
@@ -176,7 +264,7 @@ export type TransferInput = {
 
 /**
  * Full transfer lifecycle: resolve → policy → approve/auto → sign → submit.
- * ponytail: signs with allocation-account secret until Soroban session keys land.
+ * Final submit branches on custody mode; policy/idempotency unchanged.
  */
 export async function executeTransfer(input: TransferInput) {
   const idempotencyKey = input.idempotencyKey?.trim() || randomUUID();
@@ -212,7 +300,24 @@ export async function executeTransfer(input: TransferInput) {
   const smartAccount = await prisma.smartAccount.findUnique({
     where: { userId: input.userId },
   });
-  if (!smartAccount?.publicKey || !smartAccount.encryptedSecret) {
+  if (!smartAccount) {
+    throw Object.assign(new Error("smart account not linked"), { status: 400 });
+  }
+
+  const contractMode = isContractCustody(smartAccount);
+  if (contractMode) {
+    if (!smartAccount.contractRef?.startsWith("C")) {
+      throw Object.assign(new Error("contract account not deployed"), {
+        status: 400,
+      });
+    }
+    if (!session.encryptedSessionKey || !isSessionActive(session)) {
+      throw Object.assign(
+        new Error("session not active on-chain — authorize with Freighter first"),
+        { status: 403 }
+      );
+    }
+  } else if (!smartAccount.publicKey || !smartAccount.encryptedSecret) {
     throw Object.assign(new Error("smart account not linked"), { status: 400 });
   }
 
@@ -235,22 +340,34 @@ export async function executeTransfer(input: TransferInput) {
     });
   }
 
-  let tx = await prisma.transaction.create({
-    data: {
-      userId: input.userId,
-      sessionId: session.id,
-      idempotencyKey,
-      action: "transfer",
-      asset: input.asset,
-      amount: input.amount,
-      recipient: resolved.stellarAddress,
-      status: "CREATED",
-    },
-  });
-
-  await prisma.idempotencyRecord.create({
-    data: { key: idempotencyKey, transactionId: tx.id },
-  });
+  let tx;
+  try {
+    tx = await prisma.transaction.create({
+      data: {
+        userId: input.userId,
+        sessionId: session.id,
+        idempotencyKey,
+        action: "transfer",
+        asset: input.asset,
+        amount: input.amount,
+        recipient: resolved.stellarAddress,
+        status: "CREATED",
+      },
+    });
+    await prisma.idempotencyRecord.create({
+      data: { key: idempotencyKey, transactionId: tx.id },
+    });
+  } catch (err) {
+    if (isUniqueConflict(err)) {
+      const again = await prisma.transaction.findUnique({
+        where: { idempotencyKey },
+      });
+      if (again) {
+        return { transaction: toTxView(again), idempotentReplay: true };
+      }
+    }
+    throw err;
+  }
 
   tx = await prisma.transaction.update({
     where: { id: tx.id },
@@ -300,6 +417,7 @@ export async function executeTransfer(input: TransferInput) {
     await writeAudit(input.userId, "transfer_rejected", {
       transactionId: tx.id,
       reason: policy.reason,
+      custodyMode: contractMode ? "contract" : "legacy",
     });
     return { transaction: toTxView(tx), policy, idempotentReplay: false };
   }
@@ -323,6 +441,7 @@ export async function executeTransfer(input: TransferInput) {
     await writeAudit(input.userId, "transfer_pending_approval", {
       transactionId: tx.id,
       approvalId: approval.id,
+      custodyMode: contractMode ? "contract" : "legacy",
     });
     return {
       transaction: toTxView(tx),
@@ -335,7 +454,6 @@ export async function executeTransfer(input: TransferInput) {
     };
   }
 
-  // AUTO_EXECUTE
   tx = await prisma.transaction.update({
     where: { id: tx.id },
     data: {
@@ -344,7 +462,7 @@ export async function executeTransfer(input: TransferInput) {
     },
   });
 
-  return finalizeAndSubmit(tx.id, smartAccount.encryptedSecret, {
+  return finalizeAndSubmit(tx.id, {
     destination: resolved.stellarAddress,
     amount: input.amount,
     userId: input.userId,
@@ -353,7 +471,6 @@ export async function executeTransfer(input: TransferInput) {
 
 export async function finalizeAndSubmit(
   transactionId: string,
-  encryptedSecret: string,
   opts: { destination: string; amount: string; userId: string }
 ) {
   let tx = await prisma.transaction.update({
@@ -361,41 +478,105 @@ export async function finalizeAndSubmit(
     data: { status: "SIGNING" },
   });
 
-  let secret: string;
-  try {
-    secret = decryptSecret(encryptedSecret);
-  } catch {
-    tx = await prisma.transaction.update({
-      where: { id: transactionId },
-      data: { status: "FAILED", completedAt: new Date() },
-    });
-    throw Object.assign(new Error("failed to unlock allocation account"), {
-      status: 500,
-      transaction: toTxView(tx),
-    });
+  const smartAccount = await prisma.smartAccount.findUnique({
+    where: { userId: opts.userId },
+  });
+  if (!smartAccount) {
+    throw Object.assign(new Error("smart account missing"), { status: 400 });
   }
 
+  const contractMode = isContractCustody(smartAccount);
+  // Do not fall back to contractRef inference — custodyMode is authoritative.
+  const mode = contractMode ? "soroban_contract" : "interim_g_account";
+
   try {
-    const { hash, retryCount } = await submitWithRetry(
-      transactionId,
-      secret,
-      opts.destination,
-      opts.amount,
-      tx.retryCount
-    );
-    tx = await prisma.transaction.update({
-      where: { id: transactionId },
-      data: {
-        status: "SUCCESS",
-        stellarTransactionHash: hash,
-        retryCount,
-        completedAt: new Date(),
-      },
-    });
-    await writeAudit(opts.userId, "transfer_success", {
-      transactionId: tx.id,
-      hash,
-    });
+    let hash: string;
+    let retryCount: number;
+
+    if (mode === "soroban_contract") {
+      if (!smartAccount.contractRef?.startsWith("C") || !tx.sessionId) {
+        throw new Error("contract custody requires C-account and session");
+      }
+      const session = await prisma.aiSession.findFirst({
+        where: { id: tx.sessionId, userId: opts.userId },
+      });
+      if (!session?.encryptedSessionKey || !isSessionActive(session)) {
+        throw Object.assign(new Error("session not active for contract spend"), {
+          status: 403,
+        });
+      }
+      let sessionSecret: string;
+      try {
+        sessionSecret = decryptSecret(session.encryptedSessionKey);
+      } catch {
+        throw new Error("failed to unlock session key");
+      }
+
+      const result = await submitContractWithRetry({
+        transactionId,
+        contractAccountId: smartAccount.contractRef,
+        sessionSecret,
+        destination: opts.destination,
+        amount: opts.amount,
+        startRetry: tx.retryCount,
+      });
+      hash = result.hash;
+      retryCount = result.retryCount;
+
+      tx = await prisma.transaction.update({
+        where: { id: transactionId },
+        data: {
+          status: "SUCCESS",
+          stellarTransactionHash: hash,
+          retryCount,
+          completedAt: new Date(),
+        },
+      });
+      await writeAudit(opts.userId, "transfer_success", {
+        transactionId: tx.id,
+        hash,
+        custodyMode: "contract",
+        contractId: smartAccount.contractRef,
+        sessionId: session.id,
+        contractVersion: smartAccount.contractVersion,
+        // never log secrets / signed xdr
+      });
+    } else {
+      if (!smartAccount.encryptedSecret) {
+        throw new Error("legacy custody missing encrypted secret");
+      }
+      let secret: string;
+      try {
+        secret = decryptSecret(smartAccount.encryptedSecret);
+      } catch {
+        throw new Error("failed to unlock allocation account");
+      }
+      const result = await submitLegacyWithRetry(
+        transactionId,
+        secret,
+        opts.destination,
+        opts.amount,
+        tx.retryCount
+      );
+      hash = result.hash;
+      retryCount = result.retryCount;
+
+      tx = await prisma.transaction.update({
+        where: { id: transactionId },
+        data: {
+          status: "SUCCESS",
+          stellarTransactionHash: hash,
+          retryCount,
+          completedAt: new Date(),
+        },
+      });
+      await writeAudit(opts.userId, "transfer_success", {
+        transactionId: tx.id,
+        hash,
+        custodyMode: "legacy",
+      });
+    }
+
     await bumpMonthlyUsage(opts.userId, opts.amount);
     return {
       transaction: toTxView(tx),
@@ -403,6 +584,10 @@ export async function finalizeAndSubmit(
       idempotentReplay: false,
     };
   } catch (err) {
+    const failureClass =
+      err && typeof err === "object" && "failureClass" in err
+        ? (err as { failureClass: string }).failureClass
+        : undefined;
     tx = await prisma.transaction.update({
       where: { id: transactionId },
       data: { status: "FAILED", completedAt: new Date() },
@@ -410,6 +595,10 @@ export async function finalizeAndSubmit(
     await writeAudit(opts.userId, "transfer_failed", {
       transactionId: tx.id,
       error: err instanceof Error ? err.message : "submit failed",
+      custodyMode: contractMode ? "contract" : "legacy",
+      contractId: smartAccount.contractRef,
+      authFailureReason: failureClass,
+      contractVersion: smartAccount.contractVersion,
     });
     throw Object.assign(
       new Error(err instanceof Error ? err.message : "submit failed"),
@@ -455,7 +644,7 @@ export async function approvePendingTransfer(
   const smartAccount = await prisma.smartAccount.findUnique({
     where: { userId },
   });
-  if (!smartAccount?.encryptedSecret || !tx.recipient || !tx.amount) {
+  if (!smartAccount || !tx.recipient || !tx.amount) {
     throw Object.assign(new Error("cannot execute transfer"), { status: 400 });
   }
 
@@ -465,10 +654,13 @@ export async function approvePendingTransfer(
   });
   await prisma.transaction.update({
     where: { id: tx.id },
-    data: { status: "AUTO_APPROVED", policyDecision: "PENDING_APPROVAL→APPROVED" },
+    data: {
+      status: "AUTO_APPROVED",
+      policyDecision: "PENDING_APPROVAL→APPROVED",
+    },
   });
 
-  return finalizeAndSubmit(tx.id, smartAccount.encryptedSecret, {
+  return finalizeAndSubmit(tx.id, {
     destination: tx.recipient,
     amount: tx.amount,
     userId,

@@ -1,5 +1,29 @@
 import { Horizon, Keypair, Networks } from "@stellar/stellar-sdk";
 
+export {
+  xlmToStroops,
+  stroopsToXlm,
+  getNativeSacContractId,
+  getRpcServer,
+  buildNativeSacTransferOp,
+  validateExactSacTransferAuth,
+  signSessionAuthEntries,
+  buildSimulateSignContractPayment,
+  submitSignedSorobanXdr,
+  classifySorobanFailure,
+  isRetryableSorobanFailure,
+  getContractXlmBalance,
+  fundContractAccountFromG,
+  uploadContractWasm,
+  deploySmartAccountContract,
+  buildSessionAdminOp,
+  rawEd25519PublicKey,
+  stellarSorobanSelfCheck,
+  DEFAULT_SOROBAN_RPC,
+  type SorobanFailureClass,
+  type ExpectedTransfer,
+} from "./soroban";
+
 export type AssetBalance = {
   asset: string;
   balance: string;

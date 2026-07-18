@@ -38,12 +38,22 @@ model Wallet {
 model SmartAccount {
   id              String   @id @default(cuid())
   userId          String   @unique
-  /// Public G-address of allocation account (interim until Soroban contract)
+  /// Public G-address of allocation account (interim / rollback)
   publicKey       String?
-  /// AES-GCM encrypted secret seed — never returned to clients
+  /// AES-GCM encrypted G-secret — never returned to clients; retained for rollback
   encryptedSecret String?
-  /// Future Soroban contract id; mirrors publicKey for now
+  /// Soroban contract id (`C…`) when custodyMode=contract; else may mirror G
   contractRef     String?
+  /// legacy = interim G-account; contract = Soroban custom account
+  custodyMode     String   @default("legacy")
+  /// Deployed WASM version tag (e.g. phase9c-v1)
+  contractVersion String?
+  /// Network passphrase short name (testnet / future mainnet)
+  contractNetwork String?
+  /// SHA-256 hex of deployed WASM
+  wasmHash        String?
+  /// Deployment transaction hash (no secrets)
+  deployTxHash    String?
   status          String   @default("pending")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -89,9 +99,18 @@ model AiSession {
   encryptedSessionKey String?
   /// SHA-256 of MCP API token (plaintext shown once on create)
   mcpTokenHash        String?   @unique
+  /// pending_onchain | active | revocation_pending | revoked | expired
   status              String    @default("pending")
   expiresAt           DateTime?
+  /// Ledger sequence when on-chain session expires
+  expiresLedger       Int?
   revokedAt           DateTime?
+  /// add_session confirmation hash
+  onchainRegisterTxHash String?
+  /// revoke_session confirmation hash
+  onchainRevokeTxHash   String?
+  /// Policy rules fingerprint / version for audit
+  policyVersion       String?
   createdAt           DateTime  @default(now())
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -192,4 +211,18 @@ model AuthChallenge {
   createdAt DateTime @default(now())
 
   @@index([publicKey])
+}
+
+/// Desktop shows QR; phone completes SEP-53; desktop claims cookies
+model QrLoginSession {
+  id         String   @id @default(cuid())
+  status     String   @default("pending")
+  publicKey  String?
+  userId     String?
+  claimToken String?  @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  claimedAt  DateTime?
+
+  @@index([status, expiresAt])
 }

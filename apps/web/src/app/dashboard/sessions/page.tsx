@@ -6,6 +6,7 @@ import { apiFetch } from "@/lib/api";
 import {
   fetchCurrentUser,
   signMessageWithFreighter,
+  signTransactionWithFreighter,
   truncateKey,
 } from "@/lib/wallet";
 
@@ -105,6 +106,7 @@ export default function SessionsPage() {
       const created = await apiFetch<{
         session: SessionView;
         mcpToken: string;
+        onchainRegister?: { unsignedXdr: string } | null;
       }>("/sessions", {
         method: "POST",
         body: JSON.stringify({
@@ -115,6 +117,17 @@ export default function SessionsPage() {
           signature,
         }),
       });
+
+      if (created.onchainRegister?.unsignedXdr) {
+        const signedXdr = await signTransactionWithFreighter(
+          created.onchainRegister.unsignedXdr,
+          user.publicKey
+        );
+        await apiFetch(`/sessions/${created.session.id}/onchain-confirm`, {
+          method: "POST",
+          body: JSON.stringify({ signedXdr }),
+        });
+      }
 
       setMcpToken(created.mcpToken);
       setStep("list");
@@ -130,7 +143,22 @@ export default function SessionsPage() {
   async function revoke(id: string) {
     setError(null);
     try {
-      await apiFetch(`/sessions/${id}/revoke`, { method: "POST" });
+      const user = await fetchCurrentUser();
+      const result = await apiFetch<{
+        session: SessionView;
+        onchainRevoke?: { unsignedXdr: string } | null;
+      }>(`/sessions/${id}/revoke`, { method: "POST" });
+
+      if (result.onchainRevoke?.unsignedXdr && user?.publicKey) {
+        const signedXdr = await signTransactionWithFreighter(
+          result.onchainRevoke.unsignedXdr,
+          user.publicKey
+        );
+        await apiFetch(`/sessions/${id}/onchain-confirm`, {
+          method: "POST",
+          body: JSON.stringify({ signedXdr }),
+        });
+      }
       await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Revoke failed");

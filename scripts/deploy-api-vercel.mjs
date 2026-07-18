@@ -28,6 +28,9 @@ const envKeys = [
   "SMART_ACCOUNT_ENCRYPTION_KEY",
   "STELLAR_NETWORK_PASSPHRASE",
   "STELLAR_HORIZON_URL",
+  "STELLAR_RPC_URL",
+  "NATIVE_SAC_CONTRACT_ID",
+  "RELAYER_SECRET",
 ];
 
 function run(cmd, args, opts = {}) {

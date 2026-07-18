@@ -17,8 +17,12 @@
     "start:api": "npm run start -w @pay3/api",
     "smoke:mcp": "node scripts/smoke-mcp.mjs",
     "smoke:prod": "node scripts/smoke-prod.mjs",
+    "smoke:qr": "npm run smoke:qr -w @pay3/api",
+    "smoke:stellar": "npm run selfcheck -w @pay3/stellar",
+    "canary:deploy": "npx --yes tsx scripts/canary-deploy.mjs",
     "lint": "npm run lint -w @pay3/web",
     "db:generate": "npm run generate -w @pay3/database",
-    "db:push": "npm run push -w @pay3/database"
+    "db:push": "npm run push -w @pay3/database",
+    "db:migrate": "npm run migrate -w @pay3/database"
   }
 }

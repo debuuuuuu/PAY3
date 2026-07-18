@@ -68,6 +68,8 @@ API_PROXY_ORIGIN=https://pay3-api.vercel.app
 
 Push + redeploy: `node scripts/vercel-push-web-env.mjs`
 
+For **WalletConnect** on `/login/qr/:id`, set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` from [WalletConnect Cloud](https://cloud.walletconnect.com/) on the web project and redeploy.
+
 [`apps/web/next.config.ts`](../apps/web/next.config.ts) rewrites `/api/{auth,smart-account,...}` to `API_PROXY_ORIGIN`.
 
 ## 4. MCP against production

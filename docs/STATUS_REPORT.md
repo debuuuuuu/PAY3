@@ -60,8 +60,8 @@ Without the API, Connect Wallet / Link smart account will fail.
 ### Step A — Visit the site
 Open the landing page. This is marketing only.
 
-### Step B — Connect Freighter
-Go to **Dashboard** → **Connect Freighter**.
+### Step B — Connect Freighter (or phone QR)
+Go to **Dashboard** → **Connect Freighter**, or **Scan with phone** to open `/login/qr/…` on mobile (Freighter / WalletConnect). Desktop polls and claims the session cookies.
 
 **What happens:**
 
@@ -181,27 +181,27 @@ So we can break things without losing real money.
 | 10 | Dashboard completion (audit + usage) | ✅ Done |
 | 9 | Soroban technical validation + scaffold | ✅ |
 | 9b | Contract source + local WASM build | ✅ Built (`artifacts/pay3_smart_account.wasm`) |
-| 9c | Deploy testnet + wire API | ⬜ Next optional step |
+| 9c | Harden + RPC/relayer + canary wiring | ✅ Code complete — opt-in canary; default still legacy |
 
-**Roughly:** Off-chain MVP complete + Soroban WASM built. Shipped as **public testnet beta** (interim G-account). See `docs/PRODUCTION.md` for hosting.
+**Roughly:** Off-chain MVP complete + Phase 9c Soroban path wired for one opt-in canary. Public testnet beta still defaults to interim G-account. See `docs/SOROBAN_SETUP.md`.
 
 ---
 
 ## 10. What you should do next (simple)
 
-1. Deploy per `docs/PRODUCTION.md` (API Node host + Vercel web).  
-2. Smoke Freighter + MCP against prod URLs.  
-3. Phase **9c** later: deploy WASM + wire on-chain `__check_auth`.  
+1. Apply Prisma migration `20260717120000_phase9c_custody_onchain`.  
+2. Set `STELLAR_RPC_URL` + `RELAYER_SECRET`; run `node scripts/canary-deploy.mjs` for one account.  
+3. Security review before making contract custody the default.  
 
 ---
 
 ## 11. Bottom line
 
-**What’s happening:** Pay3 testnet beta — Freighter → pot → contacts → session → policy → MCP pay → approvals / revoke / audit.
+**What’s happening:** Pay3 testnet beta — Freighter → pot → contacts → session → policy → MCP pay → approvals / revoke / audit; Soroban canary available opt-in.
 
-**Why it’s happening this way:** Security first — separate pot, encrypted session material, off-chain policy; Soroban hardens critical limits on-chain next.
+**Why it’s happening this way:** Security first — separate pot, encrypted session material, off-chain policy; on-chain `__check_auth` for canary accounts.
 
-**Where you are:** Product is launchable as a **testnet beta**. Not mainnet. Soroban not cut over yet.
+**Where you are:** Product is launchable as a **testnet beta**. Not mainnet. Contract custody not default yet.
 
 If one sentence for a teammate:  
-> *“Testnet beta: MCP payments work with interim G-account custody; Soroban WASM ready for cutover.”*
+> *“Testnet beta: MCP payments on legacy G-accounts; Phase 9c Soroban canary ready for one opt-in account.”*

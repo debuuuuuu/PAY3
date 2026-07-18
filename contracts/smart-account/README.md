@@ -1,4 +1,4 @@
-# Pay3 Smart Account (Soroban) — Phase 9b
+# Pay3 Smart Account (Soroban) — Phase 9c
 
 > Validation: [`docs/TECHNICAL_VALIDATION.md`](../../docs/TECHNICAL_VALIDATION.md)  
 > Build/install: [`docs/SOROBAN_SETUP.md`](../../docs/SOROBAN_SETUP.md)
@@ -7,20 +7,22 @@
 
 | Item | Status |
 |------|--------|
-| Contract source (`init`, sessions, `__check_auth`) | ✅ |
-| Rust + Stellar CLI | ✅ Installed on this machine |
-| Local WASM build | ✅ `artifacts/pay3_smart_account.wasm` (~4KB) |
-| Testnet deploy | ❌ |
-| API wired to `C…` contract | ❌ (still interim G-account) |
+| `__constructor` + owner admin auth + SAC caps | ✅ |
+| Rust tests (15) | ✅ |
+| WASM (`wasm32v1-none`) | ✅ `artifacts/pay3_smart_account.wasm` |
+| JS auth interop + RPC/relayer primitives | ✅ `@pay3/stellar` |
+| API custody branch + on-chain session UX | ✅ opt-in |
+| Default for new users | ❌ still legacy G-account |
+| Broad migration / mainnet | ❌ deferred |
 
 ## Build
 
 ```bash
-# after docs/SOROBAN_SETUP.md
 cd contracts/smart-account
+cargo test
 stellar contract build
 ```
 
-## Interim custody
+## Canary
 
-Production/demo path remains the encrypted **G-address** until this contract is deployed and the transaction engine signs with session auth entries.
+See `docs/SOROBAN_SETUP.md` and `scripts/canary-deploy.mjs`.

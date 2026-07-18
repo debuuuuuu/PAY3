@@ -1,7 +1,7 @@
 # Technical Validation — Soroban Smart Account (§45)
 
-> **Status:** Research spike complete (Phase 9 start).  
-> **Rule:** Do not implement production on-chain enforcement until this doc’s decisions are accepted.  
+> **Status:** Phase 9c canary path implemented (hardened contract + RPC/relayer wiring).  
+> **Rule:** Contract custody is **opt-in canary only** until security review + migration gate. Default new users remain legacy G-account.  
 > **Spec source:** `maincontext.md` §11, §20, §45.
 
 ---
@@ -59,23 +59,28 @@ From `maincontext.md` §20 — implement in `__check_auth` / policies:
 Recipient name resolution, ambiguous-contact rejection, approval UX, rate limits, risk heuristics, MCP auth — already in API / policy engine.
 
 ### D4 — Implementation approach (ordered)
-1. Spike: compile + deploy **simple account** example on Futurenet/Testnet.  
-2. Extend with session signer + spend limit (complex-account pattern or OZ policies).  
-3. Wire `packages/stellar` to build auth entries signed by session key.  
-4. Dual-run: off-chain policy still required; on-chain is the hard gate.  
-5. Only then flip dashboard “smart account” to contract id.
+1. ✅ Harden contract: `__constructor`, owner admin auth, SAC-only transfers, per-tx + session caps + Rust tests.  
+2. ✅ JS auth interop: stroops, recording/enforcing sim, AccSignature via `authorizeEntry`, self-check.  
+3. ✅ Dual-run: off-chain policy still required; on-chain `__check_auth` is the hard gate for canary.  
+4. ⬜ Wider cutover only after security review + canary soak.
+
+### D5 — Canary / rollback
+- Enable via `POST /smart-account/enable-contract-custody` (explicit confirm).  
+- Rollback via `POST /smart-account/rollback-legacy` — keeps both G and C records; **no automatic sweep**.  
+- Relayer G pays fees only; session key signs auth entries in backend memory.
 
 ---
 
-## 4. Open items (block full cutover)
+## 4. Open items (block default cutover)
 
-1. Exact Freighter UX for authorizing **admin** session registration on the contract.  
+1. Security review before making contract custody default for new users.  
 2. Testnet USDC SAC address + trustline / wrap flow.  
-3. Fee bump / sponsorship if session key has no XLM for fees.  
-4. Formal threat model: compromised Pay3 API with session key vs without on-chain caps.
+3. Production WalletConnect + hosted HTTPS MCP.  
+4. Formal threat model write-up for compromised API with session key vs on-chain caps.
 
 ---
 
 ## 5. Scaffold location
 
-See [`contracts/smart-account/`](../contracts/smart-account/) — placeholder interface + README. **Not deployed. Not wired to the API yet.**
+See [`contracts/smart-account/`](../contracts/smart-account/) and [`docs/SOROBAN_SETUP.md`](./SOROBAN_SETUP.md).
+Build target: **`wasm32v1-none`**.

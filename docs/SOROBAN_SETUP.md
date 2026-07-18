@@ -1,69 +1,83 @@
-# Soroban setup (Windows) — Phase 9b
+# Soroban setup — Phase 9c
 
-Pay3’s contract lives in `contracts/smart-account/`. This machine may not have Rust yet; install once, then build.
+Pay3’s contract lives in `contracts/smart-account/`. Build target is **`wasm32v1-none`**.
 
-## 1. Install Rust
-
-```powershell
-winget install Rustlang.Rustup
-# restart the terminal
-rustup target add wasm32-unknown-unknown
-```
-
-## 2. Install Stellar CLI
-
-Prefer the **release binary** (faster than `cargo install`):
+## 1. Tooling
 
 ```powershell
-# download from https://github.com/stellar/stellar-cli/releases
-# e.g. stellar-cli-*-x86_64-pc-windows-msvc.tar.gz → extract stellar.exe into %USERPROFILE%\.cargo\bin
+# Rust + WASM target
+rustup target add wasm32v1-none
+# Stellar CLI on PATH (e.g. %USERPROFILE%\.cargo\bin)
 stellar version
 ```
 
-Or: `cargo install --locked stellar-cli` (slow; needs a working `rust-std`).
-
-Also add the WASM target Soroban uses:
+## 2. Build + test
 
 ```powershell
-rustup target add wasm32v1-none
-```
-
-## 3. Build the Pay3 account contract
-
-```powershell
-cd C:\coding\PAy3-deb\contracts\smart-account
+cd contracts/smart-account
+cargo test
 stellar contract build
-# copy WASM from the build output path, or use artifacts/ after a local copy
+# Artifact: artifacts/pay3_smart_account.wasm (copy from CLI output if needed)
 ```
 
-A built artifact may be checked in at `contracts/smart-account/artifacts/pay3_smart_account.wasm`.
+Exported methods: `__constructor`, `__check_auth`, `add_session`, `revoke_session`, `get_session`, `owner`, `native_sac`.
 
-## 4. Deploy (testnet) — after build works
+**WASM SHA-256 (phase9c-v1):** `3adb17764399dac1725b5a50073bd671de498645387a10505d6e1245fab48a5b`  
+Optional: set `PAY3_ALLOWED_WASM_HASHES` to this value so enable-contract-custody rejects unknown builds.
 
-```powershell
-stellar contract deploy `
-  --wasm target/wasm32-unknown-unknown/release/pay3_smart_account.wasm `
-  --source-account <YOUR_SECRET_OR_ALIAS> `
-  --network testnet
-```
-
-Then call `init` with the Freighter account’s ed25519 public key (32-byte raw), register sessions with `add_session`, and set `SmartAccount.contractRef` in Neon to the returned `C…` id.
-
-## 5. API cutover (not done yet)
-
-Until deploy + client auth wiring land:
-
-- Keep using the **interim G-address** allocation account  
-- See `docs/TECHNICAL_VALIDATION.md` §3 D1 for migration order
-
-## Contract surface
+## 3. Contract surface (Phase 9c)
 
 | Method | Who | Purpose |
 |--------|-----|---------|
-| `init(owner_pk)` | deployer | Set Freighter owner key |
-| `add_session(pk, expires_ledger, per_tx_max_stroops)` | owner auth | Register AI session |
-| `revoke_session(pk)` | owner auth | Kill session on-chain |
-| `get_session(pk)` | anyone | Read policy |
-| `__check_auth` | Soroban host | Owner or session ed25519 |
+| `__constructor(owner, owner_pk, native_sac)` | deploy-time | Atomic init — no unauthenticated `init` |
+| `add_session(pk, expires_ledger, per_tx_max, session_max)` | owner `Address.require_auth` | Register AI session |
+| `revoke_session(pk)` | owner | Kill session on-chain |
+| `get_session(pk)` | anyone | Read policy + spent |
+| `__check_auth` | host | Owner or session ed25519; **native SAC `transfer` only**; per-tx + lifetime caps |
 
-Do not invent alternate auth — this matches `CustomAccountInterface` / simple_account patterns.
+Session signatures **cannot** authorize admin methods on the account contract.
+
+## 4. Canary deploy (one opt-in account)
+
+```powershell
+# Fund deployer/funder on testnet first. Never commit secrets.
+$env:CANARY_DEPLOYER_SECRET="S..."
+$env:CANARY_OWNER_G="G..."
+$env:CANARY_OWNER_SECRET="S..."   # or CANARY_OWNER_PK_HEX
+$env:CANARY_FUNDER_SECRET="S..."  # optional; defaults to deployer
+$env:STELLAR_RPC_URL="https://soroban-testnet.stellar.org"
+node scripts/canary-deploy.mjs
+```
+
+Then (authenticated API):
+
+```http
+POST /smart-account/enable-contract-custody
+{ "confirm": "ENABLE_CONTRACT_CUSTODY", "contractRef": "C…", "wasmHash": "…", "contractVersion": "phase9c-v1", "deployTxHash": "…" }
+```
+
+Rollback (no delete / no automatic G sweep):
+
+```http
+POST /smart-account/rollback-legacy
+{ "confirm": "ROLLBACK_LEGACY" }
+```
+
+Fund the C-account via **native SAC transfer** only — never Friendbot or Horizon `loadAccount(C…)`.
+
+## 5. Runtime env
+
+| Var | Purpose |
+|-----|---------|
+| `STELLAR_RPC_URL` | Soroban RPC |
+| `NATIVE_SAC_CONTRACT_ID` | Optional override |
+| `RELAYER_SECRET` | Backend fee-payer G secret (never to clients) |
+| `STELLAR_HORIZON_URL` | Legacy G-account path |
+
+## 6. Cutover status
+
+- **Default for new users:** still **legacy** G-account (`custodyMode=legacy`)
+- **Contract path:** opt-in canary only until security review + migration gate
+- Off-chain policy, approvals, idempotency, and two-retry technical ceiling unchanged
+
+See `docs/TECHNICAL_VALIDATION.md` and `docs/SECURITY.md`.

@@ -9,7 +9,11 @@ const apiOrigin =
 
 // Only proxy Pay3 API routes — ignore browser-extension /api/ext/* noise.
 const nextConfig: NextConfig = {
+  // Phone QR hits the LAN IP; Next blocks cross-origin /_next/* without this
+  allowedDevOrigins: ["10.174.201.78", "127.0.0.1"],
   transpilePackages: ["@pay3/shared", "@pay3/stellar"],
+  // ponytail: WC client pulls ESM that Next needs to transpile
+  serverExternalPackages: ["@walletconnect/sign-client"],
   async rewrites() {
     const routes = [
       "auth",
