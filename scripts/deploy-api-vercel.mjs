@@ -68,7 +68,12 @@ function loadEnvFile(file) {
 }
 
 console.log("generate prisma + bundle api…");
-run("npm", ["run", "db:generate"], { cwd: root });
+// ponytail: local Windows locks query_engine DLL while API is running
+if (process.env.SKIP_DB_GENERATE !== "1") {
+  run("npm", ["run", "db:generate"], { cwd: root });
+} else {
+  console.log("SKIP_DB_GENERATE=1");
+}
 run("node", ["scripts/bundle-api.mjs"], { cwd: root });
 
 if (!existsSync(join(root, "api/server.cjs"))) {
