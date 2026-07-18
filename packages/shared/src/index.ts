@@ -153,6 +153,7 @@ export const DASHBOARD_NAV = [
   { href: "/dashboard/approvals", label: "Approvals" },
   { href: "/dashboard/audit", label: "Audit" },
   { href: "/dashboard/settings", label: "Settings" },
+  { href: "/guide", label: "Guide" },
 ] as const;
 
 export function buildAuthMessage(nonce: string): string {
