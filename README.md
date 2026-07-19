@@ -1,9 +1,5 @@
 <div align="center">
 
-<img src="docs/assets/pay3-logo.png" alt="Pay3 logo" width="160" />
-
-<br/>
-
 <img src="docs/assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute. MCP-powered finance on Stellar" width="100%" />
 
 # Pay3
@@ -38,8 +34,6 @@ You keep the big wallet. The AI spends from a **small pot** with **rules you set
   ·
   <a href="docs/readme.html"><strong>HTML README</strong></a>
 </p>
-
-<img src="docs/assets/pay3-flow.svg" alt="You → Pay3 → AI jar → Stellar" width="100%" />
 
 </div>
 
@@ -119,7 +113,7 @@ AI agents can chat — but payment rails were built for humans with credit cards
 ## System design
 
 <div align="center">
-<img src="docs/assets/pay3-system.svg" alt="Pay3 system design diagram" width="100%" />
+<img src="docs/assets/pay3-system.png" alt="Pay3 system design diagram" width="100%" />
 </div>
 
 ### High-level boxes
@@ -481,10 +475,6 @@ API deploy helper: `node scripts/deploy-api-vercel.mjs`
 
 <div align="center">
 
-<img src="docs/assets/pay3-logo.png" width="96" alt="Pay3" />
-
-<br/><br/>
-
 <img src="docs/assets/pay3-banner.png" width="100%" alt="Pay3 — Delegate. Validate. Execute." />
 
 <br/>
@@ -503,6 +493,6 @@ API deploy helper: `node scripts/deploy-api-vercel.mjs`
 
 <br/><br/>
 
-<sub>Banner + pixel logo are brand assets. Full CSS experience → <a href="docs/readme.html">docs/readme.html</a>. Live GSAP site → <a href="https://paythreewallet.vercel.app">paythreewallet.vercel.app</a>.</sub>
+<sub>Full CSS experience → <a href="docs/readme.html">docs/readme.html</a>. Live site → <a href="https://paythreewallet.vercel.app">paythreewallet.vercel.app</a>.</sub>
 
 </div>

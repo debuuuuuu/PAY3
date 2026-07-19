@@ -1,7 +1,7 @@
 # Pay3 Architecture
 
 <p align="center">
-  <img src="assets/pay3-flow.svg" alt="Pay3 flow" width="100%" />
+  <img src="assets/pay3-system.png" alt="Pay3 system design" width="100%" />
 </p>
 
 > Plain-language intro: [`WHAT_IS_PAY3.md`](./WHAT_IS_PAY3.md).  

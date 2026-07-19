@@ -2,11 +2,7 @@
 
 <div align="center">
 
-<img src="assets/pay3-logo.png" alt="Pay3" width="96" />
-
-<br/><br/>
-
-  <img src="assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute." width="100%" />
+<img src="assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute." width="100%" />
 
 <p><a href="https://x.com/PAYThreeWallet">X @PAYThreeWallet</a></p>
 
