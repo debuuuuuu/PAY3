@@ -1,8 +1,16 @@
 # Pay3 — Plain-English Status Report
 
-<p align="center">
-  <img src="assets/pay3-banner.svg" alt="Pay3" width="100%" />
-</p>
+<div align="center">
+
+<img src="assets/pay3-logo.png" alt="Pay3" width="96" />
+
+<br/><br/>
+
+  <img src="assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute." width="100%" />
+
+<p><a href="https://x.com/PAYThreeWallet">X @PAYThreeWallet</a></p>
+
+</div>
 
 > Full kid-friendly overview of the whole product: [`WHAT_IS_PAY3.md`](./WHAT_IS_PAY3.md).
 

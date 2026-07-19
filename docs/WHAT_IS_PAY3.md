@@ -1,8 +1,22 @@
 # What is Pay3? (explained simply)
 
-<p align="center">
-  <img src="assets/pay3-banner.svg" alt="Pay3 — safe allowance for AI money" width="100%" />
+<div align="center">
+
+<img src="assets/pay3-logo.png" alt="Pay3" width="120" />
+
+<br/><br/>
+
+  <img src="assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute. MCP-powered finance on Stellar" width="100%" />
+
+<p>
+  <a href="https://x.com/PAYThreeWallet"><strong>X @PAYThreeWallet</strong></a>
+  ·
+  <a href="https://paythreewallet.vercel.app"><strong>Website</strong></a>
+  ·
+  <a href="https://github.com/debuuuuuu/PAY3"><strong>GitHub</strong></a>
 </p>
+
+</div>
 
 > **Who this is for:** anyone — including someone who has never heard of crypto, AI, or “MCP.”  
 > **Hard docs:** start here first. Technical details live in the other files linked at the bottom.
