@@ -25,5 +25,8 @@
     "db:generate": "npm run generate -w @pay3/database",
     "db:push": "npm run push -w @pay3/database",
     "db:migrate": "npm run migrate -w @pay3/database"
+  },
+  "dependencies": {
+    "stellar-devkit-mcp": "^1.0.6"
   }
 }

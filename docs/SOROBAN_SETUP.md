@@ -18,13 +18,14 @@ cd contracts/smart-account
 cargo test
 stellar contract build
 # Artifact: artifacts/pay3_smart_account.wasm (copy from CLI output if needed)
+# Current Zipper build (2026-07-19): sha256 842c28f0f4db756cfbe259553993fd1045c0df32966b4bebff9d94720490e5e0 (8431 bytes)
 ```
 
 Exported methods: `__constructor`, `__check_auth`, `add_session`, `revoke_session`, `get_session`, `owner`, `native_sac`.
 
 **Auth:** Zipper (Protocol 27 / CAP-71) — `Signature = ()`, sessions are G-`Address` delegates via `get_delegated_signers` + `delegate_auth`.
 
-Rebuild WASM after Zipper changes and refresh `PAY3_ALLOWED_WASM_HASHES`.
+Rebuild WASM after Zipper changes and refresh `PAY3_ALLOWED_WASM_HASHES` (include the hash above).
 
 ## 3. Contract surface (Zipper / Phase 9c+)
 
