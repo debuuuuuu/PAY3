@@ -457,6 +457,22 @@ API deploy helper: `node scripts/deploy-api-vercel.mjs`
 | [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md) | Long-term vision |
 | [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) | Phases |
 
+### Stellar docs (for humans + AI)
+
+Official machine-readable index: **[developers.stellar.org/llms.txt](https://developers.stellar.org/llms.txt)**  
+Full dump: [llms-full.txt](https://developers.stellar.org/llms-full.txt) · live docs MCP: [Raven](https://raven.stellar.buzz/mcp)
+
+| Topic Pay3 cares about | Link |
+|:------------------------|:-----|
+| Contract accounts | [guides/contract-accounts](https://developers.stellar.org/docs/build/guides/contract-accounts.md) |
+| Contract authorization | [guides/auth](https://developers.stellar.org/docs/build/guides/auth.md) |
+| Freighter | [guides/freighter](https://developers.stellar.org/docs/build/guides/freighter.md) |
+| SAC / tokens | [tokens/stellar-asset-contract](https://developers.stellar.org/docs/tokens/stellar-asset-contract.md) |
+| Building with AI | [build/building-with-ai](https://developers.stellar.org/docs/build/building-with-ai.md) |
+| Smart contracts start | [smart-contracts/getting-started](https://developers.stellar.org/docs/build/smart-contracts/getting-started.md) |
+
+Any Stellar docs page also serves markdown via `Accept: text/markdown` or by appending `.md` to the URL.
+
 ---
 
 ## Status

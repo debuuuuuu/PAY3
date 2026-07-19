@@ -27,6 +27,13 @@ Exported methods: `__constructor`, `__check_auth`, `add_session`, `revoke_sessio
 
 Rebuild WASM after Zipper changes and refresh `PAY3_ALLOWED_WASM_HASHES` (include the hash above).
 
+## Stellar reference (AI-friendly)
+
+- Docs index for LLMs: https://developers.stellar.org/llms.txt
+- Contract accounts: https://developers.stellar.org/docs/build/guides/contract-accounts.md
+- Auth: https://developers.stellar.org/docs/build/guides/auth.md
+- Raven (live Stellar docs MCP): https://raven.stellar.buzz/mcp
+
 ## 3. Contract surface (Zipper / Phase 9c+)
 
 | Method | Who | Purpose |
