@@ -14,7 +14,7 @@ export default function GuideLayout({
       </a>
       <Header />
       <main id="main" className="min-h-screen bg-black pt-28 pb-16 text-white">
-        <div className="mx-auto max-w-3xl px-6 md:px-12">
+        <div className="guide-rise mx-auto max-w-3xl px-6 md:px-12">
           <p className="mb-8 text-sm text-white/45">
             <Link href="/" className="hover:text-white">
               Home
@@ -24,7 +24,7 @@ export default function GuideLayout({
               Guide
             </Link>
           </p>
-          {children}
+          <div className="guide-rise-stagger">{children}</div>
         </div>
       </main>
       <Footer />

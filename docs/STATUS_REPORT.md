@@ -1,5 +1,11 @@
 # Pay3 — Plain-English Status Report
 
+<p align="center">
+  <img src="assets/pay3-banner.svg" alt="Pay3" width="100%" />
+</p>
+
+> Full kid-friendly overview of the whole product: [`WHAT_IS_PAY3.md`](./WHAT_IS_PAY3.md).
+
 **Date:** 11 Jul 2026 — **Public Stellar testnet beta**  
 **Audience:** You (founder / builder) — not engineers only  
 **Goal of this doc:** Explain *what* we built, *why*, and *where you are* without jargon overload.

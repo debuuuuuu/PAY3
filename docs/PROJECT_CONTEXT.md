@@ -1,5 +1,8 @@
 # Pay3 — Project Context & Technical Specification
 
+> **New / non-technical?** Start with [`WHAT_IS_PAY3.md`](./WHAT_IS_PAY3.md) (plain language).  
+> This file is the **vision & product law** for builders and AI assistants.
+
 > **Version:** 1.1
 > **Status:** Active / Vision & Product Context
 > **Last Updated:** July 2026

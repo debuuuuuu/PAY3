@@ -1,26 +1,58 @@
 # Pay3
 
-**Public Stellar testnet beta** — AI-native financial infrastructure via MCP.
+<p align="center">
+  <img src="docs/assets/pay3-banner.svg" alt="Pay3 — Safe allowance for AI money on Stellar" width="100%" />
+</p>
 
-> Not mainnet. Not USDC yet. Custody today is an **interim encrypted G-address** allocation account. Soroban WASM is built (`contracts/smart-account/artifacts/`) but **not cut over**.
+<p align="center">
+  <strong>Safe allowance for AI money on Stellar.</strong><br/>
+  You keep your main wallet. The AI only spends from a small pot with rules you set.
+</p>
+
+<p align="center">
+  <a href="https://paythreewallet.vercel.app">Website</a> ·
+  <a href="https://pay3-api.vercel.app/health">API health</a> ·
+  <a href="docs/WHAT_IS_PAY3.md">Simple guide</a> ·
+  <a href="docs/MCP_SETUP.md">MCP setup</a>
+</p>
+
+---
+
+<p align="center">
+  <img src="docs/assets/pay3-flow.svg" alt="You → Pay3 checks rules → AI jar → Stellar" width="100%" />
+</p>
+
+> **New here?** Read **[`docs/WHAT_IS_PAY3.md`](docs/WHAT_IS_PAY3.md)** — the whole project in plain language (kid-friendly).
+
+**Public Stellar testnet beta** — not mainnet as the everyday default. Custody today defaults to an **encrypted G-address** jar. Soroban / Zipper WASM is built; contract custody is **opt-in canary**.
+
+> **Note:** GitHub READMEs can’t run JavaScript. The motion above is **animated SVG**. The live site uses full GSAP motion: https://paythreewallet.vercel.app
+
+## Live beta
+
+| | |
+|--|--|
+| Web | https://paythreewallet.vercel.app |
+| API | https://pay3-api.vercel.app |
+| Health | https://pay3-api.vercel.app/health |
 
 ## Structure
 
 ```
-apps/web/          Next.js — landing (/) + dashboard (/dashboard)
-apps/api/          Express API — wallet auth, sessions, transfers
-apps/mcp-server/   MCP stdio server (Cursor / Claude Desktop)
-packages/database/ Prisma + Neon Postgres
-packages/*         Policy, session, recipient, stellar, transaction engines
-contracts/         Soroban smart-account (WASM ready; API not wired yet)
-docs/              Architecture, security, MCP setup, launch notes
+apps/web/          Next.js — landing + dashboard (GSAP motion)
+apps/api/          Express — auth, sessions, transfers, hosted MCP
+apps/mcp-server/   MCP stdio (Cursor / Claude Desktop)
+packages/*         Policy, session, stellar, database, …
+contracts/         Soroban Zipper smart-account
+docs/              Start with WHAT_IS_PAY3.md
+docs/assets/       Animated SVG banners for docs / README
 ```
 
 ## Quick start (local)
 
 ```bash
 npm install
-cp .env.example apps/api/.env    # set DATABASE_URL (Neon) + SMART_ACCOUNT_ENCRYPTION_KEY
+cp .env.example apps/api/.env    # DATABASE_URL (Neon) + SMART_ACCOUNT_ENCRYPTION_KEY
 cp .env.example apps/web/.env
 
 npm run db:generate
@@ -40,20 +72,18 @@ npm run smoke:mcp
 ```
 
 Full steps: [`docs/MCP_SETUP.md`](docs/MCP_SETUP.md).  
-**claude.ai browser “custom connector” is not supported** (needs hosted HTTPS MCP).
+Production MCP: `https://pay3-api.vercel.app` with Bearer session token.
 
-Production MCP: set `PAY3_API_URL=https://pay3-api.vercel.app`.
+## Docs map
 
-## Live beta URLs
+| Doc | What it is |
+|-----|------------|
+| [`docs/WHAT_IS_PAY3.md`](docs/WHAT_IS_PAY3.md) | **Start here** — whole project in plain language |
+| [`docs/STATUS_REPORT.md`](docs/STATUS_REPORT.md) | What’s built vs not |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System flow |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | Non-negotiable safety rules |
+| [`docs/MCP_SETUP.md`](docs/MCP_SETUP.md) | Connect an AI |
+| [`docs/PRODUCTION.md`](docs/PRODUCTION.md) | Deploy / env |
+| [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md) | Long-term vision |
 
-| | |
-|--|--|
-| Web | https://paythreewallet.vercel.app |
-| API | https://pay3-api.vercel.app |
-| Health | https://pay3-api.vercel.app/health |
-
-Deploy notes: [`docs/PRODUCTION.md`](docs/PRODUCTION.md). Smoke: `node scripts/smoke-prod.mjs`
-
-## Status
-
-See [`docs/STATUS_REPORT.md`](docs/STATUS_REPORT.md).
+Smoke prod: `node scripts/smoke-prod.mjs`
