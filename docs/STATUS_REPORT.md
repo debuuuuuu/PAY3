@@ -4,7 +4,7 @@
 
 <img src="assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute." width="100%" />
 
-<p><a href="https://x.com/PAYThreeWallet">X @PAYThreeWallet</a></p>
+<p><a href="https://pay3.mintlify.site">Docs — pay3.mintlify.site</a> · <a href="https://x.com/PAYThreeWallet">X @PAYThreeWallet</a></p>
 
 </div>
 

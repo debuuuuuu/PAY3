@@ -5,6 +5,8 @@
 <img src="assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute. MCP-powered finance on Stellar" width="100%" />
 
 <p>
+  <a href="https://pay3.mintlify.site"><strong>Docs</strong></a>
+  ·
   <a href="https://x.com/PAYThreeWallet"><strong>X @PAYThreeWallet</strong></a>
   ·
   <a href="https://paythreewallet.vercel.app"><strong>Website</strong></a>
@@ -275,3 +277,4 @@ Local run for developers: see root [`README.md`](../README.md).
 | [`DATABASE.md`](./DATABASE.md) | Neon / Prisma |
 | [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) | Build phases |
 | [`PROJECT_CONTEXT.md`](./PROJECT_CONTEXT.md) | Long-term vision (adult language) |
+| **[pay3.mintlify.site](https://pay3.mintlify.site)** | Official hosted docs |

@@ -16,7 +16,8 @@ You keep the big wallet. The AI spends from a **small pot** with **rules you set
 <a href="https://pay3-api.vercel.app/health"><img src="https://img.shields.io/badge/API-Healthy-111111?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="API" /></a>
 <a href="https://x.com/PAYThreeWallet"><img src="https://img.shields.io/badge/X-@PAYThreeWallet-000000?style=for-the-badge&logo=x&logoColor=white" alt="X / Twitter" /></a>
 <a href="https://github.com/debuuuuuu/PAY3"><img src="https://img.shields.io/badge/GitHub-debuuuuuu%2FPAY3-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
-<a href="docs/WHAT_IS_PAY3.md"><img src="https://img.shields.io/badge/Docs-Start%20here-222222?style=for-the-badge" alt="Docs" /></a>
+<a href="https://pay3.mintlify.site"><img src="https://img.shields.io/badge/Docs-pay3.mintlify.site-000000?style=for-the-badge" alt="Docs" /></a>
+<a href="docs/WHAT_IS_PAY3.md"><img src="https://img.shields.io/badge/Guide-Kid%20friendly-222222?style=for-the-badge" alt="Guide" /></a>
 <a href="docs/readme.html"><img src="https://img.shields.io/badge/HTML-CSS%20README-333333?style=for-the-badge" alt="HTML README" /></a>
 
 <br/>
@@ -31,6 +32,8 @@ You keep the big wallet. The AI spends from a **small pot** with **rules you set
   <a href="https://github.com/debuuuuuu/PAY3"><strong>GitHub</strong></a>
   ·
   <a href="mailto:pay3wallet@gmail.com"><strong>Contact</strong></a>
+  ·
+  <a href="https://pay3.mintlify.site"><strong>Docs</strong></a>
   ·
   <a href="docs/readme.html"><strong>HTML README</strong></a>
 </p>
@@ -90,8 +93,9 @@ Someone can tell Cursor or Claude: *“Pay Alice 1 XLM”* — and funds move on
 </tr>
 </table>
 
-> New here? Read the plain-language story: **[`docs/WHAT_IS_PAY3.md`](docs/WHAT_IS_PAY3.md)**  
-> Prefer a glossy page with full CSS motion? Open **[`docs/readme.html`](docs/readme.html)** in a browser.
+> **Docs site:** **[https://pay3.mintlify.site](https://pay3.mintlify.site)**  
+> New here? Also read the plain-language story: **[`docs/WHAT_IS_PAY3.md`](docs/WHAT_IS_PAY3.md)**  
+> Prefer a glossy local page? Open **[`docs/readme.html`](docs/readme.html)** in a browser.
 
 ---
 
@@ -427,7 +431,8 @@ API deploy helper: `node scripts/deploy-api-vercel.mjs`
 | **Website** | [paythreewallet.vercel.app](https://paythreewallet.vercel.app) |
 | **API** | [pay3-api.vercel.app](https://pay3-api.vercel.app/health) |
 | **Email** | [pay3wallet@gmail.com](mailto:pay3wallet@gmail.com) |
-| **Interactive docs** | [`docs/readme.html`](docs/readme.html) |
+| **Docs site** | [pay3.mintlify.site](https://pay3.mintlify.site) |
+| **Interactive HTML** | [`docs/readme.html`](docs/readme.html) |
 
 <br/>
 
@@ -445,7 +450,9 @@ API deploy helper: `node scripts/deploy-api-vercel.mjs`
 
 | Doc | Audience |
 |:----|:---------|
-| [`docs/readme.html`](docs/readme.html) | **Interactive HTML + CSS** overview |
+| **[pay3.mintlify.site](https://pay3.mintlify.site)** | **Official docs** (Mintlify) |
+| [pay3.mintlify.site/llms.txt](https://pay3.mintlify.site/llms.txt) | AI / LLM docs index |
+| [`docs/readme.html`](docs/readme.html) | Interactive HTML + CSS overview |
 | [`docs/WHAT_IS_PAY3.md`](docs/WHAT_IS_PAY3.md) | Anyone (kid-friendly) |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System flow |
 | [`docs/STATUS_REPORT.md`](docs/STATUS_REPORT.md) | What’s built |
@@ -499,6 +506,8 @@ Any Stellar docs page also serves markdown via `Accept: text/markdown` or by app
 
 <br/>
 
+<a href="https://pay3.mintlify.site">Docs</a>
+·
 <a href="https://x.com/PAYThreeWallet">X</a>
 ·
 <a href="https://github.com/debuuuuuu/PAY3">GitHub</a>
@@ -509,6 +518,6 @@ Any Stellar docs page also serves markdown via `Accept: text/markdown` or by app
 
 <br/><br/>
 
-<sub>Full CSS experience → <a href="docs/readme.html">docs/readme.html</a>. Live site → <a href="https://paythreewallet.vercel.app">paythreewallet.vercel.app</a>.</sub>
+<sub>Full docs → <a href="https://pay3.mintlify.site">pay3.mintlify.site</a>. Live site → <a href="https://paythreewallet.vercel.app">paythreewallet.vercel.app</a>.</sub>
 
 </div>
