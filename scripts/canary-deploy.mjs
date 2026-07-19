@@ -73,18 +73,6 @@ if (!existsSync(wasmPath)) {
   process.exit(1);
 }
 
-let ownerPk;
-if (process.env.CANARY_OWNER_PK_HEX) {
-  ownerPk = Buffer.from(process.env.CANARY_OWNER_PK_HEX.trim(), "hex");
-} else if (process.env.CANARY_OWNER_SECRET?.startsWith("S")) {
-  ownerPk = Keypair.fromSecret(process.env.CANARY_OWNER_SECRET).rawPublicKey();
-} else {
-  console.error(
-    "Set CANARY_OWNER_SECRET or CANARY_OWNER_PK_HEX (32-byte ed25519 raw key)."
-  );
-  process.exit(1);
-}
-
 const wasm = readFileSync(wasmPath);
 console.log("native SAC", getNativeSacContractId());
 console.log("uploading WASM…");
@@ -100,7 +88,6 @@ const deployed = await deploySmartAccountContract({
   wasmHashHex: uploaded.wasmHash,
   deployerSecret,
   ownerGAddress: ownerG,
-  ownerPkRaw: ownerPk,
 });
 console.log("contractId", deployed.contractId);
 console.log("deployTx", deployed.hash);

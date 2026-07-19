@@ -96,7 +96,7 @@ async function spentToday(sessionId: string, asset: string): Promise<string> {
   const txs = await prisma.transaction.findMany({
     where: {
       sessionId,
-      action: "transfer",
+      action: { in: ["transfer", "execute_swap"] },
       status: "SUCCESS",
       createdAt: { gte: start },
       asset: { equals: asset, mode: "insensitive" },
@@ -109,6 +109,14 @@ async function spentToday(sessionId: string, asset: string): Promise<string> {
     if (Number.isFinite(n)) total += n;
   }
   return String(total);
+}
+
+/** Shared with swap-service for daily budget accounting. */
+export async function spentTodayForSession(
+  sessionId: string,
+  asset: string
+): Promise<string> {
+  return spentToday(sessionId, asset);
 }
 
 async function writeAudit(
@@ -659,6 +667,16 @@ export async function approvePendingTransfer(
       policyDecision: "PENDING_APPROVAL→APPROVED",
     },
   });
+
+  if (tx.action === "execute_swap") {
+    const { finalizeSwapSubmit } = await import("./swap-service.js");
+    return finalizeSwapSubmit(tx.id, {
+      assetIn: tx.asset ?? "XLM",
+      assetOut: tx.recipient,
+      amount: tx.amount,
+      userId,
+    });
+  }
 
   return finalizeAndSubmit(tx.id, {
     destination: tx.recipient,

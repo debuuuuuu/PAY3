@@ -15,7 +15,6 @@ import {
   getNativeSacContractId,
   getNetworkPassphrase,
   getRpcServer,
-  rawEd25519PublicKey,
   submitSignedSorobanXdr,
   xlmToStroops,
 } from "@pay3/stellar";
@@ -143,12 +142,11 @@ export function assertSessionAdminTx(opts: {
   }
   const args = invoke.args();
   if (args.length < 1) {
-    throw new Error("signed tx missing session pk arg");
+    throw new Error("signed tx missing session address arg");
   }
-  const raw = Buffer.from(args[0].bytes());
-  const expected = rawEd25519PublicKey(opts.sessionPublicKey);
-  if (!raw.equals(expected)) {
-    throw new Error("signed tx session public key mismatch");
+  const got = Address.fromScVal(args[0]).toString();
+  if (got !== opts.sessionPublicKey) {
+    throw new Error("signed tx session address mismatch");
   }
 }
 

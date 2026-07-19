@@ -201,6 +201,20 @@ export async function submitNativePayment(opts: {
   return { hash: result.hash };
 }
 
+/**
+ * Sign an envelope XDR with a G-account secret (in-memory only).
+ * Used for Soroswap-built swap transactions.
+ */
+export async function signTransactionXdr(opts: {
+  secret: string;
+  xdr: string;
+}): Promise<string> {
+  const { TransactionBuilder } = await import("@stellar/stellar-sdk");
+  const tx = TransactionBuilder.fromXDR(opts.xdr, getNetworkPassphrase());
+  tx.sign(Keypair.fromSecret(opts.secret));
+  return tx.toXDR();
+}
+
 /** Classify Horizon/network errors for smart retry (§27). */
 export function isTechnicalSubmitError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err);

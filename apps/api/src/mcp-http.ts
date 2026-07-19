@@ -16,6 +16,8 @@ import {
 import {
   mcpGetBalance,
   mcpGetHistory,
+  mcpGetSwapQuote,
+  mcpExecuteSwap,
   mcpTransfer,
   type McpSessionCtx,
 } from "./mcp-service.js";
@@ -97,6 +99,83 @@ function createPay3McpServer(ctx: McpSessionCtx): McpServer {
     },
     async () => {
       const result = await mcpGetHistory(ctx);
+      return textResult(result.body, result.status >= 400);
+    }
+  );
+
+  server.registerTool(
+    "get_swap_quote",
+    {
+      description:
+        "Get a read-only DeFi swap quote via Soroswap aggregator (Soroswap/Phoenix/Aqua). Does not execute a swap.",
+      inputSchema: {
+        asset_in: z
+          .string()
+          .describe("Input asset symbol (XLM, USDC) or C… contract id"),
+        asset_out: z
+          .string()
+          .describe("Output asset symbol (XLM, USDC) or C… contract id"),
+        amount: z.string().describe("Amount as a decimal string, e.g. 1.5"),
+        trade_type: z
+          .enum(["EXACT_IN", "EXACT_OUT"])
+          .optional()
+          .describe("Default EXACT_IN"),
+      },
+    },
+    async ({ asset_in, asset_out, amount, trade_type }) => {
+      const result = await mcpGetSwapQuote(ctx, {
+        assetIn: asset_in,
+        assetOut: asset_out,
+        amount,
+        tradeType: trade_type,
+      });
+      return textResult(result.body, result.status >= 400);
+    }
+  );
+
+  server.registerTool(
+    "execute_swap",
+    {
+      description:
+        "Execute a DeFi swap via Soroswap aggregator (quote→build→sign→send). Opt-in session action. Does not auto-retry financial failures. Legacy G allocation only.",
+      inputSchema: {
+        asset_in: z
+          .string()
+          .describe("Input asset symbol (XLM, USDC) or C… contract id"),
+        asset_out: z
+          .string()
+          .describe("Output asset symbol (XLM, USDC) or C… contract id"),
+        amount: z.string().describe("Amount as a decimal string, e.g. 1.5"),
+        trade_type: z
+          .enum(["EXACT_IN", "EXACT_OUT"])
+          .optional()
+          .describe("Default EXACT_IN"),
+        slippage_bps: z
+          .number()
+          .optional()
+          .describe("Slippage in basis points (default 50 = 0.5%)"),
+        idempotency_key: z
+          .string()
+          .optional()
+          .describe("Optional idempotency key"),
+      },
+    },
+    async ({
+      asset_in,
+      asset_out,
+      amount,
+      trade_type,
+      slippage_bps,
+      idempotency_key,
+    }) => {
+      const result = await mcpExecuteSwap(ctx, {
+        assetIn: asset_in,
+        assetOut: asset_out,
+        amount,
+        tradeType: trade_type,
+        slippageBps: slippage_bps,
+        idempotencyKey: idempotency_key,
+      });
       return textResult(result.body, result.status >= 400);
     }
   );

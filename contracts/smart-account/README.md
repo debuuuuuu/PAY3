@@ -1,4 +1,4 @@
-# Pay3 Smart Account (Soroban) — Phase 9c
+# Pay3 Smart Account (Soroban) — Zipper / Phase 9c+
 
 > Validation: [`docs/TECHNICAL_VALIDATION.md`](../../docs/TECHNICAL_VALIDATION.md)  
 > Build/install: [`docs/SOROBAN_SETUP.md`](../../docs/SOROBAN_SETUP.md)
@@ -7,11 +7,12 @@
 
 | Item | Status |
 |------|--------|
-| `__constructor` + owner admin auth + SAC caps | ✅ |
-| Rust tests (15) | ✅ |
-| WASM (`wasm32v1-none`) | ✅ `artifacts/pay3_smart_account.wasm` |
-| JS auth interop + RPC/relayer primitives | ✅ `@pay3/stellar` |
-| API custody branch + on-chain session UX | ✅ opt-in |
+| Zipper CAP-71 `__check_auth` (`delegate_auth`) | ✅ soroban-sdk 27 |
+| Session = G-`Address` delegate + spend caps | ✅ |
+| Rust tests (9 Zipper auth tests) | ✅ |
+| Deploy ctor `(owner, native_sac)` | ✅ |
+| JS `add_session(Address)` + canary deploy | ✅ |
+| stellar-sdk 16 `buildWithDelegatesEntry` | declared; run root `npm install` |
 | Default for new users | ❌ still legacy G-account |
 | Broad migration / mainnet | ❌ deferred |
 

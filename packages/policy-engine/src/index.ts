@@ -66,7 +66,11 @@ export function evaluatePolicy(
   checks.push(`action_allowed: ok (${action})`);
 
   // Read-only tools auto-execute
-  if (action === "get_balance" || action === "get_transaction_history") {
+  if (
+    action === "get_balance" ||
+    action === "get_transaction_history" ||
+    action === "get_swap_quote"
+  ) {
     return {
       decision: "AUTO_EXECUTE",
       reason: "Read-only action within session permissions",
@@ -74,7 +78,7 @@ export function evaluatePolicy(
     };
   }
 
-  if (action !== "transfer") {
+  if (action !== "transfer" && action !== "execute_swap") {
     return {
       decision: "REJECTED",
       reason: `Unknown financial action "${request.action}"`,
@@ -82,13 +86,13 @@ export function evaluatePolicy(
     };
   }
 
-  // --- transfer checks ---
+  // --- transfer / execute_swap amount checks ---
   const asset = (request.asset ?? "").trim().toUpperCase();
   const ruleAsset = ctx.rules.asset.trim().toUpperCase();
   if (!asset) {
     return {
       decision: "REJECTED",
-      reason: "Asset is required for transfer",
+      reason: `Asset is required for ${action}`,
       checks: [...checks, "asset: missing"],
     };
   }
@@ -101,20 +105,32 @@ export function evaluatePolicy(
   }
   checks.push(`asset: ok (${asset})`);
 
-  if (!request.recipient?.trim()) {
-    return {
-      decision: "REJECTED",
-      reason: "Recipient is required for transfer",
-      checks: [...checks, "recipient: missing"],
-    };
+  if (action === "transfer") {
+    if (!request.recipient?.trim()) {
+      return {
+        decision: "REJECTED",
+        reason: "Recipient is required for transfer",
+        checks: [...checks, "recipient: missing"],
+      };
+    }
+    checks.push("recipient: present");
+  } else {
+    // execute_swap: output asset required (stored in recipient field by service)
+    if (!request.recipient?.trim()) {
+      return {
+        decision: "REJECTED",
+        reason: "asset_out is required for execute_swap",
+        checks: [...checks, "asset_out: missing"],
+      };
+    }
+    checks.push(`asset_out: ${request.recipient.trim().toUpperCase()}`);
   }
-  checks.push("recipient: present");
 
   const amount = parseAmount(request.amount);
   if (amount === null || amount <= 0) {
     return {
       decision: "REJECTED",
-      reason: "Transfer amount must be a positive number",
+      reason: "Amount must be a positive number",
       checks: [...checks, "amount: invalid"],
     };
   }
@@ -181,7 +197,10 @@ export function evaluatePolicy(
   checks.push(`approval_threshold: ok (<= ${approvalAbove})`);
   return {
     decision: "AUTO_EXECUTE",
-    reason: "Transfer within autonomous limits",
+    reason:
+      action === "execute_swap"
+        ? "Swap within autonomous limits"
+        : "Transfer within autonomous limits",
     checks,
   };
 }
@@ -221,6 +240,22 @@ export function policyEngineSelfCheck(): void {
     throw new Error("self-check: read should auto");
   }
 
+  const quote = evaluatePolicy({ action: "get_swap_quote" }, active);
+  if (quote.decision !== "AUTO_EXECUTE") {
+    throw new Error("self-check: get_swap_quote should auto");
+  }
+
+  const quoteDenied = evaluatePolicy(
+    { action: "get_swap_quote" },
+    {
+      rules: { ...rules, allowedActions: ["get_balance", "transfer"] },
+      sessionActive: true,
+    }
+  );
+  if (quoteDenied.decision !== "REJECTED") {
+    throw new Error("self-check: get_swap_quote must respect allowedActions");
+  }
+
   const small = evaluatePolicy(
     { action: "transfer", asset: "XLM", amount: "10", recipient: "GTEST" },
     active
@@ -243,6 +278,39 @@ export function policyEngineSelfCheck(): void {
   );
   if (big.decision !== "REJECTED") {
     throw new Error("self-check: over per-tx should reject");
+  }
+
+  const swapOk = evaluatePolicy(
+    {
+      action: "execute_swap",
+      asset: "XLM",
+      amount: "10",
+      recipient: "USDC",
+    },
+    {
+      rules: {
+        ...rules,
+        allowedActions: [...rules.allowedActions, "execute_swap"],
+      },
+      sessionActive: true,
+      spentToday: "0",
+    }
+  );
+  if (swapOk.decision !== "AUTO_EXECUTE") {
+    throw new Error("self-check: small swap should auto");
+  }
+
+  const swapDenied = evaluatePolicy(
+    {
+      action: "execute_swap",
+      asset: "XLM",
+      amount: "1",
+      recipient: "USDC",
+    },
+    active
+  );
+  if (swapDenied.decision !== "REJECTED") {
+    throw new Error("self-check: execute_swap must be opt-in");
   }
 
   const dead = evaluatePolicy(

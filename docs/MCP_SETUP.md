@@ -76,4 +76,7 @@ Then open **Cursor Settings → Tools & MCP** and enable **pay3**.
 
 - Token is shown **once** at session create; only a hash is stored.
 - Revoke in the dashboard to kill the token immediately.
-- REST paths `/mcp/balance`, `/mcp/transfer`, `/mcp/history` remain for the local stdio server.
+- REST paths `/mcp/balance`, `/mcp/transfer`, `/mcp/history`, `/mcp/swap-quote` remain for the local stdio server.
+- Tools: `get_balance`, `transfer`, `get_transaction_history`, `get_swap_quote`, `execute_swap` (opt-in).
+- `get_swap_quote` is **read-only** (Soroswap aggregator across Soroswap/Phoenix/Aqua).
+- `execute_swap` runs quote→build→sign→send. **Not** in default session allowlist — enable “Allow DeFi swap execute” when creating a session. Requires `SOROSWAP_API_KEY`, matching `SOROSWAP_NETWORK` + Stellar network, and legacy G allocation (not contract custody yet). Financial failures (slippage, underfunded) are never auto-retried.

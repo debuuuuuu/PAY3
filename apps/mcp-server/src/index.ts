@@ -110,6 +110,68 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         properties: {},
       },
     },
+    {
+      name: "get_swap_quote",
+      description:
+        "Get a read-only DeFi swap quote via Soroswap aggregator (Soroswap/Phoenix/Aqua). Does not execute a swap.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          asset_in: {
+            type: "string",
+            description: "Input asset symbol (XLM, USDC) or C… contract id",
+          },
+          asset_out: {
+            type: "string",
+            description: "Output asset symbol (XLM, USDC) or C… contract id",
+          },
+          amount: {
+            type: "string",
+            description: "Amount as a decimal string, e.g. 1.5",
+          },
+          trade_type: {
+            type: "string",
+            description: "EXACT_IN (default) or EXACT_OUT",
+          },
+        },
+        required: ["asset_in", "asset_out", "amount"],
+      },
+    },
+    {
+      name: "execute_swap",
+      description:
+        "Execute a DeFi swap via Soroswap (quote→build→sign→send). Opt-in session action. Legacy G allocation only.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          asset_in: {
+            type: "string",
+            description: "Input asset symbol (XLM, USDC) or C… contract id",
+          },
+          asset_out: {
+            type: "string",
+            description: "Output asset symbol (XLM, USDC) or C… contract id",
+          },
+          amount: {
+            type: "string",
+            description: "Amount as a decimal string, e.g. 1.5",
+          },
+          trade_type: {
+            type: "string",
+            description: "EXACT_IN (default) or EXACT_OUT",
+          },
+          slippage_bps: {
+            type: "number",
+            description: "Slippage in basis points (default 50)",
+          },
+          idempotency_key: {
+            type: "string",
+            description: "Optional idempotency key",
+          },
+        },
+        required: ["asset_in", "asset_out", "amount"],
+      },
+    },
   ],
 }));
 
@@ -139,6 +201,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     if (name === "get_transaction_history") {
       const { ok, body } = await apiFetch("/mcp/history");
+      return textResult(body, !ok);
+    }
+
+    if (name === "get_swap_quote") {
+      const { ok, body } = await apiFetch("/mcp/swap-quote", {
+        method: "POST",
+        body: JSON.stringify({
+          assetIn: args.asset_in ?? args.assetIn,
+          assetOut: args.asset_out ?? args.assetOut,
+          amount: args.amount,
+          tradeType: args.trade_type ?? args.tradeType,
+        }),
+      });
+      return textResult(body, !ok);
+    }
+
+    if (name === "execute_swap") {
+      const { ok, body } = await apiFetch("/mcp/swap", {
+        method: "POST",
+        body: JSON.stringify({
+          assetIn: args.asset_in ?? args.assetIn,
+          assetOut: args.asset_out ?? args.assetOut,
+          amount: args.amount,
+          tradeType: args.trade_type ?? args.tradeType,
+          slippageBps: args.slippage_bps ?? args.slippageBps,
+          idempotencyKey: args.idempotency_key ?? args.idempotencyKey,
+        }),
+      });
       return textResult(body, !ok);
     }
 

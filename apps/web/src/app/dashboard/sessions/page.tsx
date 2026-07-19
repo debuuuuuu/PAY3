@@ -17,7 +17,12 @@ const DEFAULT_RULES: SessionPolicyRules = {
   asset: "XLM",
   perTxMax: "20",
   approvalAbove: "15",
-  allowedActions: ["get_balance", "transfer", "get_transaction_history"],
+  allowedActions: [
+    "get_balance",
+    "transfer",
+    "get_transaction_history",
+    "get_swap_quote",
+  ],
   blockedNotes: [
     "Unknown contracts",
     "Unapproved assets",
@@ -276,6 +281,35 @@ export default function SessionsPage() {
               />
             </label>
           </div>
+          <label className="flex items-start gap-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={rules.allowedActions.includes("execute_swap")}
+              onChange={(e) => {
+                const on = e.target.checked;
+                setRules({
+                  ...rules,
+                  allowedActions: on
+                    ? [
+                        ...new Set([
+                          ...rules.allowedActions,
+                          "execute_swap",
+                        ]),
+                      ]
+                    : rules.allowedActions.filter((a) => a !== "execute_swap"),
+                });
+              }}
+            />
+            <span>
+              <span className="text-white">Allow DeFi swap execute</span>
+              <span className="mt-0.5 block text-white/50">
+                Opt-in. Lets the AI call execute_swap (quote→build→sign→send via
+                Soroswap). Quotes alone do not need this. Same budget/approval
+                limits as transfers.
+              </span>
+            </span>
+          </label>
           {error ? (
             <p className="text-sm text-red-400" role="alert">
               {error}

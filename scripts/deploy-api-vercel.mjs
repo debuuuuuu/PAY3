@@ -31,6 +31,9 @@ const envKeys = [
   "STELLAR_RPC_URL",
   "NATIVE_SAC_CONTRACT_ID",
   "RELAYER_SECRET",
+  "SOROSWAP_API_KEY",
+  "SOROSWAP_API_URL",
+  "SOROSWAP_NETWORK",
 ];
 
 function run(cmd, args, opts = {}) {

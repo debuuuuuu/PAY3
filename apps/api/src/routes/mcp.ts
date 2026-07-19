@@ -3,6 +3,8 @@ import { requireMcpAuth, type McpAuthedRequest } from "../middleware/mcp-auth.js
 import {
   mcpGetBalance,
   mcpGetHistory,
+  mcpGetSwapQuote,
+  mcpExecuteSwap,
   mcpTransfer,
 } from "../mcp-service.js";
 
@@ -36,5 +38,45 @@ mcpRouter.post("/transfer", async (req, res) => {
 mcpRouter.get("/history", async (req, res) => {
   const { userId, sessionId } = req as McpAuthedRequest;
   const result = await mcpGetHistory({ userId, sessionId });
+  res.status(result.status).json(result.body);
+});
+
+mcpRouter.post("/swap-quote", async (req, res) => {
+  const { userId, sessionId } = req as McpAuthedRequest;
+  const tradeRaw = req.body?.tradeType ?? req.body?.trade_type;
+  const result = await mcpGetSwapQuote(
+    { userId, sessionId },
+    {
+      assetIn: String(req.body?.assetIn ?? req.body?.asset_in ?? ""),
+      assetOut: String(req.body?.assetOut ?? req.body?.asset_out ?? ""),
+      amount: String(req.body?.amount ?? ""),
+      tradeType:
+        tradeRaw != null && tradeRaw !== "" ? String(tradeRaw) : undefined,
+    }
+  );
+  res.status(result.status).json(result.body);
+});
+
+mcpRouter.post("/swap", async (req, res) => {
+  const { userId, sessionId } = req as McpAuthedRequest;
+  const tradeRaw = req.body?.tradeType ?? req.body?.trade_type;
+  const slipRaw = req.body?.slippageBps ?? req.body?.slippage_bps;
+  const result = await mcpExecuteSwap(
+    { userId, sessionId },
+    {
+      assetIn: String(req.body?.assetIn ?? req.body?.asset_in ?? ""),
+      assetOut: String(req.body?.assetOut ?? req.body?.asset_out ?? ""),
+      amount: String(req.body?.amount ?? ""),
+      tradeType:
+        tradeRaw != null && tradeRaw !== "" ? String(tradeRaw) : undefined,
+      slippageBps:
+        slipRaw != null && slipRaw !== "" ? Number(slipRaw) : undefined,
+      idempotencyKey: req.body?.idempotencyKey
+        ? String(req.body.idempotencyKey)
+        : req.body?.idempotency_key
+          ? String(req.body.idempotency_key)
+          : undefined,
+    }
+  );
   res.status(result.status).json(result.body);
 });

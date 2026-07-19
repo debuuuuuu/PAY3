@@ -8,6 +8,7 @@ export const DEFAULT_ALLOWED_ACTIONS = [
   "get_balance",
   "transfer",
   "get_transaction_history",
+  "get_swap_quote",
 ] as const;
 
 export const DEFAULT_BLOCKED = [
@@ -104,6 +105,8 @@ export function permissionSummary(input: SessionCreateInput): {
     get_balance: "Check balances",
     transfer: "Send payments",
     get_transaction_history: "View transaction history",
+    get_swap_quote: "Get DeFi swap quotes",
+    execute_swap: "Execute DeFi swaps (Soroswap)",
   };
   const allowed = input.rules.allowedActions.map(
     (a) => actionLabels[a] ?? a

@@ -51,9 +51,14 @@ authRouter.post("/challenge", async (req, res) => {
     res.json(payload);
   } catch (err) {
     console.error("auth/challenge failed:", err);
+    const detail =
+      process.env.NODE_ENV === "development" && err instanceof Error
+        ? ` (${err.message})`
+        : "";
     res.status(500).json({
       error:
-        "auth storage unavailable — set DATABASE_URL in apps/api/.env or use dev memory mode",
+        "auth storage unavailable — set DATABASE_URL in apps/api/.env (real Neon URL, not the example placeholder), run prisma db push, and restart the API" +
+        detail,
     });
   }
 });

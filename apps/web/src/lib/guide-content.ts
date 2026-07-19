@@ -57,7 +57,7 @@ export const CURSOR_MCP_STEPS = [
   },
   {
     title: "Enable tools in Cursor",
-    body: "Open Cursor Settings → Tools & MCP. Find pay3, toggle it on, and confirm get_balance, transfer, and get_transaction_history appear. Reload the window if needed.",
+    body: "Open Cursor Settings → Tools & MCP. Find pay3, toggle it on, and confirm get_balance, transfer, get_transaction_history, and get_swap_quote appear (execute_swap only if you enabled swap execute on the session). Reload the window if needed.",
   },
 ] as const;
 
@@ -89,6 +89,7 @@ export const MCP_EXAMPLE_PROMPTS = [
   "What’s my Pay3 balance?",
   "Pay 0.5 XLM to Hurain",
   "Show my recent Pay3 transactions",
+  "Quote swapping 1 XLM to USDC on testnet",
 ] as const;
 
 export const SAFETY_POINTS = [
@@ -114,6 +115,6 @@ export const SAFETY_POINTS = [
   },
   {
     title: "Testnet beta",
-    body: "Public beta uses Stellar testnet XLM. Mainnet, USDC, and DeFi are later milestones — do not send real mainnet funds expecting Pay3 to manage them yet.",
+    body: "Public beta uses Stellar testnet XLM for payments. DeFi: get_swap_quote is read-only; execute_swap is opt-in per session and requires matching Soroswap + Stellar networks (and a funded allocation on that network). Mainnet USDC custody UX is still evolving — do not send funds you cannot afford to lose.",
   },
 ] as const;

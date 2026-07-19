@@ -22,20 +22,22 @@ stellar contract build
 
 Exported methods: `__constructor`, `__check_auth`, `add_session`, `revoke_session`, `get_session`, `owner`, `native_sac`.
 
-**WASM SHA-256 (phase9c-v1):** `3adb17764399dac1725b5a50073bd671de498645387a10505d6e1245fab48a5b`  
-Optional: set `PAY3_ALLOWED_WASM_HASHES` to this value so enable-contract-custody rejects unknown builds.
+**Auth:** Zipper (Protocol 27 / CAP-71) — `Signature = ()`, sessions are G-`Address` delegates via `get_delegated_signers` + `delegate_auth`.
 
-## 3. Contract surface (Phase 9c)
+Rebuild WASM after Zipper changes and refresh `PAY3_ALLOWED_WASM_HASHES`.
+
+## 3. Contract surface (Zipper / Phase 9c+)
 
 | Method | Who | Purpose |
 |--------|-----|---------|
-| `__constructor(owner, owner_pk, native_sac)` | deploy-time | Atomic init — no unauthenticated `init` |
-| `add_session(pk, expires_ledger, per_tx_max, session_max)` | owner `Address.require_auth` | Register AI session |
-| `revoke_session(pk)` | owner | Kill session on-chain |
-| `get_session(pk)` | anyone | Read policy + spent |
-| `__check_auth` | host | Owner or session ed25519; **native SAC `transfer` only**; per-tx + lifetime caps |
+| `__constructor(owner, native_sac)` | deploy-time | Atomic init |
+| `add_session(session: Address, …)` | owner `require_auth` | Register Zipper delegate |
+| `revoke_session(session)` | owner | Kill session on-chain |
+| `get_session(session)` | anyone | Read policy + spent |
+| `__check_auth` | host | Caps then `delegate_auth` to owner/session |
 
-Session signatures **cannot** authorize admin methods on the account contract.
+Session delegates **cannot** authorize admin methods on the account contract.
+
 
 ## 4. Canary deploy (one opt-in account)
 

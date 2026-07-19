@@ -1,20 +1,22 @@
 #![no_std]
-//! Pay3 smart account — Soroban custom account (Phase 9c).
+//! Pay3 smart account — Soroban custom account with **Zipper (Protocol 27)** auth.
 //!
-//! Hard gates in `__check_auth`:
-//! - Owner or registered session Ed25519 authentication
+//! CAP-71: session (and owner) authenticate via `get_delegated_signers` +
+//! `delegate_auth` — not custom AccSignature blobs.
+//!
+//! Hard gates in `__check_auth` (before delegation):
+//! - Exactly one delegated signer, registered as owner or session
 //! - Session expiry / revocation
 //! - Native XLM SAC `transfer` only (`from` = this contract)
 //! - Per-tx and stateful session spend caps
 //!
 //! Admin (`add_session` / `revoke_session`) requires stored owner `Address` auth.
-//! Session signatures cannot authorize this contract's own methods.
 
 use soroban_sdk::{
     auth::{Context, CustomAccountInterface},
     contract, contracterror, contractimpl, contracttype,
     crypto::Hash,
-    symbol_short, Address, BytesN, Env, Symbol, TryFromVal, Vec,
+    symbol_short, Address, Env, Symbol, TryFromVal, Vec,
 };
 
 #[contract]
@@ -24,9 +26,9 @@ pub struct Pay3SmartAccount;
 #[contracttype]
 pub enum DataKey {
     Owner,
-    OwnerPk,
     NativeSac,
-    Session(BytesN<32>),
+    /// Zipper delegate identity — classic G (or C) address of the AI session.
+    Session(Address),
 }
 
 #[derive(Clone)]
@@ -40,13 +42,6 @@ pub struct SessionPolicy {
     /// Stateful spend counter (stroops).
     pub spent_stroops: i128,
     pub revoked: bool,
-}
-
-#[derive(Clone)]
-#[contracttype]
-pub struct AccSignature {
-    pub public_key: BytesN<32>,
-    pub signature: BytesN<64>,
 }
 
 #[contracterror]
@@ -73,15 +68,8 @@ const TTL_EXTEND_TO: u32 = 150_000;
 #[contractimpl]
 impl Pay3SmartAccount {
     /// Atomic init — deploy with constructor args to avoid front-running.
-    /// `owner_pk` is the classic G-account ed25519 raw key used in `__check_auth`.
-    pub fn __constructor(
-        env: Env,
-        owner: Address,
-        owner_pk: BytesN<32>,
-        native_sac: Address,
-    ) {
+    pub fn __constructor(env: Env, owner: Address, native_sac: Address) {
         env.storage().instance().set(&DataKey::Owner, &owner);
-        env.storage().instance().set(&DataKey::OwnerPk, &owner_pk);
         env.storage().instance().set(&DataKey::NativeSac, &native_sac);
         env.storage()
             .instance()
@@ -102,10 +90,10 @@ impl Pay3SmartAccount {
             .ok_or(Error::NotInitialized)
     }
 
-    /// Register AI session key. Requires Freighter owner authorization.
+    /// Register AI session as a Zipper delegate address. Requires owner auth.
     pub fn add_session(
         env: Env,
-        session_pk: BytesN<32>,
+        session: Address,
         expires_ledger: u32,
         per_tx_max_stroops: i128,
         session_max_stroops: i128,
@@ -125,7 +113,7 @@ impl Pay3SmartAccount {
             spent_stroops: 0,
             revoked: false,
         };
-        let key = DataKey::Session(session_pk);
+        let key = DataKey::Session(session);
         env.storage().persistent().set(&key, &policy);
         env.storage()
             .persistent()
@@ -136,9 +124,9 @@ impl Pay3SmartAccount {
         Ok(())
     }
 
-    pub fn revoke_session(env: Env, session_pk: BytesN<32>) -> Result<(), Error> {
+    pub fn revoke_session(env: Env, session: Address) -> Result<(), Error> {
         Self::require_owner_auth(&env)?;
-        let key = DataKey::Session(session_pk);
+        let key = DataKey::Session(session);
         let mut policy: SessionPolicy = env
             .storage()
             .persistent()
@@ -149,10 +137,10 @@ impl Pay3SmartAccount {
         Ok(())
     }
 
-    pub fn get_session(env: Env, session_pk: BytesN<32>) -> Result<SessionPolicy, Error> {
+    pub fn get_session(env: Env, session: Address) -> Result<SessionPolicy, Error> {
         env.storage()
             .persistent()
-            .get(&DataKey::Session(session_pk))
+            .get(&DataKey::Session(session))
             .ok_or(Error::SessionMissing)
     }
 
@@ -169,35 +157,31 @@ impl Pay3SmartAccount {
 
 #[contractimpl]
 impl CustomAccountInterface for Pay3SmartAccount {
-    type Signature = Vec<AccSignature>;
+    /// Zipper: account carries no signature of its own — delegates sign.
+    type Signature = ();
     type Error = Error;
 
     #[allow(non_snake_case)]
     fn __check_auth(
         env: Env,
-        signature_payload: Hash<32>,
-        signatures: Self::Signature,
+        _signature_payload: Hash<32>,
+        _signatures: Self::Signature,
         auth_contexts: Vec<Context>,
     ) -> Result<(), Error> {
-        if signatures.len() != 1 {
+        let delegates = env.custom_account().get_delegated_signers();
+        if delegates.len() != 1 {
             return Err(Error::BadSignature);
         }
-        let sig = signatures.get_unchecked(0);
+        let delegate = delegates.get_unchecked(0);
 
-        env.crypto().ed25519_verify(
-            &sig.public_key,
-            &signature_payload.clone().into(),
-            &sig.signature,
-        );
-
-        let owner_pk: BytesN<32> = env
+        let owner: Address = env
             .storage()
             .instance()
-            .get(&DataKey::OwnerPk)
+            .get(&DataKey::Owner)
             .ok_or(Error::NotInitialized)?;
 
-        let is_owner = sig.public_key == owner_pk;
-        let session_key = DataKey::Session(sig.public_key.clone());
+        let is_owner = delegate == owner;
+        let session_key = DataKey::Session(delegate.clone());
         let is_session = env.storage().persistent().has(&session_key);
 
         if !is_owner && !is_session {
@@ -212,7 +196,7 @@ impl CustomAccountInterface for Pay3SmartAccount {
         let curr = env.current_contract_address();
 
         // Owner spend path: SAC transfers only, no session spend accounting.
-        if is_owner && !is_session {
+        if is_owner {
             let mut total: i128 = 0;
             for context in auth_contexts.iter() {
                 let spent = validate_transfer_context(&env, &context, &curr, &native_sac)?;
@@ -221,10 +205,11 @@ impl CustomAccountInterface for Pay3SmartAccount {
             if total < 0 {
                 return Err(Error::BadAmount);
             }
+            env.custom_account().delegate_auth(&delegate);
             return Ok(());
         }
 
-        // Session path (session key registered; never authorizes admin methods).
+        // Session path — policy then Zipper delegate_auth.
         let mut policy: SessionPolicy = env
             .storage()
             .persistent()
@@ -263,6 +248,8 @@ impl CustomAccountInterface for Pay3SmartAccount {
         env.storage()
             .persistent()
             .extend_ttl(&session_key, TTL_THRESHOLD, TTL_EXTEND_TO);
+
+        env.custom_account().delegate_auth(&delegate);
         Ok(())
     }
 }
@@ -276,8 +263,6 @@ fn validate_transfer_context(
 ) -> Result<i128, Error> {
     match context {
         Context::Contract(c) => {
-            // Never authorize this contract's own methods via `__check_auth`
-            // (admin uses Address.require_auth on the G-owner separately).
             if &c.contract == curr {
                 return Err(Error::InvalidContext);
             }

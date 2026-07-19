@@ -81,7 +81,13 @@ const tools = await rpc({
   params: {},
 });
 const names = (tools.json?.result?.tools ?? []).map((t) => t.name).sort();
-const expected = ["get_balance", "get_transaction_history", "transfer"].sort();
+const expected = [
+  "execute_swap",
+  "get_balance",
+  "get_swap_quote",
+  "get_transaction_history",
+  "transfer",
+].sort();
 if (JSON.stringify(names) !== JSON.stringify(expected)) {
   console.error("FAIL tools/list", tools.status, names, tools.json);
   process.exit(1);

@@ -6,6 +6,8 @@ import { evaluatePolicy } from "@pay3/policy-engine";
 import { isSessionActive, type SessionPolicyRules } from "@pay3/session-manager";
 import { getAccountBalances, getAccountPayments } from "@pay3/stellar";
 import { executeTransfer, toTxView } from "./transfer-service.js";
+import { executeSwap } from "./swap-service.js";
+import { getSwapQuote, SoroswapError, type TradeType } from "./soroswap.js";
 
 export type McpSessionCtx = {
   userId: string;
@@ -183,4 +185,125 @@ export async function mcpGetHistory(ctx: McpSessionCtx): Promise<McpToolResult> 
       policy: policy.decision,
     },
   };
+}
+
+export async function mcpGetSwapQuote(
+  ctx: McpSessionCtx,
+  args: {
+    assetIn: string;
+    assetOut: string;
+    amount: string;
+    tradeType?: string;
+  }
+): Promise<McpToolResult> {
+  const session = await prisma.aiSession.findFirst({
+    where: { id: ctx.sessionId, userId: ctx.userId },
+    include: { policy: true },
+  });
+  if (!session) return { status: 404, body: { error: "session not found" } };
+
+  const rules = asRules(session.policy?.rulesJson);
+  if (!rules) return { status: 400, body: { error: "session has no policy" } };
+
+  const policy = evaluatePolicy(
+    { action: "get_swap_quote" },
+    { rules, sessionActive: isSessionActive(session) }
+  );
+  if (policy.decision === "REJECTED") {
+    return { status: 403, body: { error: policy.reason, policy } };
+  }
+
+  const tradeType: TradeType | undefined =
+    args.tradeType?.toUpperCase() === "EXACT_OUT"
+      ? "EXACT_OUT"
+      : args.tradeType?.toUpperCase() === "EXACT_IN"
+        ? "EXACT_IN"
+        : undefined;
+
+  try {
+    const quote = await getSwapQuote({
+      assetIn: args.assetIn,
+      assetOut: args.assetOut,
+      amount: args.amount,
+      tradeType,
+    });
+    return {
+      status: 200,
+      body: { quote, policy: policy.decision },
+    };
+  } catch (err) {
+    if (err instanceof SoroswapError) {
+      return { status: err.status, body: { error: err.message } };
+    }
+    return {
+      status: 500,
+      body: {
+        error: err instanceof Error ? err.message : "swap quote failed",
+      },
+    };
+  }
+}
+
+export async function mcpExecuteSwap(
+  ctx: McpSessionCtx,
+  args: {
+    assetIn: string;
+    assetOut: string;
+    amount: string;
+    tradeType?: string;
+    slippageBps?: number;
+    idempotencyKey?: string;
+  }
+): Promise<McpToolResult> {
+  const assetIn = String(args.assetIn ?? "").trim();
+  const assetOut = String(args.assetOut ?? "").trim();
+  const amount = String(args.amount ?? "").trim();
+  if (!assetIn || !assetOut || !amount) {
+    return {
+      status: 400,
+      body: { error: "asset_in, asset_out, and amount required" },
+    };
+  }
+
+  const tradeType: TradeType | undefined =
+    args.tradeType?.toUpperCase() === "EXACT_OUT"
+      ? "EXACT_OUT"
+      : args.tradeType?.toUpperCase() === "EXACT_IN"
+        ? "EXACT_IN"
+        : undefined;
+
+  try {
+    const result = await executeSwap({
+      userId: ctx.userId,
+      sessionId: ctx.sessionId,
+      assetIn,
+      assetOut,
+      amount,
+      tradeType,
+      slippageBps: args.slippageBps,
+      idempotencyKey: args.idempotencyKey,
+    });
+    const status =
+      result.transaction.status === "PENDING_APPROVAL"
+        ? 202
+        : result.transaction.status === "REJECTED"
+          ? 403
+          : result.transaction.status === "SUCCESS"
+            ? 200
+            : 201;
+    return { status, body: result };
+  } catch (err: unknown) {
+    const e = err as {
+      status?: number;
+      message?: string;
+      transaction?: unknown;
+    };
+    return {
+      status: e.status ?? 500,
+      body: {
+        error: e.message ?? "swap failed",
+        transaction: e.transaction,
+      },
+    };
+  }
 }

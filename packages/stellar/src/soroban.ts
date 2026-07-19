@@ -198,19 +198,89 @@ export async function signSessionAuthEntries(opts: {
   const passphrase = opts.networkPassphrase ?? getNetworkPassphrase();
   const out: xdr.SorobanAuthorizationEntry[] = [];
 
+  // Zipper (P27): prefer AddressWithDelegates via SDK helpers when present.
+  const sdk = await import("@stellar/stellar-sdk");
+  const buildWithDelegates =
+    "buildWithDelegatesEntry" in sdk
+      ? (
+          sdk as typeof sdk & {
+            buildWithDelegatesEntry: (p: {
+              entry: xdr.SorobanAuthorizationEntry;
+              validUntilLedgerSeq: number;
+              delegates: { address: string }[];
+            }) => xdr.SorobanAuthorizationEntry;
+          }
+        ).buildWithDelegatesEntry
+      : null;
+
   for (const entry of opts.auth) {
     const creds = entry.credentials();
-    if (creds.switch().name !== "sorobanCredentialsAddress") {
+    const switchName = creds.switch().name;
+
+    if (
+      switchName !== "sorobanCredentialsAddress" &&
+      switchName !== "sorobanCredentialsAddressV2" &&
+      switchName !== "sorobanCredentialsAddressWithDelegates"
+    ) {
       out.push(entry);
       continue;
     }
-    const addr = Address.fromScAddress(creds.address().address()).toString();
-    if (addr !== opts.contractAccountId) {
+
+    let topAddress: string;
+    if (switchName === "sorobanCredentialsAddressWithDelegates") {
+      topAddress = Address.fromScAddress(
+        creds.addressWithDelegates().addressCredentials().address()
+      ).toString();
+    } else if (switchName === "sorobanCredentialsAddressV2") {
+      topAddress = Address.fromScAddress(creds.addressV2().address()).toString();
+    } else {
+      topAddress = Address.fromScAddress(creds.address().address()).toString();
+    }
+
+    if (topAddress !== opts.contractAccountId) {
       out.push(entry);
       continue;
     }
+
+    if (buildWithDelegates && switchName !== "sorobanCredentialsAddressWithDelegates") {
+      let wrapped = buildWithDelegates({
+        entry,
+        validUntilLedgerSeq: opts.validUntilLedger,
+        delegates: [{ address: kp.publicKey() }],
+      });
+      wrapped = await (authorizeEntry as (
+        e: xdr.SorobanAuthorizationEntry,
+        signer: Keypair,
+        until: number,
+        net: string,
+        forAddress?: string
+      ) => Promise<xdr.SorobanAuthorizationEntry>)(
+        wrapped,
+        kp,
+        opts.validUntilLedger,
+        passphrase,
+        kp.publicKey()
+      );
+      out.push(wrapped);
+      continue;
+    }
+
+    // Already WithDelegates, or legacy SDK — sign (optional forAddress on SDK 16+).
+    const authorize = authorizeEntry as (
+      e: xdr.SorobanAuthorizationEntry,
+      signer: Keypair,
+      until: number,
+      net: string,
+      forAddress?: string
+    ) => Promise<xdr.SorobanAuthorizationEntry>;
     out.push(
-      await authorizeEntry(entry, kp, opts.validUntilLedger, passphrase)
+      await authorize(
+        entry,
+        kp,
+        opts.validUntilLedger,
+        passphrase,
+        kp.publicKey()
+      )
     );
   }
   return out;
@@ -519,7 +589,6 @@ export async function deploySmartAccountContract(opts: {
   wasmHashHex: string;
   deployerSecret: string;
   ownerGAddress: string;
-  ownerPkRaw: Buffer;
   nativeSacId?: string;
   rpcUrl?: string;
 }): Promise<{ contractId: string; hash: string }> {
@@ -528,10 +597,6 @@ export async function deploySmartAccountContract(opts: {
   const source = await server.getAccount(deployer.publicKey());
   const nativeSac = opts.nativeSacId ?? getNativeSacContractId();
   const wasmHash = Buffer.from(opts.wasmHashHex, "hex");
-
-  if (opts.ownerPkRaw.length !== 32) {
-    throw new Error("ownerPkRaw must be 32 bytes");
-  }
 
   const salt = Keypair.random().rawPublicKey();
   let tx = new TransactionBuilder(source, {
@@ -545,7 +610,6 @@ export async function deploySmartAccountContract(opts: {
         salt,
         constructorArgs: [
           Address.fromString(opts.ownerGAddress).toScVal(),
-          nativeToScVal(opts.ownerPkRaw, { type: "bytes" }),
           Address.fromString(nativeSac).toScVal(),
         ],
       })
@@ -586,7 +650,9 @@ export async function deploySmartAccountContract(opts: {
   return { contractId, hash };
 }
 
-/** Build add_session / revoke_session invoke for Freighter owner auth (unsigned). */
+/** Build add_session / revoke_session invoke for Freighter owner auth (unsigned).
+ * Zipper: session identity is the G-address (delegate), not raw ed25519 bytes.
+ */
 export function buildSessionAdminOp(opts: {
   contractAccountId: string;
   method: "add_session" | "revoke_session";
@@ -596,10 +662,10 @@ export function buildSessionAdminOp(opts: {
   sessionMaxStroops?: bigint;
 }): xdr.Operation {
   const c = new Contract(opts.contractAccountId);
-  const sessionPk = rawEd25519PublicKey(opts.sessionPublicKey);
+  const sessionAddr = Address.fromString(opts.sessionPublicKey);
 
   if (opts.method === "revoke_session") {
-    return c.call("revoke_session", nativeToScVal(sessionPk, { type: "bytes" }));
+    return c.call("revoke_session", sessionAddr.toScVal());
   }
 
   if (
@@ -612,7 +678,7 @@ export function buildSessionAdminOp(opts: {
 
   return c.call(
     "add_session",
-    nativeToScVal(sessionPk, { type: "bytes" }),
+    sessionAddr.toScVal(),
     nativeToScVal(opts.expiresLedger, { type: "u32" }),
     nativeToScVal(opts.perTxMaxStroops, { type: "i128" }),
     nativeToScVal(opts.sessionMaxStroops, { type: "i128" })
@@ -649,25 +715,10 @@ export function stellarSorobanSelfCheck(): void {
   const sac = getNativeSacContractId(Networks.TESTNET);
   assert(sac.startsWith("C"), "testnet native SAC id");
 
-  // AccSignature encoding matches contract (authorizeEntry shape)
+  // Zipper: session identity is a G-address (delegate), not AccSignature blobs
   const kp = Keypair.random();
-  const payload = Buffer.alloc(32, 7);
-  const signature = kp.sign(payload);
-  const sigScVal = nativeToScVal(
-    {
-      public_key: kp.rawPublicKey(),
-      signature,
-    },
-    {
-      type: {
-        public_key: ["symbol", null],
-        signature: ["symbol", null],
-      },
-    }
-  );
-  const vec = xdr.ScVal.scvVec([sigScVal]);
-  assert(vec.vec()!.length === 1, "AccSignature vec len");
-  assert(kp.verify(payload, signature), "ed25519 verify");
+  assert(kp.publicKey().startsWith("G"), "session delegate G-address");
+  assert(Address.fromString(kp.publicKey()).toString() === kp.publicKey(), "Address roundtrip");
 
   assert(classifySorobanFailure("SessionExpired") === "expiry", "classify expiry");
   assert(classifySorobanFailure("CapExceeded") === "cap", "classify cap");

@@ -110,6 +110,18 @@ Create a **new** AI session after launch; revoke tokens that were shared in chat
 
 Build MCP once: `npm run build:mcp`. Smoke hosted: `npm run smoke:mcp-http`.
 
+Optional DeFi via Soroswap aggregator:
+
+```env
+SOROSWAP_API_KEY=<from api.soroswap.finance registration>
+# Must match STELLAR_NETWORK_PASSPHRASE (testnet vs mainnet)
+SOROSWAP_NETWORK=mainnet
+# optional: SOROSWAP_API_URL=https://api.soroswap.finance
+```
+
+- `get_swap_quote` — read-only; in default session allowlist
+- `execute_swap` — quote→build→sign→send; **opt-in** checkbox on session create; legacy G only; network must match
+
 ## 5. Launch smoke checklist
 
 Automated: `node scripts/smoke-prod.mjs`
@@ -121,6 +133,8 @@ Automated: `node scripts/smoke-prod.mjs`
 - [ ] Link allocation account → fund → History
 - [ ] MCP hosted `POST /mcp` initialize + tools/list (`npm run smoke:mcp-http`)
 - [ ] MCP `get_balance` + small `transfer` (hosted or local stdio)
+- [ ] MCP `get_swap_quote` (needs `SOROSWAP_API_KEY` on API)
+- [ ] MCP `execute_swap` (opt-in session + aligned networks + funded allocation)
 - [ ] Approvals + Settings → REVOKE ALL AI ACCESS
 - [ ] Audit + monthly usage
 
@@ -129,3 +143,4 @@ Automated: `node scripts/smoke-prod.mjs`
 - Never commit `.env` or `.cursor/mcp.json`
 - Rotate `SMART_ACCOUNT_ENCRYPTION_KEY` only with a migration plan (existing ciphertext becomes unreadable)
 - Interim G-account secrets stay encrypted at rest; never returned to clients
+- Never auto-retry financial swap failures (slippage, underfunded, policy)
