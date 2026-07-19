@@ -27,14 +27,24 @@ No repo clone. Create a session on https://paythreewallet.vercel.app, copy the t
 }
 ```
 
-Smoke (needs a real token):
+If Cursor shows **timeouts / “user-pay3 unhealthy”** on the hosted URL (common with Vercel cold starts), use **local stdio → prod API** instead (same token):
 
-```powershell
-$env:PAY3_API_URL="https://pay3-api.vercel.app"
-$env:PAY3_MCP_TOKEN="pay3_YOUR_TOKEN"
-npm run smoke:mcp-http
+```json
+{
+  "mcpServers": {
+    "pay3": {
+      "command": "node",
+      "args": ["${workspaceFolder}/apps/mcp-server/dist/index.js"],
+      "env": {
+        "PAY3_API_URL": "https://pay3-api.vercel.app",
+        "PAY3_MCP_TOKEN": "pay3_PASTE_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
 ```
 
+Build once: `npm run build:mcp`. Then **Settings → Tools & MCP → reload pay3**. Disable any duplicate broken `user-pay3` entry that still points at the old hosted URL.
 ## Local stdio (developers)
 
 1. API running: `npm run dev:api` (port 4000)
