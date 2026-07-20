@@ -16,12 +16,22 @@ export async function apiFetch<T>(
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    const reason =
+      typeof data.reason === "string"
+        ? data.reason.replace(/_/g, " ")
+        : null;
+    const fallback =
+      res.status === 500 && Object.keys(data).length === 0
+        ? "API unavailable — is the backend running?"
+        : `Request failed (${res.status})`;
     throw new Error(
       typeof data.error === "string"
         ? data.error
         : typeof data.message === "string"
           ? data.message
-          : `Request failed (${res.status})`
+          : reason
+            ? reason.charAt(0).toUpperCase() + reason.slice(1)
+            : fallback
     );
   }
   return data as T;

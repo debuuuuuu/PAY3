@@ -103,7 +103,7 @@ export function Hero() {
           </p>
 
           <div data-hero-cta className="mt-6 flex flex-wrap items-center gap-4">
-            <a href="#how-it-works" className="btn-ghost">
+            <a href="/dashboard?connect=freighter" className="btn-primary">
               Get Started
             </a>
             <span className="text-sm text-white/35">Claude · Cursor · ChatGPT</span>

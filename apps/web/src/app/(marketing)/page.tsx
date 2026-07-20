@@ -10,9 +10,6 @@ import { FAQ } from "@/components/landing/FAQ";
 export default function Home() {
   return (
     <>
-      <a href="#main" className="skip-link">
-        Skip to content
-      </a>
       <Header />
       <main id="main">
         <div id="top" className="sr-only" aria-hidden>

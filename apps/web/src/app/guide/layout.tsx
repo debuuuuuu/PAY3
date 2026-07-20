@@ -9,9 +9,6 @@ export default function GuideLayout({
 }) {
   return (
     <>
-      <a href="#main" className="skip-link">
-        Skip to content
-      </a>
       <Header />
       <main id="main" className="min-h-screen bg-black pt-28 pb-16 text-white">
         <div className="guide-rise mx-auto max-w-3xl px-6 md:px-12">

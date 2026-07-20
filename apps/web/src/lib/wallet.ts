@@ -7,6 +7,32 @@ import {
 import { apiFetch } from "./api";
 import type { AuthChallengeResponse, AuthUser, UserProfile } from "@pay3/shared";
 
+/** Freighter/API sometimes returns `{ message, code }` instead of a string. */
+export function formatUnknownError(value: unknown, fallback: string): string {
+  if (value == null || value === "") return fallback;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed === "[object Object]" ? fallback : trimmed || fallback;
+  }
+  if (value instanceof Error) {
+    const trimmed = value.message.trim();
+    return trimmed === "[object Object]" ? fallback : trimmed || fallback;
+  }
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    for (const key of ["message", "error", "detail", "reason", "description"]) {
+      const nested = record[key];
+      if (typeof nested === "string" && nested.trim()) {
+        return nested.trim();
+      }
+    }
+    if (typeof record.code === "string" && record.code.trim()) {
+      return record.code.replace(/_/g, " ");
+    }
+  }
+  return fallback;
+}
+
 export async function connectFreighter(): Promise<string> {
   const connected = await isConnected();
   if (!connected) {
@@ -15,11 +41,45 @@ export async function connectFreighter(): Promise<string> {
 
   const access = await requestAccess();
   if (access.error || !access.address) {
-    throw new Error(access.error ?? "Freighter access denied");
+    throw new Error(
+      formatUnknownError(access.error, "Freighter access denied")
+    );
   }
 
   return access.address;
 }
+
+export type FreighterIssue = "missing" | "denied" | "other";
+
+export function classifyFreighterError(message: string): FreighterIssue {
+  const m = message.toLowerCase();
+  if (
+    m.includes("not installed") ||
+    m.includes("extension") ||
+    m.includes("no freighter")
+  ) {
+    return "missing";
+  }
+  if (
+    m.includes("denied") ||
+    m.includes("rejected") ||
+    m.includes("cancel") ||
+    m.includes("declined")
+  ) {
+    return "denied";
+  }
+  return "other";
+}
+
+export async function isFreighterAvailable(): Promise<boolean> {
+  try {
+    return await isConnected();
+  } catch {
+    return false;
+  }
+}
+
+export const FREIGHTER_INSTALL_URL = "https://www.freighter.app/";
 
 export function normalizeWalletSignature(
   signedMessage: string | Buffer | Uint8Array
@@ -40,7 +100,7 @@ async function signAuthMessage(
   });
 
   if (signed.error || !signed.signedMessage) {
-    throw new Error(signed.error ?? "Signing failed");
+    throw new Error(formatUnknownError(signed.error, "Signing failed"));
   }
 
   return normalizeWalletSignature(signed.signedMessage);
@@ -162,7 +222,9 @@ export async function signTransactionWithFreighter(
       "Test SDF Network ; September 2015",
   });
   if (signed.error || !signed.signedTxXdr) {
-    throw new Error(signed.error ?? "Freighter transaction signing failed");
+    throw new Error(
+      formatUnknownError(signed.error, "Freighter transaction signing failed")
+    );
   }
   return signed.signedTxXdr;
 }

@@ -1,8 +1,8 @@
 export const NAV_LINKS = [
   { label: "Guide", href: "/guide", external: false },
   { label: "Features", href: "/#features", external: false },
+  { label: "Docs", href: "https://pay3.mintlify.site", external: true },
   { label: "Official X", href: "https://x.com/PAYThreeWallet", external: true },
-  { label: "GitHub", href: "https://github.com/debuuuuuu/PAY3", external: true },
   { label: "Contact Us", href: "mailto:pay3wallet@gmail.com", external: true },
 ] as const;
 

@@ -2,6 +2,7 @@
 
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Pay3Logo } from "@/components/ui/Logo";
 import { NAV_LINKS } from "@/lib/content";
@@ -52,6 +53,7 @@ export function Header() {
         ease: "power3.out",
         delay: 0.05,
         immediateRender: false,
+        clearProps: "transform,opacity",
       });
     },
     { scope: headerRef, dependencies: [revealed] }
@@ -71,82 +73,120 @@ export function Header() {
   return (
     <header
       ref={headerRef}
-      className={`glass-nav fixed inset-x-0 top-0 z-50 px-6 py-5 md:px-12${scrolled ? " glass-nav--scrolled" : ""}`}
+      className={`glass-nav fixed inset-x-0 top-0 z-50 px-5 py-3.5 md:px-10 md:py-4${scrolled ? " glass-nav--scrolled" : ""}`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
-        <a
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+        <Link
           href="/"
           data-nav-item
-          className="text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          className="flex shrink-0 items-center gap-2.5 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
         >
-          <Pay3Logo size={48} priority className="h-11 w-11 md:h-12 md:w-12" />
-        </a>
+          <Pay3Logo size={44} priority className="h-10 w-10 md:h-11 md:w-11" />
+          <span className="hidden font-[family-name:var(--font-space-grotesk)] text-[15px] font-semibold tracking-tight sm:inline">
+            Pay3
+          </span>
+        </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Main">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              data-nav-item
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              className="flex items-center gap-1.5 text-sm text-white/80 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-            >
-              {link.label}
-              {link.external && <ExternalIcon />}
-            </a>
-          ))}
+        <nav className="hidden items-center lg:flex" aria-label="Main">
+          <div
+            data-nav-item
+            className="inline-flex items-center gap-0.5 rounded-full border border-white/[0.1] bg-white/[0.04] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+          >
+            {NAV_LINKS.map((link) =>
+              link.external ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] text-white/65 transition-[color,background] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/[0.08] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  {link.label}
+                  <ExternalIcon />
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] text-white/65 transition-[color,background] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white/[0.08] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
+          </div>
         </nav>
 
-        <div className="flex items-center gap-3">
-          <a
-            href="/dashboard"
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/dashboard?connect=freighter"
             data-nav-item
-            className="btn-primary hidden text-sm sm:inline-flex"
+            className="btn-primary relative z-[60] hidden !px-5 !py-2.5 text-[13px] sm:inline-flex"
           >
             Get Started
-          </a>
+          </Link>
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 lg:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.03] lg:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
             <div className="flex flex-col gap-1">
-              <span className={`block h-0.5 w-4 bg-white transition-transform ${menuOpen ? "translate-y-1.5 rotate-45" : ""}`} />
-              <span className={`block h-0.5 w-4 bg-white transition-opacity ${menuOpen ? "opacity-0" : ""}`} />
-              <span className={`block h-0.5 w-4 bg-white transition-transform ${menuOpen ? "-translate-y-1.5 -rotate-45" : ""}`} />
+              <span
+                className={`block h-0.5 w-4 bg-white transition-transform ${menuOpen ? "translate-y-1.5 rotate-45" : ""}`}
+              />
+              <span
+                className={`block h-0.5 w-4 bg-white transition-opacity ${menuOpen ? "opacity-0" : ""}`}
+              />
+              <span
+                className={`block h-0.5 w-4 bg-white transition-transform ${menuOpen ? "-translate-y-1.5 -rotate-45" : ""}`}
+              />
             </div>
           </button>
         </div>
       </div>
 
-      {menuOpen && (
-        <nav className="mx-auto mt-4 max-w-7xl border-t border-white/10 pt-4 lg:hidden" aria-label="Mobile">
-          <div className="flex flex-col gap-4">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                target={link.external ? "_blank" : undefined}
-                rel={link.external ? "noopener noreferrer" : undefined}
-                className="text-sm text-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                onClick={() => setMenuOpen(false)}
-              >
-                {link.label}
-              </a>
-            ))}
-            <a
-              href="/dashboard"
-              className="btn-primary mt-2 w-fit text-sm"
+      {menuOpen ? (
+        <nav
+          className="mx-auto mt-3 max-w-7xl overflow-hidden rounded-2xl border border-white/10 bg-black/80 p-4 backdrop-blur-xl lg:hidden"
+          aria-label="Mobile"
+        >
+          <div className="flex flex-col gap-1">
+            {NAV_LINKS.map((link) =>
+              link.external ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-white/75 transition-colors hover:bg-white/[0.06] hover:text-white"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                  <ExternalIcon />
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="rounded-xl px-3 py-2.5 text-sm text-white/75 transition-colors hover:bg-white/[0.06] hover:text-white"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
+            <Link
+              href="/dashboard?connect=freighter"
+              className="btn-primary mt-3 w-full text-sm"
               onClick={() => setMenuOpen(false)}
             >
               Get Started
-            </a>
+            </Link>
           </div>
         </nav>
-      )}
+      ) : null}
     </header>
   );
 }
