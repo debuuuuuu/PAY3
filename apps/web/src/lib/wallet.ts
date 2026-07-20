@@ -33,8 +33,15 @@ export function formatUnknownError(value: unknown, fallback: string): string {
   return fallback;
 }
 
+function freighterIsConnected(
+  result: Awaited<ReturnType<typeof isConnected>>
+): boolean {
+  if (typeof result === "boolean") return result;
+  return Boolean(result.isConnected);
+}
+
 export async function connectFreighter(): Promise<string> {
-  const connected = await isConnected();
+  const connected = freighterIsConnected(await isConnected());
   if (!connected) {
     throw new Error("Freighter extension not installed");
   }
@@ -73,7 +80,7 @@ export function classifyFreighterError(message: string): FreighterIssue {
 
 export async function isFreighterAvailable(): Promise<boolean> {
   try {
-    return await isConnected();
+    return freighterIsConnected(await isConnected());
   } catch {
     return false;
   }
