@@ -172,6 +172,23 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ["asset_in", "asset_out", "amount"],
       },
     },
+    {
+      name: "x402_fetch",
+      description:
+        "Fetch a paywalled HTTP API (x402). Pays via policy-gated Stellar transfer then retries with payment proof. Opt-in.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          url: { type: "string", description: "HTTP(S) URL (allowlisted hosts)" },
+          max_amount: {
+            type: "string",
+            description: "Optional max XLM to pay on 402",
+          },
+          idempotency_key: { type: "string" },
+        },
+        required: ["url"],
+      },
+    },
   ],
 }));
 
@@ -226,6 +243,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           amount: args.amount,
           tradeType: args.trade_type ?? args.tradeType,
           slippageBps: args.slippage_bps ?? args.slippageBps,
+          idempotencyKey: args.idempotency_key ?? args.idempotencyKey,
+        }),
+      });
+      return textResult(body, !ok);
+    }
+
+    if (name === "x402_fetch") {
+      const { ok, body } = await apiFetch("/mcp/x402-fetch", {
+        method: "POST",
+        body: JSON.stringify({
+          url: args.url,
+          maxAmount: args.max_amount ?? args.maxAmount,
           idempotencyKey: args.idempotency_key ?? args.idempotencyKey,
         }),
       });

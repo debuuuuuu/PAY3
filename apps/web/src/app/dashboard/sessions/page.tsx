@@ -384,11 +384,63 @@ export default function SessionsPage() {
                     Allow DeFi swap execute
                   </span>
                   <span className="mt-1 block text-[12px] leading-relaxed text-white/40">
-                    Opt-in. Lets the AI call execute_swap (quote→build→sign→send
-                    via Soroswap). Quotes alone do not need this.
+                    Opt-in Soroswap execute_swap. Quotes alone do not need this.
+                    Set SOROSWAP_API_KEY on API for live routes.
                   </span>
                 </span>
               </label>
+
+              <label className="flex items-start gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/40 accent-white"
+                  checked={rules.allowedActions.includes("x402_fetch")}
+                  onChange={(e) => {
+                    const on = e.target.checked;
+                    setRules({
+                      ...rules,
+                      allowedActions: on
+                        ? [
+                            ...new Set([
+                              ...rules.allowedActions,
+                              "x402_fetch",
+                            ]),
+                          ]
+                        : rules.allowedActions.filter(
+                            (a) => a !== "x402_fetch"
+                          ),
+                    });
+                  }}
+                />
+                <span>
+                  <span className="font-[family-name:var(--font-space-grotesk)] text-[14px] font-medium text-white/90">
+                    Allow x402 API payments
+                  </span>
+                  <span className="mt-1 block text-[12px] leading-relaxed text-white/40">
+                    Opt-in micropayments for paywalled HTTP APIs (402 → pay →
+                    retry). Demo: /demo/x402/insight
+                  </span>
+                </span>
+              </label>
+
+              <div
+                className="flex items-start gap-3 rounded-xl border border-white/[0.05] bg-white/[0.01] p-4 opacity-60"
+                aria-disabled
+              >
+                <input
+                  type="checkbox"
+                  disabled
+                  className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/40"
+                />
+                <span>
+                  <span className="font-[family-name:var(--font-space-grotesk)] text-[14px] font-medium text-white/70">
+                    Blend supply (coming soon)
+                  </span>
+                  <span className="mt-1 block text-[12px] leading-relaxed text-white/35">
+                    Policy-gated lending via Blend SDK — after mainnet cutover.
+                  </span>
+                </span>
+              </div>
 
               {error ? (
                 <p className="text-[13px] text-red-400/90" role="alert">

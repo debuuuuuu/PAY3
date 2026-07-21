@@ -111,7 +111,7 @@ function toSessionView(s: {
 }
 
 sessionsRouter.get("/", async (req, res) => {
-  const { userId } = req as AuthedRequest;
+  const { userId } = req as unknown as AuthedRequest;
   const sessions = await prisma.aiSession.findMany({
     where: { userId },
     include: { policy: true },
@@ -180,7 +180,7 @@ sessionsRouter.post("/challenge", async (req, res) => {
 });
 
 sessionsRouter.post("/", async (req, res) => {
-  const { userId, walletPublicKey } = req as AuthedRequest;
+  const { userId, walletPublicKey } = req as unknown as AuthedRequest;
   const signature = String(req.body?.signature ?? "").trim();
   const nonce = String(req.body?.nonce ?? "").trim();
   const clientType = normalizeClientType(String(req.body?.clientType ?? "claude"));
@@ -305,7 +305,7 @@ sessionsRouter.post("/", async (req, res) => {
 
 /** Re-prepare add_session XDR if client needs to retry Freighter signing. */
 sessionsRouter.post("/:id/onchain-prepare", async (req, res) => {
-  const { userId, walletPublicKey } = req as AuthedRequest;
+  const { userId, walletPublicKey } = req as unknown as AuthedRequest;
   const id = String(req.params.id);
 
   const session = await prisma.aiSession.findFirst({
@@ -360,7 +360,7 @@ sessionsRouter.post("/:id/onchain-prepare", async (req, res) => {
 });
 
 sessionsRouter.post("/:id/onchain-confirm", async (req, res) => {
-  const { userId } = req as AuthedRequest;
+  const { userId } = req as unknown as AuthedRequest;
   const id = String(req.params.id);
   const signedXdr = String(req.body?.signedXdr ?? "").trim();
   if (!signedXdr) {
@@ -438,7 +438,7 @@ sessionsRouter.post("/:id/onchain-confirm", async (req, res) => {
 });
 
 sessionsRouter.post("/revoke-all", async (req, res) => {
-  const { userId, walletPublicKey } = req as AuthedRequest;
+  const { userId, walletPublicKey } = req as unknown as AuthedRequest;
   const smartAccount = await prisma.smartAccount.findUnique({
     where: { userId },
   });
@@ -501,7 +501,7 @@ sessionsRouter.post("/revoke-all", async (req, res) => {
 });
 
 sessionsRouter.post("/:id/revoke", async (req, res) => {
-  const { userId, walletPublicKey } = req as AuthedRequest;
+  const { userId, walletPublicKey } = req as unknown as AuthedRequest;
   const id = String(req.params.id);
 
   const session = await prisma.aiSession.findFirst({

@@ -107,6 +107,8 @@ export function permissionSummary(input: SessionCreateInput): {
     get_transaction_history: "View transaction history",
     get_swap_quote: "Get DeFi swap quotes",
     execute_swap: "Execute DeFi swaps (Soroswap)",
+    x402_fetch: "Pay for x402 API calls (micropayments)",
+    blend_supply: "Supply to Blend (coming soon)",
   };
   const allowed = input.rules.allowedActions.map(
     (a) => actionLabels[a] ?? a

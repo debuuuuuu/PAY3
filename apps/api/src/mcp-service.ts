@@ -8,6 +8,7 @@ import { getAccountBalances, getAccountPayments } from "@pay3/stellar";
 import { executeTransfer, toTxView } from "./transfer-service.js";
 import { executeSwap } from "./swap-service.js";
 import { getSwapQuote, SoroswapError, type TradeType } from "./soroswap.js";
+import { executeX402Fetch, X402Error } from "./x402-service.js";
 
 export type McpSessionCtx = {
   userId: string;
@@ -303,6 +304,70 @@ export async function mcpExecuteSwap(
       body: {
         error: e.message ?? "swap failed",
         transaction: e.transaction,
+      },
+    };
+  }
+}
+
+export async function mcpX402Fetch(
+  ctx: McpSessionCtx,
+  args: {
+    url: string;
+    maxAmount?: string;
+    idempotencyKey?: string;
+  }
+): Promise<McpToolResult> {
+  const url = String(args.url ?? "").trim();
+  if (!url) {
+    return { status: 400, body: { error: "url required" } };
+  }
+
+  const session = await prisma.aiSession.findFirst({
+    where: { id: ctx.sessionId, userId: ctx.userId },
+    include: { policy: true },
+  });
+  if (!session) return { status: 404, body: { error: "session not found" } };
+
+  const rules = asRules(session.policy?.rulesJson);
+  if (!rules) return { status: 400, body: { error: "session has no policy" } };
+
+  if (!isSessionActive(session)) {
+    return { status: 403, body: { error: "session not active" } };
+  }
+
+  if (!rules.allowedActions.map((a) => a.toLowerCase()).includes("x402_fetch")) {
+    return {
+      status: 403,
+      body: { error: "x402_fetch is not allowed for this session" },
+    };
+  }
+
+  try {
+    const result = await executeX402Fetch({
+      userId: ctx.userId,
+      sessionId: ctx.sessionId,
+      url,
+      maxAmount: args.maxAmount ? String(args.maxAmount) : undefined,
+      idempotencyKey: args.idempotencyKey
+        ? String(args.idempotencyKey)
+        : undefined,
+    });
+    return {
+      status: result.status,
+      body: {
+        paid: result.paid,
+        paymentTxHash: result.paymentTxHash,
+        response: result.body,
+      },
+    };
+  } catch (err) {
+    if (err instanceof X402Error) {
+      return { status: err.status, body: { error: err.message } };
+    }
+    return {
+      status: 500,
+      body: {
+        error: err instanceof Error ? err.message : "x402_fetch failed",
       },
     };
   }

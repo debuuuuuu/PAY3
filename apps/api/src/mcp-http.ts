@@ -19,6 +19,7 @@ import {
   mcpGetSwapQuote,
   mcpExecuteSwap,
   mcpTransfer,
+  mcpX402Fetch,
   type McpSessionCtx,
 } from "./mcp-service.js";
 
@@ -174,6 +175,30 @@ function createPay3McpServer(ctx: McpSessionCtx): McpServer {
         amount,
         tradeType: trade_type,
         slippageBps: slippage_bps,
+        idempotencyKey: idempotency_key,
+      });
+      return textResult(result.body, result.status >= 400);
+    }
+  );
+
+  server.registerTool(
+    "x402_fetch",
+    {
+      description:
+        "Fetch a paywalled HTTP API using x402 (402 Payment Required). Pays via policy-gated Stellar transfer, then retries with X-Payment proof. Opt-in session action.",
+      inputSchema: {
+        url: z.string().describe("HTTP(S) URL to fetch (allowlisted hosts only)"),
+        max_amount: z
+          .string()
+          .optional()
+          .describe("Optional max XLM to pay if API returns 402"),
+        idempotency_key: z.string().optional(),
+      },
+    },
+    async ({ url, max_amount, idempotency_key }) => {
+      const result = await mcpX402Fetch(ctx, {
+        url,
+        maxAmount: max_amount,
         idempotencyKey: idempotency_key,
       });
       return textResult(result.body, result.status >= 400);

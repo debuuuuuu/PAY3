@@ -24,6 +24,7 @@ export function SessionPolicyBlueprint({
 }: SessionPolicyBlueprintProps) {
   const initial = (label || clientType).charAt(0).toUpperCase();
   const swapOn = rules.allowedActions.includes("execute_swap");
+  const x402On = rules.allowedActions.includes("x402_fetch");
 
   return (
     <div className="session-blueprint overflow-hidden rounded-[1.25rem] border border-white/[0.09] bg-[#09090b] shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
@@ -79,6 +80,15 @@ export function SessionPolicyBlueprint({
               }`}
             >
               {swapOn ? "swap execute on" : "swap execute off"}
+            </span>
+            <span
+              className={`rounded-full border px-2.5 py-1 font-[family-name:var(--font-jetbrains-mono)] text-[8px] uppercase tracking-[0.1em] ${
+                x402On
+                  ? "border-violet-400/25 bg-violet-500/[0.08] text-violet-300/80"
+                  : "border-white/10 bg-white/[0.03] text-white/30"
+              }`}
+            >
+              {x402On ? "x402 on" : "x402 off"}
             </span>
             <span className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 font-[family-name:var(--font-jetbrains-mono)] text-[8px] uppercase tracking-[0.1em] text-white/35">
               freighter gate

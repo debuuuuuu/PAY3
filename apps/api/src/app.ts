@@ -14,6 +14,7 @@ import { transactionsRouter } from "./routes/transactions.js";
 import { approvalsRouter } from "./routes/approvals.js";
 import { mcpRouter } from "./routes/mcp.js";
 import { auditRouter, usageRouter } from "./routes/audit.js";
+import { demoX402Router } from "./routes/demo-x402.js";
 import { handleMcpHttp } from "./mcp-http.js";
 
 export function createApp() {
@@ -51,6 +52,7 @@ export function createApp() {
   app.use("/approvals", approvalsRouter);
   app.use("/audit", auditRouter);
   app.use("/usage", usageRouter);
+  app.use("/demo/x402", demoX402Router);
   // Exact /mcp = Streamable HTTP protocol; /mcp/* = REST used by local stdio MCP
   app.all("/mcp", (req, res) => {
     void handleMcpHttp(req, res);

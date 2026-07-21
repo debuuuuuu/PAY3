@@ -135,5 +135,7 @@ export const FAQ_ITEMS = [
 export const EXAMPLE_COMMANDS = [
   '"What’s my Pay3 balance?"',
   '"Pay 0.5 XLM to Hurain."',
+  '"Pay 0.5 XLM to Debjit."',
+  '"Pay 0.5 XLM to Manas."',
   '"Show my recent Pay3 transactions."',
 ] as const;

@@ -52,7 +52,7 @@ async function spentTodayForSession(
   const txs = await prisma.transaction.findMany({
     where: {
       sessionId,
-      action: "transfer",
+      action: { in: ["transfer", "execute_swap", "x402_fetch"] },
       status: "SUCCESS",
       createdAt: { gte: start },
       asset: { equals: asset, mode: "insensitive" },

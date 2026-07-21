@@ -88,6 +88,8 @@ export const MCP_LOCAL_JSON_EXAMPLE = `{
 export const MCP_EXAMPLE_PROMPTS = [
   "What’s my Pay3 balance?",
   "Pay 0.5 XLM to Hurain",
+  "Pay 0.5 XLM to Debjit",
+  "Pay 0.5 XLM to Manas",
   "Show my recent Pay3 transactions",
   "Quote swapping 1 XLM to USDC on testnet",
 ] as const;

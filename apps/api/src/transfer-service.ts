@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { prisma } from "@pay3/database";
+import type { Prisma } from "@prisma/client";
 import { APPROVAL_TTL_MS, MAX_TECHNICAL_RETRIES } from "@pay3/shared";
 import { evaluatePolicy } from "@pay3/policy-engine";
 import { resolveRecipient } from "@pay3/recipient-resolver";
@@ -96,7 +97,7 @@ async function spentToday(sessionId: string, asset: string): Promise<string> {
   const txs = await prisma.transaction.findMany({
     where: {
       sessionId,
-      action: { in: ["transfer", "execute_swap"] },
+      action: { in: ["transfer", "execute_swap", "x402_fetch"] },
       status: "SUCCESS",
       createdAt: { gte: start },
       asset: { equals: asset, mode: "insensitive" },
@@ -125,7 +126,7 @@ async function writeAudit(
   metadata: Record<string, unknown>
 ) {
   await prisma.auditLog.create({
-    data: { userId, action, metadata },
+    data: { userId, action, metadata: metadata as Prisma.InputJsonValue },
   });
 }
 
@@ -268,6 +269,10 @@ export type TransferInput = {
   asset: string;
   amount: string;
   idempotencyKey?: string;
+  /** Policy action to evaluate (default transfer). */
+  policyAction?: string;
+  /** Transaction record action (default transfer). */
+  recordAction?: string;
 };
 
 /**
@@ -276,6 +281,8 @@ export type TransferInput = {
  */
 export async function executeTransfer(input: TransferInput) {
   const idempotencyKey = input.idempotencyKey?.trim() || randomUUID();
+  const policyAction = input.policyAction?.trim() || "transfer";
+  const recordAction = input.recordAction?.trim() || "transfer";
 
   const existing = await prisma.transaction.findUnique({
     where: { idempotencyKey },
@@ -355,7 +362,7 @@ export async function executeTransfer(input: TransferInput) {
         userId: input.userId,
         sessionId: session.id,
         idempotencyKey,
-        action: "transfer",
+        action: recordAction,
         asset: input.asset,
         amount: input.amount,
         recipient: resolved.stellarAddress,
@@ -401,7 +408,7 @@ export async function executeTransfer(input: TransferInput) {
   const spent = await spentToday(session.id, input.asset);
   const policy = evaluatePolicy(
     {
-      action: "transfer",
+      action: policyAction,
       asset: input.asset,
       amount: input.amount,
       recipient: resolved.stellarAddress,

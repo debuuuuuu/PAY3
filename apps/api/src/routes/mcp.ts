@@ -6,6 +6,7 @@ import {
   mcpGetSwapQuote,
   mcpExecuteSwap,
   mcpTransfer,
+  mcpX402Fetch,
 } from "../mcp-service.js";
 
 export const mcpRouter = Router();
@@ -71,6 +72,28 @@ mcpRouter.post("/swap", async (req, res) => {
         tradeRaw != null && tradeRaw !== "" ? String(tradeRaw) : undefined,
       slippageBps:
         slipRaw != null && slipRaw !== "" ? Number(slipRaw) : undefined,
+      idempotencyKey: req.body?.idempotencyKey
+        ? String(req.body.idempotencyKey)
+        : req.body?.idempotency_key
+          ? String(req.body.idempotency_key)
+          : undefined,
+    }
+  );
+  res.status(result.status).json(result.body);
+});
+
+mcpRouter.post("/x402-fetch", async (req, res) => {
+  const { userId, sessionId } = req as McpAuthedRequest;
+  const result = await mcpX402Fetch(
+    { userId, sessionId },
+    {
+      url: String(req.body?.url ?? ""),
+      maxAmount:
+        req.body?.maxAmount != null
+          ? String(req.body.maxAmount)
+          : req.body?.max_amount != null
+            ? String(req.body.max_amount)
+            : undefined,
       idempotencyKey: req.body?.idempotencyKey
         ? String(req.body.idempotencyKey)
         : req.body?.idempotency_key

@@ -78,7 +78,7 @@ export function evaluatePolicy(
     };
   }
 
-  if (action !== "transfer" && action !== "execute_swap") {
+  if (action !== "transfer" && action !== "execute_swap" && action !== "x402_fetch") {
     return {
       decision: "REJECTED",
       reason: `Unknown financial action "${request.action}"`,
@@ -86,7 +86,7 @@ export function evaluatePolicy(
     };
   }
 
-  // --- transfer / execute_swap amount checks ---
+  // --- transfer / execute_swap / x402_fetch amount checks ---
   const asset = (request.asset ?? "").trim().toUpperCase();
   const ruleAsset = ctx.rules.asset.trim().toUpperCase();
   if (!asset) {
@@ -105,11 +105,14 @@ export function evaluatePolicy(
   }
   checks.push(`asset: ok (${asset})`);
 
-  if (action === "transfer") {
+  if (action === "transfer" || action === "x402_fetch") {
     if (!request.recipient?.trim()) {
       return {
         decision: "REJECTED",
-        reason: "Recipient is required for transfer",
+        reason:
+          action === "x402_fetch"
+            ? "payTo recipient is required for x402_fetch"
+            : "Recipient is required for transfer",
         checks: [...checks, "recipient: missing"],
       };
     }
@@ -200,7 +203,9 @@ export function evaluatePolicy(
     reason:
       action === "execute_swap"
         ? "Swap within autonomous limits"
-        : "Transfer within autonomous limits",
+        : action === "x402_fetch"
+          ? "x402 API payment within autonomous limits"
+          : "Transfer within autonomous limits",
     checks,
   };
 }
@@ -311,6 +316,39 @@ export function policyEngineSelfCheck(): void {
   );
   if (swapDenied.decision !== "REJECTED") {
     throw new Error("self-check: execute_swap must be opt-in");
+  }
+
+  const x402Ok = evaluatePolicy(
+    {
+      action: "x402_fetch",
+      asset: "XLM",
+      amount: "0.1",
+      recipient: "GDEMO",
+    },
+    {
+      rules: {
+        ...rules,
+        allowedActions: [...rules.allowedActions, "x402_fetch"],
+      },
+      sessionActive: true,
+      spentToday: "0",
+    }
+  );
+  if (x402Ok.decision !== "AUTO_EXECUTE") {
+    throw new Error("self-check: small x402_fetch should auto");
+  }
+
+  const x402Denied = evaluatePolicy(
+    {
+      action: "x402_fetch",
+      asset: "XLM",
+      amount: "0.1",
+      recipient: "GDEMO",
+    },
+    active
+  );
+  if (x402Denied.decision !== "REJECTED") {
+    throw new Error("self-check: x402_fetch must be opt-in");
   }
 
   const dead = evaluatePolicy(

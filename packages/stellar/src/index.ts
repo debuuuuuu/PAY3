@@ -22,7 +22,7 @@ export {
   DEFAULT_SOROBAN_RPC,
   type SorobanFailureClass,
   type ExpectedTransfer,
-} from "./soroban";
+} from "./soroban.js";
 
 export type AssetBalance = {
   asset: string;

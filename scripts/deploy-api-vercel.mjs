@@ -34,6 +34,9 @@ const envKeys = [
   "SOROSWAP_API_KEY",
   "SOROSWAP_API_URL",
   "SOROSWAP_NETWORK",
+  "PAY3_ALLOWED_WASM_HASHES",
+  "X402_DEMO_PAYEE_G",
+  "X402_DEMO_AMOUNT",
 ];
 
 function run(cmd, args, opts = {}) {
