@@ -61,7 +61,7 @@ export async function completeQrLoginWithWalletConnect(
       name: "Pay3",
       description: "Pay3 testnet beta — QR sign-in",
       url: siteUrl(),
-      icons: [`${siteUrl()}/favicon.ico`],
+      icons: [`${siteUrl()}/favicon.ico`, `${siteUrl()}/pay3-logo.png`],
     },
   });
 

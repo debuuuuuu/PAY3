@@ -29,8 +29,13 @@ export const metadata: Metadata = {
   description:
     "Pay3 is the MCP-powered bridge between AI assistants and Stellar finance. Session keys, policy engine, DeFi integrations, and autonomous payments.",
   icons: {
-    icon: "/pay3-logo.png",
-    apple: "/pay3-logo.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/pay3-logo.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "Pay3 — Delegate. Validate. Execute.",
