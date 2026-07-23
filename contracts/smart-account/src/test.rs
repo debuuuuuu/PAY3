@@ -4,13 +4,13 @@ extern crate std;
 
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
-    Address, Env,
     xdr::{
         InvokeContractArgs, ScAddress, ScVal, SorobanAddressCredentials,
         SorobanAddressCredentialsWithDelegates, SorobanAuthorizationEntry,
         SorobanAuthorizedFunction, SorobanAuthorizedInvocation, SorobanCredentials,
         SorobanDelegateSignature, StringM, VecM,
     },
+    Address, Env,
 };
 
 use crate::{Error, Pay3SmartAccount, Pay3SmartAccountClient};
@@ -59,10 +59,7 @@ fn setup(env: &Env) -> Fixture<'_> {
     let native_sac = env.register(FakeSac, ());
     let client = Pay3SmartAccountClient::new(
         env,
-        &env.register(
-            Pay3SmartAccount {},
-            (owner.clone(), native_sac.clone()),
-        ),
+        &env.register(Pay3SmartAccount {}, (owner.clone(), native_sac.clone())),
     );
     Fixture {
         env,
@@ -82,10 +79,10 @@ fn auth_transfer(
     amount: i128,
     nonce: i64,
 ) -> SorobanAuthorizationEntry {
-    let account_addr: ScAddress = account.clone().try_into().unwrap();
-    let delegate_addr: ScAddress = delegate.clone().try_into().unwrap();
-    let sac_addr: ScAddress = sac.clone().try_into().unwrap();
-    let to_addr: ScAddress = to.clone().try_into().unwrap();
+    let account_addr: ScAddress = account.clone().into();
+    let delegate_addr: ScAddress = delegate.clone().into();
+    let sac_addr: ScAddress = sac.clone().into();
+    let to_addr: ScAddress = to.clone().into();
     // Host rejects expiry too far ahead of current ledger.
     let exp = env.ledger().sequence() + 100;
     SorobanAuthorizationEntry {
@@ -217,7 +214,9 @@ fn session_expired() {
         1,
     )]);
     let sac = FakeSacClient::new(&env, &f.native_sac);
-    assert!(sac.try_transfer(&f.client.address, &to, &1_000_000).is_err());
+    assert!(sac
+        .try_transfer(&f.client.address, &to, &1_000_000)
+        .is_err());
 }
 
 #[test]
@@ -238,7 +237,9 @@ fn session_revoked() {
         1,
     )]);
     let sac = FakeSacClient::new(&env, &f.native_sac);
-    assert!(sac.try_transfer(&f.client.address, &to, &1_000_000).is_err());
+    assert!(sac
+        .try_transfer(&f.client.address, &to, &1_000_000)
+        .is_err());
 }
 
 #[test]
@@ -284,8 +285,8 @@ fn non_transfer_context_rejected() {
         .add_session(&f.session, &1_000_000, &5_000_000, &10_000_000);
 
     // Auth entry points at Pay3.add_session — not allowed via __check_auth.
-    let account_addr: ScAddress = f.client.address.clone().try_into().unwrap();
-    let delegate_addr: ScAddress = f.session.clone().try_into().unwrap();
+    let account_addr: ScAddress = f.client.address.clone().into();
+    let delegate_addr: ScAddress = f.session.clone().into();
     env.set_auths(&[SorobanAuthorizationEntry {
         credentials: SorobanCredentials::AddressWithDelegates(
             SorobanAddressCredentialsWithDelegates {
@@ -331,5 +332,7 @@ fn non_transfer_context_rejected() {
         1_000_000,
         3,
     )]);
-    assert!(sac.try_transfer(&f.client.address, &to, &1_000_000).is_err());
+    assert!(sac
+        .try_transfer(&f.client.address, &to, &1_000_000)
+        .is_err());
 }

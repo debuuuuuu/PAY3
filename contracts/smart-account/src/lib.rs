@@ -70,7 +70,9 @@ impl Pay3SmartAccount {
     /// Atomic init — deploy with constructor args to avoid front-running.
     pub fn __constructor(env: Env, owner: Address, native_sac: Address) {
         env.storage().instance().set(&DataKey::Owner, &owner);
-        env.storage().instance().set(&DataKey::NativeSac, &native_sac);
+        env.storage()
+            .instance()
+            .set(&DataKey::NativeSac, &native_sac);
         env.storage()
             .instance()
             .extend_ttl(TTL_THRESHOLD, TTL_EXTEND_TO);
@@ -285,8 +287,8 @@ fn validate_transfer_context(
             let _to: Address = Address::try_from_val(env, &c.args.get(1).unwrap())
                 .map_err(|_| Error::InvalidContext)?;
 
-            let amount: i128 = i128::try_from_val(env, &c.args.get(2).unwrap())
-                .map_err(|_| Error::BadAmount)?;
+            let amount: i128 =
+                i128::try_from_val(env, &c.args.get(2).unwrap()).map_err(|_| Error::BadAmount)?;
             if amount <= 0 {
                 return Err(Error::BadAmount);
             }
