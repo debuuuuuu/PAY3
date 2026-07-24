@@ -5,13 +5,14 @@
 import "./env.js";
 
 const DEFAULT_API_URL = "https://api.soroswap.finance";
-const DEFAULT_NETWORK = "testnet";
+const DEFAULT_NETWORK = "mainnet";
 const DEFAULT_SLIPPAGE_BPS = 50;
 
-/** Testnet SAC contract IDs (Soroswap examples). Pools may be empty at times. */
+/** Testnet SAC contract IDs (Soroswap docs). Pools may be empty at times. */
 export const TESTNET_ASSET_CONTRACTS: Record<string, string> = {
   XLM: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-  USDC: "CDWEFYYHMGEZEFC5TBUDXM3IJJ7K7W5BDGE765UIYQEV4JFWDOLSTOEK",
+  // Official Soroswap testnet USDC (docs.soroswap.finance quickstart)
+  USDC: "CBBHRKEP5M3NUDRISGLJKGHDHX3DA2CN2AZBQY6WLVUJ7VNLGSKBDUCM",
 };
 
 /** Mainnet SAC ids (native XLM via Asset.native().contractId + Circle USDC). */
@@ -20,7 +21,10 @@ export const MAINNET_ASSET_CONTRACTS: Record<string, string> = {
   USDC: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
 };
 
-const AGG_PROTOCOLS = ["soroswap", "phoenix", "aqua"] as const;
+const AGG_PROTOCOLS = ["soroswap", "phoenix", "aqua", "sdex"] as const;
+/** Execute path: skip aqua — aggregator sim often fails InsufficientOutputAmount. */
+export const EXECUTE_PROTOCOLS = ["soroswap", "phoenix", "sdex"] as const;
+export const DEFAULT_EXECUTE_SLIPPAGE_BPS = 100;
 
 export type TradeType = "EXACT_IN" | "EXACT_OUT";
 
@@ -32,6 +36,8 @@ export type SwapQuoteRequest = {
   tradeType?: TradeType;
   /** Slippage in basis points (default 50 = 0.5%). */
   slippageBps?: number;
+  /** Optional protocol allowlist (defaults to AGG_PROTOCOLS). */
+  protocols?: string[];
 };
 
 export type SwapQuoteResult = {
@@ -154,6 +160,76 @@ function normalizeSlippageBps(value: number | undefined): number {
   return Math.trunc(value);
 }
 
+/**
+ * Soroswap /quote returns aqua poolHashes as hex; /quote/build expects base64 bytes.
+ * Leave non-hex values untouched.
+ */
+export function hexPoolHashToBase64(value: string): string {
+  const clean = value.trim().replace(/^0x/i, "");
+  if (!/^[0-9a-fA-F]+$/.test(clean) || clean.length % 2 !== 0) return value;
+  return Buffer.from(clean, "hex").toString("base64");
+}
+
+/** Deep-clone quote and rewrite poolHashes hex → base64 for /quote/build. */
+export function normalizeQuoteForBuild(
+  quote: Record<string, unknown>
+): Record<string, unknown> {
+  const cloned = structuredClone(quote) as Record<string, unknown>;
+
+  const fix = (node: unknown): void => {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) {
+      for (const item of node) fix(item);
+      return;
+    }
+    const obj = node as Record<string, unknown>;
+    for (const [k, v] of Object.entries(obj)) {
+      if (/^poolhashes$/i.test(k)) {
+        if (typeof v === "string") {
+          obj[k] = hexPoolHashToBase64(v);
+        } else if (Array.isArray(v)) {
+          obj[k] = v.map((item) =>
+            typeof item === "string" ? hexPoolHashToBase64(item) : item
+          );
+        }
+      } else {
+        fix(v);
+      }
+    }
+  };
+
+  fix(cloned);
+  return cloned;
+}
+
+export type TrustlineRequired = {
+  kind: "CREATE_TRUSTLINE";
+  message: string;
+  xdr: string;
+};
+
+function parseTrustlineRequired(
+  parsed: Record<string, unknown>
+): TrustlineRequired | null {
+  if (parsed.action !== "CREATE_TRUSTLINE") return null;
+  const actionData = parsed.actionData as Record<string, unknown> | undefined;
+  const xdr =
+    typeof actionData?.xdr === "string"
+      ? actionData.xdr
+      : typeof parsed.xdr === "string"
+        ? parsed.xdr
+        : null;
+  if (!xdr) return null;
+  return {
+    kind: "CREATE_TRUSTLINE",
+    message:
+      typeof parsed.message === "string"
+        ? parsed.message
+        : "Missing trustline for swap output asset",
+    xdr,
+  };
+}
+
 async function soroswapPost(
   path: string,
   body: unknown
@@ -177,19 +253,33 @@ async function soroswapPost(
   });
   const parsed = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
+    // Build may return 428 + CREATE_TRUSTLINE XDR — caller can sign/submit then retry.
+    if (path === "/quote/build" && (res.status === 428 || res.status === 400)) {
+      const trust = parseTrustlineRequired(parsed);
+      if (trust) {
+        throw Object.assign(new SoroswapError(trust.message, 428), {
+          trustline: trust,
+        });
+      }
+    }
     const detail =
       typeof parsed.detail === "string"
         ? parsed.detail
         : typeof parsed.title === "string"
           ? parsed.title
           : null;
-    const msg =
+    let msg =
       detail ??
       (typeof parsed.message === "string"
         ? parsed.message
         : typeof parsed.error === "string"
           ? parsed.error
           : `Soroswap ${path} failed (${res.status})`);
+    // ponytail: testnet pools are often empty — surface a clear upgrade path
+    if (/no path found/i.test(msg) && network === "testnet") {
+      msg =
+        "No swap path on Soroswap testnet (liquidity empty). Retry later, or set SOROSWAP_NETWORK=mainnet + align Stellar mainnet for live swaps.";
+    }
     throw new SoroswapError(
       msg,
       res.status >= 400 && res.status < 600 ? res.status : 502
@@ -268,12 +358,16 @@ export async function getSwapQuoteBundle(
   }
 
   const amountStroops = decimalToStroops(req.amount);
+  const protocols =
+    req.protocols && req.protocols.length > 0
+      ? req.protocols
+      : [...AGG_PROTOCOLS];
   const body = await soroswapPost("/quote", {
     assetIn: assetInContract,
     assetOut: assetOutContract,
     amount: amountStroops,
     tradeType,
-    protocols: [...AGG_PROTOCOLS],
+    protocols,
     slippageBps,
   });
 
@@ -310,8 +404,10 @@ export async function buildSwapTransaction(opts: {
     throw new SoroswapError("swap from must be a G… allocation account", 400);
   }
   const to = (opts.to ?? from).trim();
+  // ponytail: aqua aggregator quotes ship hex poolHashes; build wants base64
+  const quote = normalizeQuoteForBuild(opts.quote);
   const body = await soroswapPost("/quote/build", {
-    quote: opts.quote,
+    quote,
     from,
     to,
   });
@@ -359,6 +455,18 @@ export function soroswapSelfCheck(): boolean {
   if (decimalToStroops("1") !== "10000000") throw new Error("1 XLM stroops");
   if (decimalToStroops("0.5") !== "5000000") throw new Error("0.5 stroops");
   if (stroopsToDecimal("15000000") !== "1.5") throw new Error("stroops→decimal");
+  const hex =
+    "b2e02fcfca6c96f8ad5cbd84e7784a777b36d9c96a2459402c4f458462aab7f0";
+  const b64 = hexPoolHashToBase64(hex);
+  if (Buffer.from(b64, "base64").toString("hex") !== hex) {
+    throw new Error("poolHash hex↔base64 roundtrip");
+  }
+  const norm = normalizeQuoteForBuild({
+    rawTrade: { distribution: [{ poolHashes: [hex] }] },
+  });
+  const dist = (norm.rawTrade as { distribution: { poolHashes: string[] }[] })
+    .distribution[0];
+  if (dist.poolHashes[0] !== b64) throw new Error("normalizeQuoteForBuild");
   try {
     decimalToStroops("0");
     throw new Error("zero should fail");

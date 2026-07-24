@@ -1,36 +1,27 @@
-# Production — public testnet beta
+# Production — Stellar mainnet
 
-Pay3 ships as a **Stellar testnet beta**. Do not point Freighter at mainnet or expect USDC yet.
+Pay3 ships on **Stellar public mainnet**. Freighter must be set to **mainnet**. Only fund allocation pots with XLM you accept spending.
 
 ## Architecture
 
 ```
 Vercel web — https://paythreewallet.vercel.app
   NEXT_PUBLIC_API_URL=/api
+  NEXT_PUBLIC_STELLAR_NETWORK=Public Global Stellar Network ; September 2015
   API_PROXY_ORIGIN=https://pay3-api.vercel.app
         ↓ rewrites /api/*
 Vercel API (bundled Express) — https://pay3-api.vercel.app
         ↓
 Neon Postgres (DATABASE_URL + DIRECT_URL)
+Horizon mainnet + Soroban RPC mainnet
 ```
 
 Same-origin `/api` proxy keeps Freighter session cookies first-party.
 
-Redeploy API: `node scripts/deploy-api-vercel.mjs` (set `SKIP_ENV_PUSH=1` after first env push).
+Redeploy API: `node scripts/deploy-api-vercel.mjs` (set `SKIP_ENV_PUSH=1` after first env push).  
+Push web env: `node scripts/vercel-push-web-env.mjs`
 
-## 1. Neon
-
-1. Create or reuse a Neon project (testnet beta can share the existing DB if you accept that risk).
-2. Copy **pooled** → `DATABASE_URL`, **direct** → `DIRECT_URL`.
-3. Run from CI or locally: `npm run db:push` against prod URLs once.
-
-## 2. API host
-
-**Beta (live):** `https://pay3-api.vercel.app` — Express bundled via `scripts/bundle-api.mjs` + `scripts/deploy-api-vercel.mjs`.
-
-For a long-running Node process later, use the root `Dockerfile` on Railway / Render / Fly.
-
-Required env:
+## Required env (API)
 
 ```env
 NODE_ENV=production
@@ -39,108 +30,37 @@ WEB_ORIGIN=https://paythreewallet.vercel.app
 DATABASE_URL=...
 DIRECT_URL=...
 SMART_ACCOUNT_ENCRYPTION_KEY=<long-random-secret>
-STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
-STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
+STELLAR_NETWORK_PASSPHRASE=Public Global Stellar Network ; September 2015
+STELLAR_HORIZON_URL=https://horizon.stellar.org
+STELLAR_RPC_URL=https://mainnet.sorobanrpc.com
+SOROSWAP_NETWORK=mainnet
+# SOROSWAP_API_KEY=...
+# Optional: seed new jars via createAccount (otherwise user funds from Freighter)
+# RELAYER_SECRET=S...
+# MAINNET_JAR_SEED_XLM=2
 ```
 
-Health: `GET https://pay3-api.vercel.app/health` → `{"ok":true,...}`
-
-Start command example:
-
-```bash
-npm run build:api && npm run start -w @pay3/api
-```
-
-Or from `apps/api` after workspace install: `npm run build && npm start`.
-
-## 3. Web (Vercel)
-
-Root directory: `apps/web` (or monorepo with filter).
-
-Env:
+## Required env (Web)
 
 ```env
 NEXT_PUBLIC_API_URL=/api
 NEXT_PUBLIC_SITE_URL=https://paythreewallet.vercel.app
-NEXT_PUBLIC_STELLAR_NETWORK=Test SDF Network ; September 2015
+NEXT_PUBLIC_STELLAR_NETWORK=Public Global Stellar Network ; September 2015
 API_PROXY_ORIGIN=https://pay3-api.vercel.app
 ```
 
-Push + redeploy: `node scripts/vercel-push-web-env.mjs`
+## Linking a jar on mainnet
 
-For **WalletConnect** on `/login/qr/:id`, set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` from [WalletConnect Cloud](https://cloud.walletconnect.com/) on the web project and redeploy.
+1. Connect Freighter (**mainnet**).
+2. Link smart account → Pay3 creates a G-address.
+3. **Friendbot is disabled.** Without `RELAYER_SECRET`, the jar is unfunded until you send XLM from Freighter (createAccount on first payment).
+4. With `RELAYER_SECRET`, Pay3 can seed ~2 XLM via `createAccount` automatically.
 
-[`apps/web/next.config.ts`](../apps/web/next.config.ts) rewrites `/api/{auth,smart-account,...}` to `API_PROXY_ORIGIN`.
+## Cutover notes
 
-## 4. MCP against production
+- Old **testnet** allocation accounts will not work on mainnet Horizon — users must re-link / fund a new jar.
+- Switch Freighter network to mainnet before signing.
+- WalletConnect uses CAIP chain `stellar:pubnet`.
+- Explorer links use `stellar.expert/explorer/public/...`.
 
-**Hosted (recommended):**
-
-```json
-{
-  "mcpServers": {
-    "pay3": {
-      "url": "https://pay3-api.vercel.app/mcp",
-      "headers": {
-        "Authorization": "Bearer pay3_…"
-      }
-    }
-  }
-}
-```
-
-Create a **new** AI session after launch; revoke tokens that were shared in chat. Guide: `/guide/cursor-mcp`.
-
-**Local stdio (developers):**
-
-```json
-{
-  "mcpServers": {
-    "pay3": {
-      "command": "node",
-      "args": ["<absolute-path>/apps/mcp-server/dist/index.js"],
-      "env": {
-        "PAY3_API_URL": "https://pay3-api.vercel.app",
-        "PAY3_MCP_TOKEN": "pay3_…"
-      }
-    }
-  }
-}
-```
-
-Build MCP once: `npm run build:mcp`. Smoke hosted: `npm run smoke:mcp-http`.
-
-Optional DeFi via Soroswap aggregator:
-
-```env
-SOROSWAP_API_KEY=<from api.soroswap.finance registration>
-# Must match STELLAR_NETWORK_PASSPHRASE (testnet vs mainnet)
-SOROSWAP_NETWORK=mainnet
-# optional: SOROSWAP_API_URL=https://api.soroswap.finance
-```
-
-- `get_swap_quote` — read-only; in default session allowlist
-- `execute_swap` — quote→build→sign→send; **opt-in** checkbox on session create; legacy G only; network must match
-
-## 5. Launch smoke checklist
-
-Automated: `node scripts/smoke-prod.mjs`
-
-- [x] `/health` on API (`https://pay3-api.vercel.app/health`)
-- [x] Landing + `/dashboard` on web
-- [x] Same-origin `/api/health` proxy
-- [ ] Freighter connect (testnet) — manual in browser
-- [ ] Link allocation account → fund → History
-- [ ] MCP hosted `POST /mcp` initialize + tools/list (`npm run smoke:mcp-http`)
-- [ ] MCP `get_balance` + small `transfer` (hosted or local stdio)
-- [ ] MCP `get_swap_quote` (needs `SOROSWAP_API_KEY` on API)
-- [ ] MCP `execute_swap` (opt-in session + aligned networks + funded allocation)
-- [ ] Approvals + Settings → REVOKE ALL AI ACCESS
-- [ ] Audit + monthly usage
-
-## Security notes
-
-- Never commit `.env` or `.cursor/mcp.json`
-- Rotate `SMART_ACCOUNT_ENCRYPTION_KEY` only with a migration plan (existing ciphertext becomes unreadable)
-- Interim G-account secrets stay encrypted at rest; never returned to clients
-- Never auto-retry financial swap failures (slippage, underfunded, policy)
+Health: `GET https://pay3-api.vercel.app/health` → `{"ok":true,...}`

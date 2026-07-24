@@ -86,7 +86,7 @@ export const HOW_IT_WORKS = [
     badge: "Dashboard",
     title: "Connect Freighter and fund your allocation pot",
     description:
-      "Sign in with Freighter on testnet. Pay3 links a separate allocation account — only that pot is available to AI sessions.",
+      "Sign in with Freighter on mainnet. Pay3 links a separate allocation account — only that pot is available to AI sessions.",
     screen: "config" as const,
   },
   {
@@ -108,27 +108,27 @@ export const HOW_IT_WORKS = [
 export const FAQ_ITEMS = [
   {
     q: "What is Pay3?",
-    a: "Pay3 lets an AI assistant send Stellar testnet payments from a separate allocation pot you fund — under session limits you authorize in Freighter. Your primary wallet key never leaves Freighter.",
+    a: "Pay3 lets an AI assistant send Stellar payments from a separate allocation pot you fund — under session limits you authorize in Freighter. Your primary wallet key never leaves Freighter.",
   },
   {
     q: "How does Pay3 work?",
-    a: "Connect Freighter, fund the allocation account, save contacts, create an AI session, then connect Cursor with your MCP token. Natural-language commands call Pay3 tools; every transfer passes the policy engine before it settles on Stellar testnet.",
+    a: "Connect Freighter, fund the allocation account, save contacts, create an AI session, then connect Cursor with your MCP token. Natural-language commands call Pay3 tools; every transfer passes the policy engine before it settles on Stellar mainnet.",
   },
   {
     q: "What wallets are supported?",
-    a: "Freighter for sign-in and session authorization on Stellar testnet. Pay3 never stores your Freighter private key. AI spends use encrypted session material and the allocation pot only.",
+    a: "Freighter for sign-in and session authorization on Stellar mainnet. Pay3 never stores your Freighter private key. AI spends use encrypted session material and the allocation pot only.",
   },
   {
     q: "What are the fees?",
-    a: "On Stellar testnet, network fees are negligible. Pay3 itself does not charge a product fee in this beta. Mainnet fee policy will be documented before any mainnet launch.",
+    a: "Stellar network fees are typically fractions of a cent. Pay3 itself does not charge a product fee in this beta. Only fund the allocation pot with amounts you accept spending.",
   },
   {
     q: "Which AI assistants are supported?",
-    a: "Cursor is the recommended client for this beta (local MCP). Claude Desktop can use the same stdio config. Browser claude.ai custom connectors need a hosted HTTPS MCP URL, which is not shipped yet.",
+    a: "Cursor is the recommended client (local or hosted MCP). Claude Desktop can use the same stdio config. Browser claude.ai custom connectors need a hosted HTTPS MCP URL.",
   },
   {
     q: "Is DeFi / USDC live?",
-    a: "Not in this beta. Testnet native XLM transfers are supported. USDC, DeFi protocols, and mainnet are later milestones — the marketing roadmap describes the vision, not today’s live surface.",
+    a: "Native XLM transfers are supported on mainnet. Swap quote/execute via Soroswap is available when pools exist and the session allows execute_swap. Broader DeFi UX is still expanding.",
   },
 ] as const;
 

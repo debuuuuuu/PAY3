@@ -2,10 +2,12 @@ import { Router } from "express";
 import { prisma } from "@pay3/database";
 import {
   createAllocationKeypair,
+  ensureAllocationOnChain,
   formatXlm,
-  fundTestnetAccount,
   getAccountBalances,
   getContractXlmBalance,
+  getExplorerNetwork,
+  isMainnet,
 } from "@pay3/stellar";
 import { encryptSecret } from "../crypto.js";
 import { requireAuth, type AuthedRequest } from "../middleware/auth.js";
@@ -73,8 +75,9 @@ smartAccountRouter.get("/", async (req, res) => {
       balances,
       xlmBalance,
       legacyXlmBalance,
-      network: account.contractNetwork ?? "testnet",
+      network: account.contractNetwork ?? (isMainnet() ? "mainnet" : "testnet"),
       model: contractMode ? "soroban-contract" : "allocation-account",
+      explorerNetwork: getExplorerNetwork(),
     },
   });
 });
@@ -143,7 +146,7 @@ smartAccountRouter.post("/enable-contract-custody", async (req, res) => {
       contractVersion: req.body?.contractVersion
         ? String(req.body.contractVersion)
         : "phase9c-v1",
-      contractNetwork: "testnet",
+      contractNetwork: isMainnet() ? "mainnet" : "testnet",
       wasmHash: wasmHash || undefined,
       deployTxHash: req.body?.deployTxHash
         ? String(req.body.deployTxHash)
@@ -216,8 +219,9 @@ smartAccountRouter.post("/link", async (req, res) => {
 
   try {
     const { publicKey, secret } = createAllocationKeypair();
-    await fundTestnetAccount(publicKey);
+    const funded = await ensureAllocationOnChain(publicKey);
     const encryptedSecret = encryptSecret(secret);
+    const network = isMainnet() ? "mainnet" : "testnet";
 
     const account = existing
       ? await prisma.smartAccount.update({
@@ -227,6 +231,7 @@ smartAccountRouter.post("/link", async (req, res) => {
             encryptedSecret,
             contractRef: publicKey,
             custodyMode: "legacy",
+            contractNetwork: network,
             status: "linked",
           },
         })
@@ -237,6 +242,7 @@ smartAccountRouter.post("/link", async (req, res) => {
             encryptedSecret,
             contractRef: publicKey,
             custodyMode: "legacy",
+            contractNetwork: network,
             status: "linked",
           },
         });
@@ -246,9 +252,12 @@ smartAccountRouter.post("/link", async (req, res) => {
         status: account.status,
         publicKey: account.publicKey,
         custodyMode: "legacy",
-        network: "testnet",
+        network,
         model: "allocation-account",
-        fundedByFriendbot: true,
+        fundedByFriendbot: funded.method === "friendbot",
+        fundingMethod: funded.method,
+        needsFunding: funded.method === "none",
+        createAccountHash: funded.hash,
       },
     });
   } catch (err) {

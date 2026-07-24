@@ -6,9 +6,7 @@ import { SettingsHeader } from "@/components/dashboard/SettingsHeader";
 import { ConfirmDialog } from "@/components/dashboard/ConfirmDialog";
 import { apiFetch } from "@/lib/api";
 
-const STELLAR_NETWORK =
-  process.env.NEXT_PUBLIC_STELLAR_NETWORK ?? "Test SDF Network ; September 2015";
-const IS_MAINNET = STELLAR_NETWORK.includes("Public");
+import { IS_MAINNET } from "@/lib/network";
 
 export default function SettingsPage() {
   const router = useRouter();

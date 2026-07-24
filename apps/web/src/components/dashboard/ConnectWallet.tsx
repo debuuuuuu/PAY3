@@ -310,7 +310,7 @@ export function ConnectWallet({
       const message = formatUnknownError(err, "Connection failed");
       const issue = classifyFreighterError(message);
       setError(message);
-      if (issue === "missing" || issue === "denied") {
+      if (issue === "missing" || issue === "denied" || issue === "insecure") {
         setFreighterIssue(issue);
       }
     } finally {
@@ -509,19 +509,31 @@ export function ConnectWallet({
 
         {freighterIssue ? (
           <ConnectStatusPanel
-            code={freighterIssue === "missing" ? "NO_EXT" : "DENIED"}
-            codeTone={freighterIssue === "missing" ? "amber" : "rose"}
+            code={
+              freighterIssue === "missing"
+                ? "NO_EXT"
+                : freighterIssue === "insecure"
+                  ? "NO_SSL"
+                  : "DENIED"
+            }
+            codeTone={
+              freighterIssue === "denied" ? "rose" : "amber"
+            }
             headline={
               freighterIssue === "missing"
                 ? "Extension not found"
-                : "Popup closed"
+                : freighterIssue === "insecure"
+                  ? "Freighter blocked localhost"
+                  : "Popup closed"
             }
             hint={
               freighterIssue === "missing"
                 ? "Install Freighter, refresh, then connect."
-                : redundantFreighterMessage(error)
-                  ? "Approve the Freighter popup, or use your phone."
-                  : error
+                : freighterIssue === "insecure"
+                  ? "Freighter Settings → Preferences → Advanced → allow non-HTTPS. Set network to Mainnet. Or open the HTTPS site instead."
+                  : redundantFreighterMessage(error)
+                    ? "Approve the Freighter popup, or use your phone."
+                    : error
             }
             actions={
               <>
@@ -533,6 +545,13 @@ export function ConnectWallet({
                     className={`inline-flex items-center justify-center ${connectActionPrimaryClassName()}`}
                   >
                     Get Freighter
+                  </a>
+                ) : freighterIssue === "insecure" ? (
+                  <a
+                    href="https://paythreewallet.vercel.app/dashboard?connect=freighter"
+                    className={`inline-flex items-center justify-center ${connectActionPrimaryClassName()}`}
+                  >
+                    Open HTTPS site
                   </a>
                 ) : (
                   <button
@@ -548,13 +567,28 @@ export function ConnectWallet({
                     Connect again
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={switchToMobileScan}
-                  className={connectActionSecondaryClassName()}
-                >
-                  Mobile scan instead
-                </button>
+                {freighterIssue === "insecure" ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFreighterIssue(null);
+                      setError(null);
+                      void handleConnect();
+                    }}
+                    disabled={loading}
+                    className={connectActionSecondaryClassName()}
+                  >
+                    I enabled non-HTTPS — retry
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={switchToMobileScan}
+                    className={connectActionSecondaryClassName()}
+                  >
+                    Mobile scan instead
+                  </button>
+                )}
               </>
             }
           />
@@ -629,7 +663,7 @@ export function ConnectWallet({
         )}
 
         <p className="mt-4 text-center font-[family-name:var(--font-jetbrains-mono)] text-[10px] text-white/25">
-          Stellar testnet · Freighter required for desktop
+          Stellar mainnet · Freighter required for desktop
         </p>
       </div>
     </div>

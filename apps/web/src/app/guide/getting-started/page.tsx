@@ -18,7 +18,7 @@ export default function GettingStartedPage() {
         Getting started
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-white/60">
-        About ten minutes on Stellar testnet. You need the{" "}
+        About ten minutes on Stellar mainnet. You need the{" "}
         <a
           href="https://www.freighter.app/"
           target="_blank"
@@ -27,7 +27,8 @@ export default function GettingStartedPage() {
         >
           Freighter
         </a>{" "}
-        browser extension set to testnet.
+        browser extension set to <strong className="font-medium text-white/80">mainnet</strong>.
+        Only fund the allocation pot with XLM you accept spending.
       </p>
 
       <ol className="mt-12 space-y-10">

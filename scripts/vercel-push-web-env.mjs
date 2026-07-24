@@ -15,7 +15,8 @@ const site = "https://paythreewallet.vercel.app";
 const vars = {
   NEXT_PUBLIC_API_URL: "/api",
   NEXT_PUBLIC_SITE_URL: site,
-  NEXT_PUBLIC_STELLAR_NETWORK: "Test SDF Network ; September 2015",
+  NEXT_PUBLIC_STELLAR_NETWORK:
+    "Public Global Stellar Network ; September 2015",
   API_PROXY_ORIGIN: apiOrigin,
 };
 

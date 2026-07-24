@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { DASHBOARD_NAV } from "@pay3/shared";
 import { Pay3Logo } from "@/components/ui/Logo";
+import { IS_MAINNET } from "@/lib/network";
 import { truncateKey } from "@/lib/wallet";
 import { DashboardReveal } from "./DashboardReveal";
 
@@ -201,8 +202,14 @@ export function DashboardShell({
           <NavDivider />
 
           <div className="ml-auto flex shrink-0 items-center gap-2.5">
-            <span className="hidden items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-3.5 py-2 text-[13px] text-white/80 sm:inline-flex">
-              Testnet
+            <span
+              className={`hidden items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] sm:inline-flex ${
+                IS_MAINNET
+                  ? "border-emerald-400/25 bg-emerald-500/[0.08] text-emerald-200/90"
+                  : "border-white/10 bg-black/40 text-white/80"
+              }`}
+            >
+              {IS_MAINNET ? "Mainnet" : "Testnet"}
             </span>
             {publicKey ? (
               <div className="hidden items-center rounded-full border border-white/[0.12] px-3.5 py-2 text-[13px] text-white/80 sm:flex">

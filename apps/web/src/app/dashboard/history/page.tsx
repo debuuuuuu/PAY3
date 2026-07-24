@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { HorizonPaymentView, TransactionView } from "@pay3/shared";
 import { HistoryHeader } from "@/components/dashboard/HistoryHeader";
 import { apiFetch } from "@/lib/api";
+import { stellarExpertTxUrl } from "@/lib/network";
 import { truncateKey } from "@/lib/wallet";
 
 function txStatusTone(status: string) {
@@ -127,7 +128,7 @@ export default function HistoryPage() {
                           </div>
                           {t.stellarTransactionHash ? (
                             <a
-                              href={`https://stellar.expert/explorer/testnet/tx/${t.stellarTransactionHash}`}
+                              href={stellarExpertTxUrl(t.stellarTransactionHash)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="shrink-0 font-[family-name:var(--font-jetbrains-mono)] text-[10px] text-cyan-400/75 underline-offset-2 hover:text-cyan-300/90 hover:underline"
@@ -189,7 +190,7 @@ export default function HistoryPage() {
                         </div>
                         {p.transactionHash ? (
                           <a
-                            href={`https://stellar.expert/explorer/testnet/tx/${p.transactionHash}`}
+                            href={stellarExpertTxUrl(p.transactionHash)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="shrink-0 font-[family-name:var(--font-jetbrains-mono)] text-[10px] text-cyan-400/75 underline-offset-2 hover:text-cyan-300/90 hover:underline"

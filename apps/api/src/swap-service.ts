@@ -15,6 +15,7 @@ import {
   nextRetryCount,
 } from "@pay3/transaction-engine";
 import {
+  getHorizonServer,
   getNetworkPassphrase,
   isTechnicalSubmitError,
   signTransactionXdr,
@@ -23,11 +24,14 @@ import { decryptSecret } from "./crypto.js";
 import { isContractCustody } from "./onchain-session.js";
 import {
   buildSwapTransaction,
+  DEFAULT_EXECUTE_SLIPPAGE_BPS,
+  EXECUTE_PROTOCOLS,
   getSoroswapConfig,
   getSwapQuoteBundle,
   sendSignedSwap,
   SoroswapError,
   type TradeType,
+  type TrustlineRequired,
 } from "./soroswap.js";
 import {
   spentTodayForSession,
@@ -337,6 +341,58 @@ export async function executeSwap(input: SwapInput) {
   });
 }
 
+function trustlineFromError(err: unknown): TrustlineRequired | null {
+  if (!err || typeof err !== "object") return null;
+  const trust = (err as { trustline?: TrustlineRequired }).trustline;
+  if (trust?.kind === "CREATE_TRUSTLINE" && trust.xdr) return trust;
+  return null;
+}
+
+/**
+ * Build swap XDR. If Soroswap asks for a missing output trustline, create it
+ * once from the allocation G-account, then rebuild.
+ */
+async function buildSwapOrCreateTrustline(opts: {
+  quote: Record<string, unknown>;
+  from: string;
+  secret: string;
+  userId: string;
+  transactionId: string;
+}): Promise<{ xdr: string }> {
+  try {
+    return await buildSwapTransaction({
+      quote: opts.quote,
+      from: opts.from,
+      to: opts.from,
+    });
+  } catch (err) {
+    const trust = trustlineFromError(err);
+    if (!trust) throw err;
+
+    const signedTrust = await signTransactionXdr({
+      secret: opts.secret,
+      xdr: trust.xdr,
+    });
+    const { TransactionBuilder } = await import("@stellar/stellar-sdk");
+    const envelope = TransactionBuilder.fromXDR(
+      signedTrust,
+      getNetworkPassphrase()
+    );
+    const submitted = await getHorizonServer().submitTransaction(envelope);
+    await writeAudit(opts.userId, "swap_trustline_created", {
+      transactionId: opts.transactionId,
+      hash: submitted.hash,
+      message: trust.message,
+    });
+
+    return buildSwapTransaction({
+      quote: opts.quote,
+      from: opts.from,
+      to: opts.from,
+    });
+  }
+}
+
 export async function finalizeSwapSubmit(
   transactionId: string,
   opts: {
@@ -383,13 +439,17 @@ export async function finalizeSwapSubmit(
       assetOut: opts.assetOut,
       amount: opts.amount,
       tradeType: opts.tradeType,
-      slippageBps: opts.slippageBps,
+      // ponytail: execute needs headroom; 0.5% often fails mid-route on aqua hops
+      slippageBps: Math.max(opts.slippageBps ?? DEFAULT_EXECUTE_SLIPPAGE_BPS, 100),
+      protocols: [...EXECUTE_PROTOCOLS],
     });
 
-    const { xdr } = await buildSwapTransaction({
+    const { xdr } = await buildSwapOrCreateTrustline({
       quote: bundle.raw,
       from: smartAccount.publicKey,
-      to: smartAccount.publicKey,
+      secret,
+      userId: opts.userId,
+      transactionId,
     });
 
     const signedXdr = await signTransactionXdr({ secret, xdr });

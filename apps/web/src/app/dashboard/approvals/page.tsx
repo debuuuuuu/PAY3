@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ApprovalView } from "@pay3/shared";
 import { ApprovalsHeader } from "@/components/dashboard/ApprovalsHeader";
 import { apiFetch } from "@/lib/api";
+import { stellarExpertTxUrl } from "@/lib/network";
 import { truncateKey } from "@/lib/wallet";
 
 function secondsLeft(expiresAt: string, nowMs: number): number {
@@ -266,7 +267,7 @@ export default function ApprovalsPage() {
                           </div>
                           {a.transaction?.stellarTransactionHash ? (
                             <a
-                              href={`https://stellar.expert/explorer/testnet/tx/${a.transaction.stellarTransactionHash}`}
+                              href={stellarExpertTxUrl(a.transaction.stellarTransactionHash)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="shrink-0 font-[family-name:var(--font-jetbrains-mono)] text-[10px] text-cyan-400/75 underline-offset-2 hover:text-cyan-300/90 hover:underline"

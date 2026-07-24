@@ -437,7 +437,7 @@ export default function SessionsPage() {
                     Blend supply (coming soon)
                   </span>
                   <span className="mt-1 block text-[12px] leading-relaxed text-white/35">
-                    Policy-gated lending via Blend SDK — after mainnet cutover.
+                    Policy-gated lending via Blend SDK — on the roadmap.
                   </span>
                 </span>
               </div>

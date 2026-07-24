@@ -40,13 +40,32 @@ export type HorizonPayment = {
   transactionHash: string | null;
 };
 
-const DEFAULT_HORIZON =
-  process.env.STELLAR_HORIZON_URL ?? "https://horizon-testnet.stellar.org";
+export type AllocationFundMethod = "friendbot" | "create_account" | "none";
 
 export function getNetworkPassphrase(): string {
   return (
-    process.env.STELLAR_NETWORK_PASSPHRASE ?? Networks.TESTNET
+    process.env.STELLAR_NETWORK_PASSPHRASE ?? Networks.PUBLIC
   );
+}
+
+/** True when STELLAR_NETWORK_PASSPHRASE is Stellar public mainnet. */
+export function isMainnet(): boolean {
+  const p = getNetworkPassphrase();
+  return p === Networks.PUBLIC || p.includes("Public Global");
+}
+
+export function getHorizonUrl(): string {
+  return (
+    process.env.STELLAR_HORIZON_URL ??
+    (isMainnet()
+      ? "https://horizon.stellar.org"
+      : "https://horizon-testnet.stellar.org")
+  );
+}
+
+/** stellar.expert path segment */
+export function getExplorerNetwork(): "public" | "testnet" {
+  return isMainnet() ? "public" : "testnet";
 }
 
 /** Interim G-account vs future Soroban contract id (`C…`). */
@@ -58,7 +77,7 @@ export function custodyModeFromRef(contractRef: string | null | undefined): Cust
 }
 
 export function getHorizonServer(): Horizon.Server {
-  return new Horizon.Server(DEFAULT_HORIZON);
+  return new Horizon.Server(getHorizonUrl());
 }
 
 export function createAllocationKeypair(): {
@@ -71,6 +90,9 @@ export function createAllocationKeypair(): {
 
 /** Fund a new testnet account via Friendbot so it exists on-chain. */
 export async function fundTestnetAccount(publicKey: string): Promise<void> {
+  if (isMainnet()) {
+    throw new Error("Friendbot is testnet-only — refuse on mainnet");
+  }
   const res = await fetch(
     `https://friendbot.stellar.org?addr=${encodeURIComponent(publicKey)}`
   );
@@ -81,6 +103,67 @@ export async function fundTestnetAccount(publicKey: string): Promise<void> {
       throw new Error(`Friendbot failed: ${res.status} ${text.slice(0, 200)}`);
     }
   }
+}
+
+/**
+ * Create + fund a G-account on mainnet via createAccount (relayer pays).
+ * Starting balance must cover base reserve (default 2 XLM).
+ */
+export async function createAccountFromRelayer(opts: {
+  relayerSecret: string;
+  destination: string;
+  startingBalance?: string;
+}): Promise<{ hash: string }> {
+  const { TransactionBuilder, Operation, BASE_FEE } = await import(
+    "@stellar/stellar-sdk"
+  );
+  const server = getHorizonServer();
+  const source = Keypair.fromSecret(opts.relayerSecret);
+  const account = await server.loadAccount(source.publicKey());
+  const startingBalance = opts.startingBalance ?? process.env.MAINNET_JAR_SEED_XLM ?? "2";
+
+  const tx = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: getNetworkPassphrase(),
+  })
+    .addOperation(
+      Operation.createAccount({
+        destination: opts.destination,
+        startingBalance,
+      })
+    )
+    .setTimeout(60)
+    .build();
+
+  tx.sign(source);
+  const result = await server.submitTransaction(tx);
+  return { hash: result.hash };
+}
+
+/**
+ * Bring a newly generated allocation G-address onto the configured network.
+ * - testnet → Friendbot
+ * - mainnet + RELAYER_SECRET → createAccount seed
+ * - mainnet without relayer → none (user must fund from Freighter)
+ */
+export async function ensureAllocationOnChain(
+  publicKey: string
+): Promise<{ method: AllocationFundMethod; hash?: string }> {
+  if (!isMainnet()) {
+    await fundTestnetAccount(publicKey);
+    return { method: "friendbot" };
+  }
+
+  const relayer = process.env.RELAYER_SECRET?.trim();
+  if (relayer) {
+    const { hash } = await createAccountFromRelayer({
+      relayerSecret: relayer,
+      destination: publicKey,
+    });
+    return { method: "create_account", hash };
+  }
+
+  return { method: "none" };
 }
 
 export async function getAccountBalances(
@@ -166,13 +249,15 @@ export function formatXlm(balance: string): string {
 
 /**
  * Send native XLM from a funded account. Secret used only in-memory.
+ * If destination G-address is not on-chain yet, uses createAccount
+ * (requires startingBalance >= ~1 XLM for base reserves).
  * Returns Horizon transaction hash.
  */
 export async function submitNativePayment(opts: {
   secret: string;
   destination: string;
   amount: string;
-}): Promise<{ hash: string }> {
+}): Promise<{ hash: string; createdAccount?: boolean }> {
   const { TransactionBuilder, Asset, Operation, BASE_FEE } = await import(
     "@stellar/stellar-sdk"
   );
@@ -180,25 +265,54 @@ export async function submitNativePayment(opts: {
   const source = Keypair.fromSecret(opts.secret);
   const account = await server.loadAccount(source.publicKey());
 
-  const tx = new TransactionBuilder(account, {
-    fee: BASE_FEE,
-    networkPassphrase: getNetworkPassphrase(),
-  })
-    .addOperation(
-      Operation.payment({
+  let destinationExists = true;
+  try {
+    await server.loadAccount(opts.destination);
+  } catch (err: unknown) {
+    const status =
+      err && typeof err === "object" && "response" in err
+        ? (err as { response?: { status?: number } }).response?.status
+        : undefined;
+    if (status === 404) destinationExists = false;
+    else throw err;
+  }
+
+  if (!destinationExists) {
+    const n = Number(opts.amount);
+    // ponytail: Stellar min = 2 × base reserve (~1 XLM); clear error beats opaque Horizon fail
+    if (!Number.isFinite(n) || n < 1) {
+      throw Object.assign(
+        new Error(
+          `Destination ${opts.destination.slice(0, 6)}… is not on the network yet. Send at least 1 XLM to create the account, or fund it first.`
+        ),
+        { status: 400 }
+      );
+    }
+  }
+
+  const op = destinationExists
+    ? Operation.payment({
         destination: opts.destination,
         asset: Asset.native(),
         amount: opts.amount,
       })
-    )
+    : Operation.createAccount({
+        destination: opts.destination,
+        startingBalance: opts.amount,
+      });
+
+  const tx = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: getNetworkPassphrase(),
+  })
+    .addOperation(op)
     .setTimeout(60)
     .build();
 
   tx.sign(source);
 
-  // Simulate via fee bump path not needed for simple payment; submit directly.
   const result = await server.submitTransaction(tx);
-  return { hash: result.hash };
+  return { hash: result.hash, createdAccount: !destinationExists };
 }
 
 /**

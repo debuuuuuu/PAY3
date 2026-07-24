@@ -2,12 +2,11 @@ import SignClient from "@walletconnect/sign-client";
 import type { SessionTypes } from "@walletconnect/types";
 import { apiFetch } from "./api";
 import type { AuthChallengeResponse } from "@pay3/shared";
+import { NETWORK_LABEL, WC_STELLAR_CHAIN } from "./network";
 import {
   completeQrLoginWithSignature,
   normalizeWalletSignature,
 } from "./wallet";
-
-const CHAIN = "stellar:testnet";
 
 function siteUrl(): string {
   if (typeof window !== "undefined" && window.location?.origin) {
@@ -30,7 +29,7 @@ function publicKeyFromSession(session: SessionTypes.Struct): string {
   const accounts = session.namespaces?.stellar?.accounts ?? [];
   const first = accounts[0];
   if (!first) throw new Error("WalletConnect session has no Stellar account");
-  // CAIP-10: stellar:testnet:G...
+  // CAIP-10: stellar:pubnet:G... or stellar:testnet:G...
   const parts = first.split(":");
   const pk = parts[parts.length - 1];
   if (!pk?.startsWith("G")) throw new Error("Invalid Stellar account in session");
@@ -59,7 +58,7 @@ export async function completeQrLoginWithWalletConnect(
     projectId: id,
     metadata: {
       name: "Pay3",
-      description: "Pay3 testnet beta — QR sign-in",
+      description: `Pay3 ${NETWORK_LABEL} — QR sign-in`,
       url: siteUrl(),
       icons: [`${siteUrl()}/favicon.ico`, `${siteUrl()}/pay3-logo.png`],
     },
@@ -74,7 +73,7 @@ export async function completeQrLoginWithWalletConnect(
           "stellar_signAndSubmitXDR",
           "stellar_signAuthEntry",
         ],
-        chains: [CHAIN],
+        chains: [WC_STELLAR_CHAIN],
         events: ["accountsChanged"],
       },
     },
@@ -100,7 +99,7 @@ export async function completeQrLoginWithWalletConnect(
 
   const result = (await client.request({
     topic: session.topic,
-    chainId: CHAIN,
+    chainId: WC_STELLAR_CHAIN,
     request: {
       method: "stellar_signMessage",
       params: { message: challenge.message },

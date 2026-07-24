@@ -6,7 +6,8 @@ import { AddressQr } from "@/components/dashboard/AddressQr";
 import { JarGauge } from "@/components/dashboard/JarGauge";
 import { OverviewHeader } from "@/components/dashboard/OverviewHeader";
 import { apiFetch } from "@/lib/api";
-import { fetchCurrentUser, truncateKey } from "@/lib/wallet";
+import { stellarExpertTxUrl } from "@/lib/network";
+import { fetchCurrentUser, fundJarFromFreighter, truncateKey } from "@/lib/wallet";
 
 export default function DashboardOverviewPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -16,6 +17,10 @@ export default function DashboardOverviewPage() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [funding, setFunding] = useState(false);
+  const [fundError, setFundError] = useState<string | null>(null);
+  const [fundTxHash, setFundTxHash] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -67,6 +72,27 @@ export default function DashboardOverviewPage() {
       await refresh();
     } finally {
       setRefreshing(false);
+    }
+  }
+
+  async function handleFund() {
+    if (!account?.publicKey || !profile?.publicKey) return;
+    setFunding(true);
+    setFundError(null);
+    setFundTxHash(null);
+    try {
+      const hash = await fundJarFromFreighter(
+        account.publicKey,
+        amount,
+        profile.publicKey
+      );
+      setFundTxHash(hash);
+      setAmount("");
+      await refresh();
+    } catch (err) {
+      setFundError(err instanceof Error ? err.message : "Funding failed");
+    } finally {
+      setFunding(false);
     }
   }
 
@@ -126,7 +152,7 @@ export default function DashboardOverviewPage() {
                   Link smart account
                 </h2>
                 <p className="mt-2 max-w-md text-[14px] leading-relaxed text-white/45">
-                  Creates a dedicated testnet jar. Primary Freighter key never
+                  Creates a dedicated mainnet jar. Primary Freighter key never
                   leaves your wallet.
                 </p>
                 <button
@@ -150,7 +176,7 @@ export default function DashboardOverviewPage() {
                     <AddressQr publicKey={account.publicKey} size={140} />
                   ) : null}
                   <p className="text-center text-[10px] leading-snug text-white/30 sm:text-left">
-                    Scan · Freighter testnet
+                    Scan · Freighter mainnet
                   </p>
                 </div>
 
@@ -180,9 +206,59 @@ export default function DashboardOverviewPage() {
                     </div>
                   </div>
 
+                  <div className="mt-5">
+                    <p className="font-[family-name:var(--font-jetbrains-mono)] text-[9px] uppercase tracking-[0.18em] text-white/28">
+                      Add from Freighter
+                    </p>
+                    <div className="mt-1.5 flex flex-col gap-2 sm:flex-row">
+                      <div className="relative min-w-0 flex-1">
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          min="0"
+                          step="0.0000001"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          placeholder="0.00"
+                          disabled={funding}
+                          className="w-full rounded-xl border border-white/[0.08] bg-black/40 px-3 py-2.5 pr-12 font-[family-name:var(--font-jetbrains-mono)] text-[13px] text-white/85 outline-none transition-colors placeholder:text-white/25 focus:border-white/25 disabled:opacity-50"
+                        />
+                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-[family-name:var(--font-jetbrains-mono)] text-[10px] uppercase tracking-[0.12em] text-white/30">
+                          XLM
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleFund}
+                        disabled={funding || !amount || Number(amount) <= 0}
+                        className="shrink-0 rounded-full bg-white px-5 py-2.5 text-xs font-medium text-black transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
+                      >
+                        {funding ? "Confirm in Freighter…" : "Add XLM"}
+                      </button>
+                    </div>
+                    {fundError ? (
+                      <p className="mt-2 text-[12px] text-red-400/90" role="alert">
+                        {fundError}
+                      </p>
+                    ) : null}
+                    {fundTxHash ? (
+                      <p className="mt-2 text-[12px] text-emerald-300/90">
+                        Sent ·{" "}
+                        <a
+                          href={stellarExpertTxUrl(fundTxHash)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline decoration-emerald-300/30 underline-offset-4 hover:text-emerald-200"
+                        >
+                          view transaction
+                        </a>
+                      </p>
+                    ) : null}
+                  </div>
+
                   <ol className="mt-6 flex flex-col gap-2.5">
-                    <Step n={1}>Scan or paste in Freighter (Testnet)</Step>
-                    <Step n={2}>Send XLM to this address</Step>
+                    <Step n={1}>Type an amount and confirm in Freighter</Step>
+                    <Step n={2}>Or scan / paste the address to send manually</Step>
                     <Step n={3}>
                       <button
                         type="button"

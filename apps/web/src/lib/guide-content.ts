@@ -15,22 +15,22 @@ export const GUIDE_PAGES = [
     href: "/guide/safety",
     title: "Safety & limits",
     description:
-      "What Pay3 never holds, how revoke works, approvals, and testnet-only scope.",
+      "What Pay3 never holds, how revoke works, approvals, and mainnet scope.",
   },
 ] as const;
 
 export const GETTING_STARTED_STEPS = [
   {
     title: "Connect Freighter",
-    body: "Open the dashboard and connect Freighter on Stellar testnet. Your primary wallet key stays in Freighter — Pay3 never stores it.",
+    body: "Open the dashboard and connect Freighter on Stellar mainnet. Your primary wallet key stays in Freighter — Pay3 never stores it.",
   },
   {
     title: "Link your allocation pot",
     body: "Pay3 creates a separate allocation account (the “pot”). Only funds here are available to AI sessions.",
   },
   {
-    title: "Fund with testnet XLM",
-    body: "Send a small amount of testnet XLM into the allocation account. Friendbot or any testnet faucet works for the pot’s G-address.",
+    title: "Fund with mainnet XLM",
+    body: "Send a small amount of real XLM into the allocation account from Freighter (createAccount on first fund). Only put what you accept the AI spending.",
   },
   {
     title: "Add a contact",
@@ -91,7 +91,7 @@ export const MCP_EXAMPLE_PROMPTS = [
   "Pay 0.5 XLM to Debjit",
   "Pay 0.5 XLM to Manas",
   "Show my recent Pay3 transactions",
-  "Quote swapping 1 XLM to USDC on testnet",
+  "Quote swapping 1 XLM to USDC",
 ] as const;
 
 export const SAFETY_POINTS = [
@@ -116,7 +116,7 @@ export const SAFETY_POINTS = [
     body: "Revoke one session or all sessions in the dashboard. MCP tokens stop working immediately.",
   },
   {
-    title: "Testnet beta",
-    body: "Public beta uses Stellar testnet XLM for payments. DeFi: get_swap_quote is read-only; execute_swap is opt-in per session and requires matching Soroswap + Stellar networks (and a funded allocation on that network). Mainnet USDC custody UX is still evolving — do not send funds you cannot afford to lose.",
+    title: "Mainnet — real value",
+    body: "Pay3 runs on Stellar mainnet. Only fund the allocation pot with amounts you accept spending. DeFi: get_swap_quote is read-only; execute_swap is opt-in per session and requires matching Soroswap + Stellar networks.",
   },
 ] as const;

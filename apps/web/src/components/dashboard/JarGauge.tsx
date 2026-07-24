@@ -4,8 +4,8 @@ import { useGSAP } from "@gsap/react";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "@/lib/gsap";
 
-// ponytail: Friendbot jars are ~10k XLM — visual fill cap, not a hard limit
-const FILL_CAP = 10_000;
+// ponytail: visual fill cap for typical mainnet jar sizes — not a hard limit
+const FILL_CAP = 100;
 
 type JarGaugeProps = {
   balance: number | null;
@@ -192,7 +192,7 @@ export function JarGauge({
           </span>
         </div>
         <p className="mt-2 font-[family-name:var(--font-jetbrains-mono)] text-[11px] text-white/30 transition-opacity duration-500">
-          Stellar testnet
+          Stellar mainnet
           {balance != null ? ` · jar ${shownPct}% full` : null}
         </p>
         {activeSessions > 0 ? (

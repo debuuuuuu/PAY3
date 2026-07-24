@@ -4,7 +4,15 @@ import {
   signMessage,
   signTransaction,
 } from "@stellar/freighter-api";
+import {
+  Asset,
+  BASE_FEE,
+  Horizon,
+  Operation,
+  TransactionBuilder,
+} from "@stellar/stellar-sdk";
 import { apiFetch } from "./api";
+import { HORIZON_URL, STELLAR_NETWORK } from "./network";
 import type { AuthChallengeResponse, AuthUser, UserProfile } from "@pay3/shared";
 
 /** Freighter/API sometimes returns `{ message, code }` instead of a string. */
@@ -43,23 +51,49 @@ function freighterIsConnected(
 export async function connectFreighter(): Promise<string> {
   const connected = freighterIsConnected(await isConnected());
   if (!connected) {
+    if (isInsecureHttpOrigin()) {
+      throw new Error(
+        "Freighter blocked this http:// site. Open Freighter → Settings → Preferences → Advanced → allow non-HTTPS connections, then refresh. Or use https://paythreewallet.vercel.app"
+      );
+    }
     throw new Error("Freighter extension not installed");
   }
 
   const access = await requestAccess();
   if (access.error || !access.address) {
-    throw new Error(
-      formatUnknownError(access.error, "Freighter access denied")
-    );
+    const detail = formatUnknownError(access.error, "Freighter access denied");
+    if (
+      isInsecureHttpOrigin() &&
+      /ssl|https|secure|certificate|insecure/i.test(detail)
+    ) {
+      throw new Error(
+        "Freighter blocked this http:// site. Open Freighter → Settings → Preferences → Advanced → allow non-HTTPS connections, then refresh. Or use https://paythreewallet.vercel.app"
+      );
+    }
+    throw new Error(detail);
   }
 
   return access.address;
 }
 
-export type FreighterIssue = "missing" | "denied" | "other";
+export type FreighterIssue = "missing" | "denied" | "insecure" | "other";
+
+function isInsecureHttpOrigin(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.location.protocol === "http:";
+}
 
 export function classifyFreighterError(message: string): FreighterIssue {
   const m = message.toLowerCase();
+  if (
+    m.includes("http://") ||
+    m.includes("non-https") ||
+    m.includes("ssl") ||
+    m.includes("not secure") ||
+    m.includes("certificate")
+  ) {
+    return "insecure";
+  }
   if (
     m.includes("not installed") ||
     m.includes("extension") ||
@@ -103,7 +137,7 @@ async function signAuthMessage(
     address: publicKey,
     networkPassphrase:
       process.env.NEXT_PUBLIC_STELLAR_NETWORK ??
-      "Test SDF Network ; September 2015",
+      "Public Global Stellar Network ; September 2015",
   });
 
   if (signed.error || !signed.signedMessage) {
@@ -217,6 +251,45 @@ export async function signMessageWithFreighter(
   return signAuthMessage(message, publicKey);
 }
 
+/**
+ * Fund the AI jar directly from the primary Freighter wallet.
+ * Builds a native payment (sourceWallet -> jar), signs it in Freighter, and
+ * submits to Horizon. Returns the transaction hash on success.
+ */
+export async function fundJarFromFreighter(
+  destination: string,
+  amountXlm: string,
+  sourcePublicKey: string
+): Promise<string> {
+  const amount = Number(amountXlm);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error("Enter an amount greater than 0");
+  }
+  // XLM supports 7 decimal places; keep the string Horizon-friendly.
+  const amountStr = amount.toFixed(7).replace(/\.?0+$/, "");
+
+  const server = new Horizon.Server(HORIZON_URL);
+  const source = await server.loadAccount(sourcePublicKey);
+  const tx = new TransactionBuilder(source, {
+    fee: BASE_FEE,
+    networkPassphrase: STELLAR_NETWORK,
+  })
+    .addOperation(
+      Operation.payment({
+        destination,
+        asset: Asset.native(),
+        amount: amountStr,
+      })
+    )
+    .setTimeout(120)
+    .build();
+
+  const signedXdr = await signTransactionWithFreighter(tx.toXDR(), sourcePublicKey);
+  const signed = TransactionBuilder.fromXDR(signedXdr, STELLAR_NETWORK);
+  const result = await server.submitTransaction(signed);
+  return result.hash;
+}
+
 /** Sign a Soroban/classic transaction XDR (add_session / revoke_session). */
 export async function signTransactionWithFreighter(
   unsignedXdr: string,
@@ -226,7 +299,7 @@ export async function signTransactionWithFreighter(
     address: publicKey,
     networkPassphrase:
       process.env.NEXT_PUBLIC_STELLAR_NETWORK ??
-      "Test SDF Network ; September 2015",
+      "Public Global Stellar Network ; September 2015",
   });
   if (signed.error || !signed.signedTxXdr) {
     throw new Error(

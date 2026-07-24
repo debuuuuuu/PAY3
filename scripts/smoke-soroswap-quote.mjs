@@ -61,16 +61,16 @@ const body = (assetIn, assetOut) => ({
 });
 
 await tryQuote(
-  "prod/test/usdcA",
-  "https://api.soroswap.finance",
-  "testnet",
-  body(TEST_XLM, TEST_USDC_A)
-);
-await tryQuote(
-  "prod/test/usdcB",
+  "prod/test/usdcDocs",
   "https://api.soroswap.finance",
   "testnet",
   body(TEST_XLM, TEST_USDC_B)
+);
+await tryQuote(
+  "prod/test/usdcLegacy",
+  "https://api.soroswap.finance",
+  "testnet",
+  body(TEST_XLM, TEST_USDC_A)
 );
 await tryQuote(
   "staging/test/usdcA",

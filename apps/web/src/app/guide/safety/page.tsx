@@ -5,7 +5,7 @@ import { SAFETY_POINTS } from "@/lib/guide-content";
 export const metadata: Metadata = {
   title: "Safety & limits — Pay3 Guide",
   description:
-    "What Pay3 never stores, revoke, approvals, ambiguous contacts, and testnet scope.",
+    "What Pay3 never stores, revoke, approvals, ambiguous contacts, and mainnet scope.",
 };
 
 export default function SafetyPage() {
