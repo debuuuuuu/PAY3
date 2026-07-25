@@ -135,7 +135,7 @@ Judge / demo snapshot (Stellar **mainnet**):
 | **AI spend path** | MCP `transfer` / balance / history against the allocation pot |
 | **On-chain canary** | Zipper Soroban smart-account contract + Rust tests + CI |
 
-> Drop screenshots or explorer links under `docs/pitch/proof/` if you want judges to click through (wallet list blur, Horizon tx hashes, dashboard counts).
+> Proof pack for judges: **[`docs/pitch/proof/`](docs/pitch/proof/)** (live links, traction cards, optional tx hashes).
 
 ---
 
@@ -162,7 +162,7 @@ Presentation for demos, hackathons, and viva / judges:
 
 Slides cover: problem → allowance model → mainnet live → 10+ users → architecture → Zipper + policy → MCP demo → what’s next.
 
-Optional proof images (explorer links, dashboard counts): `docs/pitch/proof/`.
+Optional proof pack (live links + cards): [`docs/pitch/proof/`](docs/pitch/proof/).
 
 ---
 
