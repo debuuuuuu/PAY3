@@ -12,11 +12,13 @@ You keep the big wallet. The AI spends from a **small pot** with **rules you set
 
 <br/>
 
-<a href="https://paythreewallet.vercel.app"><img src="https://img.shields.io/badge/Web-Live%20beta-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Web" /></a>
+<a href="https://paythreewallet.vercel.app"><img src="https://img.shields.io/badge/Web-Live%20on%20Mainnet-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Web" /></a>
 <a href="https://pay3-api.vercel.app/health"><img src="https://img.shields.io/badge/API-Healthy-111111?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="API" /></a>
+<a href="https://stellar.org"><img src="https://img.shields.io/badge/Stellar-Public%20Mainnet-7D00FF?style=for-the-badge&logo=stellar&logoColor=white" alt="Mainnet" /></a>
 <a href="https://x.com/PAYThreeWallet"><img src="https://img.shields.io/badge/X-@PAYThreeWallet-000000?style=for-the-badge&logo=x&logoColor=white" alt="X / Twitter" /></a>
 <a href="https://github.com/debuuuuuu/PAY3"><img src="https://img.shields.io/badge/GitHub-debuuuuuu%2FPAY3-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
 <a href="https://pay3.mintlify.site"><img src="https://img.shields.io/badge/Docs-pay3.mintlify.site-000000?style=for-the-badge" alt="Docs" /></a>
+<a href="https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing"><img src="https://img.shields.io/badge/Pitch-Slides%20deck-C43E1C?style=for-the-badge&logo=googleslides&logoColor=white" alt="Pitch deck" /></a>
 <a href="docs/WHAT_IS_PAY3.md"><img src="https://img.shields.io/badge/Guide-Kid%20friendly-222222?style=for-the-badge" alt="Guide" /></a>
 <a href="docs/readme.html"><img src="https://img.shields.io/badge/HTML-CSS%20README-333333?style=for-the-badge" alt="HTML README" /></a>
 
@@ -35,6 +37,8 @@ You keep the big wallet. The AI spends from a **small pot** with **rules you set
   ·
   <a href="https://pay3.mintlify.site"><strong>Docs</strong></a>
   ·
+  <a href="https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing"><strong>Pitch deck</strong></a>
+  ·
   <a href="docs/readme.html"><strong>HTML README</strong></a>
 </p>
 
@@ -46,19 +50,23 @@ You keep the big wallet. The AI spends from a **small pot** with **rules you set
 <summary><strong>Table of contents</strong></summary>
 
 1. [What is Pay3?](#what-is-pay3)
-2. [Why it exists](#why-it-exists)
-3. [System design](#system-design)
-4. [Request lifecycle](#request-lifecycle)
-5. [Monorepo map](#monorepo-map)
-6. [Custody model](#custody-model)
-7. [MCP tools](#mcp-tools)
-8. [Security house rules](#security-house-rules)
-9. [Tech stack](#tech-stack)
-10. [Quick start](#quick-start)
-11. [Production](#production)
-12. [Community & links](#community--links)
-13. [Documentation](#documentation)
-14. [Status](#status)
+2. [Live on mainnet](#live-on-mainnet)
+3. [Demo proof & traction](#demo-proof--traction)
+4. [What’s new](#whats-new)
+5. [Pitch deck (PPT)](#pitch-deck-ppt)
+6. [Why it exists](#why-it-exists)
+7. [System design](#system-design)
+8. [Request lifecycle](#request-lifecycle)
+9. [Monorepo map](#monorepo-map)
+10. [Custody model](#custody-model)
+11. [MCP tools](#mcp-tools)
+12. [Security house rules](#security-house-rules)
+13. [Tech stack](#tech-stack)
+14. [Quick start](#quick-start)
+15. [Production](#production)
+16. [Community & links](#community--links)
+17. [Documentation](#documentation)
+18. [Status](#status)
 
 </details>
 
@@ -95,7 +103,66 @@ Someone can tell Cursor or Claude: *“Pay Alice 1 XLM”* — and funds move on
 
 > **Docs site:** **[https://pay3.mintlify.site](https://pay3.mintlify.site)**  
 > New here? Also read the plain-language story: **[`docs/WHAT_IS_PAY3.md`](docs/WHAT_IS_PAY3.md)**  
-> Prefer a glossy local page? Open **[`docs/readme.html`](docs/readme.html)** in a browser.
+> Prefer a glossy local page? Open **[`docs/readme.html`](docs/readme.html)** in a browser.  
+> Pitch / judges deck: **[Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing)**
+
+---
+
+## Live on mainnet
+
+**Pay3 is live on Stellar public mainnet** — not testnet-only.
+
+| | |
+|:--|:--|
+| **Network** | `Public Global Stellar Network ; September 2015` |
+| **Web** | [paythreewallet.vercel.app](https://paythreewallet.vercel.app) |
+| **API** | [pay3-api.vercel.app](https://pay3-api.vercel.app/health) |
+| **Freighter** | Switch to **Mainnet** before connect / fund |
+| **Ops** | [`docs/PRODUCTION.md`](docs/PRODUCTION.md) |
+
+Native XLM transfers settle on mainnet Horizon. Soroswap quote/execute follows mainnet pools when enabled. Only fund the AI jar with amounts you accept spending.
+
+---
+
+## Demo proof & traction
+
+Judge / demo snapshot (Stellar **mainnet**):
+
+| Proof | Detail |
+|:------|:-------|
+| **10+ mainnet users** | **10+** Freighter wallets have connected and used Pay3 on public mainnet (jar link / session / policy path) |
+| **Live product** | Dashboard + API healthy in production |
+| **AI spend path** | MCP `transfer` / balance / history against the allocation pot |
+| **On-chain canary** | Zipper Soroban smart-account contract + Rust tests + CI |
+
+> Drop screenshots or explorer links under `docs/pitch/proof/` if you want judges to click through (wallet list blur, Horizon tx hashes, dashboard counts).
+
+---
+
+## What’s new
+
+Recent additions on top of the core Freighter → jar → policy → MCP flow:
+
+| Area | What’s in |
+|:-----|:----------|
+| **Mainnet production** | Horizon + Soroban RPC mainnet; Freighter mainnet UX |
+| **Zipper smart account** | Soroban `Pay3SmartAccount` — CAP-71 delegates, spend caps, `add_session` / `revoke_session` / `get_session` |
+| **Contract CI** | GitHub Actions: `cargo fmt` + `clippy` + `test` on `contracts/smart-account` |
+| **x402 payments** | MCP path for pay-per-request HTTP `402` flows |
+| **Soroswap** | `get_swap_quote` + opt-in `execute_swap` |
+| **Pitch deck** | Slides for demos / judges — [Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing) |
+
+---
+
+## Pitch deck
+
+Presentation for demos, hackathons, and viva / judges:
+
+**[Pay3 — Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing)**
+
+Slides cover: problem → allowance model → mainnet live → 10+ users → architecture → Zipper + policy → MCP demo → what’s next.
+
+Optional proof images (explorer links, dashboard counts): `docs/pitch/proof/`.
 
 ---
 
@@ -110,7 +177,7 @@ AI agents can chat — but payment rails were built for humans with credit cards
 | Hope the model behaves | **Policy** + expiry + revoke |
 | Keys in prompts / frontends | Keys **encrypted at rest**, used only in API memory |
 
-**Public beta today = Stellar testnet.** Play money first. Mainnet / USDC are not the casual default path yet.
+**Production today = Stellar public mainnet.** Fund only what you are willing to let the AI spend.
 
 ---
 
@@ -180,7 +247,7 @@ flowchart LR
   VWeb -->|/api proxy| VApi[Vercel API<br/>pay3-api.vercel.app]
   AI[AI host] -->|Bearer token| VApi
   VApi --> Neon[(Neon)]
-  VApi --> Stellar[Stellar testnet / mainnet]
+  VApi --> Stellar[Stellar public mainnet]
   VApi --> Soro[Soroswap API]
 ```
 
@@ -354,7 +421,7 @@ These are non-negotiable (see [`docs/SECURITY.md`](docs/SECURITY.md)):
 <td>
 
 **Money**
-- Stellar (testnet beta)
+- Stellar **public mainnet**
 - Horizon + Soroban RPC
 - Soroswap aggregator
 - Zipper / Protocol 27 contract
@@ -432,6 +499,7 @@ API deploy helper: `node scripts/deploy-api-vercel.mjs`
 | **API** | [pay3-api.vercel.app](https://pay3-api.vercel.app/health) |
 | **Email** | [pay3wallet@gmail.com](mailto:pay3wallet@gmail.com) |
 | **Docs site** | [pay3.mintlify.site](https://pay3.mintlify.site) |
+| **Pitch deck** | [Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing) |
 | **Interactive HTML** | [`docs/readme.html`](docs/readme.html) |
 
 <br/>
@@ -451,6 +519,7 @@ API deploy helper: `node scripts/deploy-api-vercel.mjs`
 | Doc | Audience |
 |:----|:---------|
 | **[pay3.mintlify.site](https://pay3.mintlify.site)** | **Official docs** (Mintlify) |
+| [Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing) | **Pitch / judges deck** |
 | [pay3.mintlify.site/llms.txt](https://pay3.mintlify.site/llms.txt) | AI / LLM docs index |
 | [`docs/readme.html`](docs/readme.html) | Interactive HTML + CSS overview |
 | [`docs/WHAT_IS_PAY3.md`](docs/WHAT_IS_PAY3.md) | Anyone (kid-friendly) |
@@ -484,15 +553,19 @@ Any Stellar docs page also serves markdown via `Accept: text/markdown` or by app
 
 ## Status
 
-**Testnet beta** — Freighter → jar → contacts → session → policy → MCP pay → approvals / revoke / audit.
+**Live on Stellar public mainnet** — Freighter → jar → contacts → session → policy → MCP pay → approvals / revoke / audit.  
+**Demo traction:** **10+ mainnet users** connected through the production product.
 
 | Area | State |
 |:-----|:------|
-| Off-chain MVP (auth → MCP) | ✅ |
+| Off-chain MVP (auth → MCP) | ✅ mainnet |
+| Production web + API | ✅ live |
+| 10+ mainnet users (demo proof) | ✅ |
 | Soroswap quote / execute | ✅ (pools / network dependent) |
 | Zipper WASM + canary path | ✅ code; opt-in deploy |
-| Contract custody default | ❌ not yet |
-| Mainnet as casual default | ❌ not yet |
+| Contract CI (fmt / clippy / test) | ✅ |
+| Pitch deck | 📄 [Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing) |
+| Contract custody default | ❌ not yet (legacy jar default) |
 
 ---
 
@@ -508,6 +581,8 @@ Any Stellar docs page also serves markdown via `Accept: text/markdown` or by app
 
 <a href="https://pay3.mintlify.site">Docs</a>
 ·
+<a href="https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing">Pitch deck</a>
+·
 <a href="https://x.com/PAYThreeWallet">X</a>
 ·
 <a href="https://github.com/debuuuuuu/PAY3">GitHub</a>
@@ -518,6 +593,6 @@ Any Stellar docs page also serves markdown via `Accept: text/markdown` or by app
 
 <br/><br/>
 
-<sub>Full docs → <a href="https://pay3.mintlify.site">pay3.mintlify.site</a>. Live site → <a href="https://paythreewallet.vercel.app">paythreewallet.vercel.app</a>.</sub>
+<sub>Full docs → <a href="https://pay3.mintlify.site">pay3.mintlify.site</a>. Live on Stellar mainnet → <a href="https://paythreewallet.vercel.app">paythreewallet.vercel.app</a>.</sub>
 
 </div>
