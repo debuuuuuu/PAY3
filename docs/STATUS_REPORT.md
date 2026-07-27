@@ -10,9 +10,11 @@
 
 > Full kid-friendly overview of the whole product: [`WHAT_IS_PAY3.md`](./WHAT_IS_PAY3.md).
 
-**Date:** 11 Jul 2026 — **Public Stellar testnet beta**  
+**Date:** 27 Jul 2026 — **Live on Stellar public mainnet** (legacy G-account jar default; Zipper contract opt-in)  
 **Audience:** You (founder / builder) — not engineers only  
 **Goal of this doc:** Explain *what* we built, *why*, and *where you are* without jargon overload.
+
+> **Note:** Some step-by-step sections below were written during the testnet build phase. For the current live status, see the root [`README.md`](../README.md).
 
 ---
 
@@ -114,7 +116,9 @@ Copy address or scan **QR** → send testnet XLM from Freighter → **Refresh ba
 | Contacts (“debu” / Hurain → address) | ✅ | Dashboard Contacts + resolver |
 | Policy engine (auto / approve / reject) | ✅ | Off-chain three-level engine |
 | Real Soroban smart contract | ❌ | Phase 9 — interim G-account for now |
-| Mainnet / USDC | ❌ | Still **testnet XLM** |
+| Mainnet XLM | ✅ | Production on **public mainnet** |
+| Mainnet USDC / Soroswap | ✅ | When pools enabled |
+| Zipper Soroban contract | ✅ | Deployed opt-in — `CAIID…T3OO` |
 
 What’s left for product polish: Phase 8 (approvals UX / emergency controls) and Phase 9 (on-chain Soroban limits).
 
@@ -193,7 +197,7 @@ So we can break things without losing real money.
 | 9b | Contract source + local WASM build | ✅ Built (`artifacts/pay3_smart_account.wasm`) |
 | 9c | Harden + RPC/relayer + canary wiring | ✅ Code complete — opt-in canary; default still legacy |
 
-**Roughly:** Off-chain MVP complete + Phase 9c Soroban path wired for one opt-in canary. Public testnet beta still defaults to interim G-account. See `docs/SOROBAN_SETUP.md`.
+**Roughly:** Off-chain MVP complete on **mainnet** + Phase 9c Soroban path wired. Production defaults to interim G-account; Zipper contract deployed for opt-in custody. See `docs/SOROBAN_SETUP.md`.
 
 ---
 
@@ -207,11 +211,11 @@ So we can break things without losing real money.
 
 ## 11. Bottom line
 
-**What’s happening:** Pay3 testnet beta — Freighter → pot → contacts → session → policy → MCP pay → approvals / revoke / audit; Soroban canary available opt-in.
+**What’s happening:** Pay3 on **mainnet** — Freighter → pot → contacts → session → policy → MCP pay → approvals / revoke / audit; Zipper Soroban contract deployed for opt-in custody.
 
-**Why it’s happening this way:** Security first — separate pot, encrypted session material, off-chain policy; on-chain `__check_auth` for canary accounts.
+**Why it’s happening this way:** Security first — separate pot, encrypted session material, off-chain policy; on-chain `__check_auth` for opt-in Zipper accounts.
 
-**Where you are:** Product is launchable as a **testnet beta**. Not mainnet. Contract custody not default yet.
+**Where you are:** Product is **live on mainnet**. Legacy G-account jar is default; contract custody is opt-in per user.
 
 If one sentence for a teammate:  
-> *“Testnet beta: MCP payments on legacy G-accounts; Phase 9c Soroban canary ready for one opt-in account.”*
+> *“Mainnet live: MCP payments on legacy G-account jars; Zipper contract deployed for opt-in on-chain session caps.”*

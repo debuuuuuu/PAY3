@@ -48,7 +48,7 @@ Build once: `npm run build:mcp`. Then **Settings → Tools & MCP → reload pay3
 ## Local stdio (developers)
 
 1. API running: `npm run dev:api` (port 4000)
-2. Smart account linked + funded (testnet XLM)
+2. Smart account linked + funded (mainnet XLM on production; testnet for local dev)
 3. Active AI session + MCP token from dashboard (shown once)
 4. Build once: `npm run build:mcp`
 

@@ -18,7 +18,7 @@ AI session G-address (backend key)  ← CAP-71 delegated signer
 Off-chain policy → on-chain __check_auth (caps) → delegate_auth → Stellar
 ```
 
-Interim MVP (live today): **encrypted G-address allocation account**. That remains valid until a Zipper-built WASM is deployed and funded.
+Interim MVP (live today): **encrypted G-address allocation account** on mainnet. Zipper WASM is deployed (`CAIID…T3OO`); contract custody remains opt-in.
 
 ---
 
@@ -42,7 +42,7 @@ Interim MVP (live today): **encrypted G-address allocation account**. That remai
 ## 3. Decisions for Pay3 Phase 9
 
 ### D1 — Custody migration
-1. Keep interim G-account until Zipper WASM is deployed on **testnet**.  
+1. Keep interim G-account as default; Zipper WASM deployed on **mainnet** for opt-in custody.  
 2. `SmartAccount.contractRef` ← contract id (`C…`).  
 3. User funds contract (manual, same as today).  
 4. Stop using `encryptedSecret` for new spends once contract path is default.

@@ -1,7 +1,7 @@
 # Pay3 Implementation Plan (v2)
 
 > **Audited against:** `maincontext.md` (full product spec — **source of truth**)  
-> **Also:** `context.md` (landing/marketing shorthand) · current repo (landing page only)
+> **Also:** `context.md` (landing/marketing shorthand) · **historical plan** — product is live on mainnet; see root `README.md` for current status
 
 ---
 

@@ -84,7 +84,7 @@ Pay3’s job: **let AI use money without becoming a burglar.**
 Stellar is a fast, cheap network for moving digital coins (like XLM).  
 Think: a special street where coins can walk from one address to another in a few seconds.
 
-Pay3 uses **testnet** a lot — that’s **play money** so nobody loses real cash while we build.
+Pay3 runs on **mainnet** today — real XLM on the public Stellar network. Only fund the AI jar with amounts you accept spending.
 
 ### 2. Freighter — your big piggy bank
 
@@ -187,23 +187,22 @@ More checklist detail: [`SECURITY.md`](./SECURITY.md).
 
 ## What’s real today vs later
 
-### Working now (testnet beta)
+### Working now (mainnet)
 
 - Website + dashboard  
-- Freighter login  
-- Small jar (allocation account)  
+- Freighter login on **public mainnet**  
+- Small jar (allocation G-account)  
 - Contacts  
 - AI sessions + revoke  
 - Policy + transfers via MCP  
 - Approvals / emergency stop patterns  
 - Swap **quotes** (and execute when networks match and pools exist)  
-- Zipper smart-account **code + WASM** (opt-in canary, not default)
+- Zipper smart-account **deployed on mainnet** (opt-in custody, not default)
 
 ### Not the everyday default yet
 
-- Mainnet as the “safe casual” path for everyone  
-- Full x402 “pay the website 402 style” marketplace from the old vision doc  
-- Contract custody for **every** new user (still opt-in)
+- Contract custody for **every** new user (still opt-in)  
+- Full x402 “pay the website 402 style” marketplace from the old vision doc
 
 Vision / long-term dream: [`PROJECT_CONTEXT.md`](./PROJECT_CONTEXT.md)  
 Builder status: [`STATUS_REPORT.md`](./STATUS_REPORT.md)
@@ -246,9 +245,9 @@ Pay3 repo
 ## Try it (grown-up clicks, kid steps)
 
 1. Open https://paythreewallet.vercel.app  
-2. Connect Freighter (testnet).  
+2. Connect Freighter (**mainnet**).  
 3. Link the smart / allocation account.  
-4. Put a little test XLM in the jar.  
+4. Put a little XLM in the jar.  
 5. Add a contact.  
 6. Create an AI session → copy token.  
 7. Put the token in Cursor MCP (see [`MCP_SETUP.md`](./MCP_SETUP.md)).  
