@@ -97,10 +97,10 @@ Every payment passes the **policy engine** (AUTO / APPROVAL / REJECT) before set
 |:---------|:--------|:--------|:-------|
 | **Native XLM (SAC)** | Stellar mainnet | `CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA` | ✅ Stellar standard — used for jar funding / transfers |
 | **Native USDC (SAC)** | Stellar mainnet | `CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75` | ✅ Soroswap / asset path when enabled |
-| **Pay3 Smart Account (Zipper)** | Stellar mainnet | *Not deployed yet* | 🟡 Code + tests + CI ready; opt-in via `npm run canary:deploy` |
+| **Pay3 Smart Account (Zipper)** | Stellar mainnet | [`CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO`](https://stellar.expert/explorer/public/contract/CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO) | ✅ Deployed — opt-in via `POST /smart-account/enable-contract-custody` |
 | **User allocation jar** | Stellar mainnet | Per-user `G…` address | ✅ Default custody today (legacy G-account, encrypted at rest) |
 
-> **Honest status (checked 2026-07-27):** Production uses **legacy G-account jars** for all users. No Soroban `C…` contract is deployed in production yet. After canary deploy, paste the `contractId` here and enable via `POST /smart-account/enable-contract-custody`. See [`docs/SOROBAN_SETUP.md`](docs/SOROBAN_SETUP.md).
+> **Honest status (checked 2026-07-27):** Production still defaults to **legacy G-account jars** for all users. The Zipper canary contract is **deployed on mainnet** (`CAIID…T3OO`); opt-in per user via `POST /smart-account/enable-contract-custody`. Verify: `node scripts/verify-contract.mjs`. See [`docs/SOROBAN_SETUP.md`](docs/SOROBAN_SETUP.md).
 
 **WASM hash (Zipper build):** `842c28f0f4db756cfbe259553993fd1045c0df32966b4bebff9d94720490e5e0`
 
@@ -389,7 +389,7 @@ pay3/
 |:------|:-----|:--------------|
 | **Primary** | Freighter G-address | Never stored by Pay3 |
 | **AI jar (legacy)** | Separate G-account, secret AES-GCM in Neon | ✅ Default |
-| **AI jar (Zipper)** | Soroban C-account, CAP-71 delegates | 🟡 Opt-in canary |
+| **AI jar (Zipper)** | Soroban C-account, CAP-71 delegates | 🟡 Opt-in canary — [`CAIID…T3OO`](https://stellar.expert/explorer/public/contract/CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO) deployed |
 
 </div>
 
@@ -594,7 +594,7 @@ Any Stellar docs page also serves markdown via `Accept: text/markdown` or by app
 | Off-chain MVP (auth → MCP) | ✅ mainnet |
 | Production web + API | ✅ live |
 | Active mainnet users | ✅ legacy G-account jars |
-| Soroban smart-account deployed | ❌ not yet (canary script ready) |
+| Soroban smart-account deployed | ✅ [`CAIID…T3OO`](https://stellar.expert/explorer/public/contract/CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO) (opt-in custody) |
 | Soroswap quote / execute | ✅ (pools / network dependent) |
 | Zipper WASM + canary path | ✅ code; opt-in deploy |
 | Contract CI (fmt / clippy / test) | ✅ |
