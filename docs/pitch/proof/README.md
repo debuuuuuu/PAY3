@@ -32,7 +32,7 @@ Click-through materials for demos / viva. Cards below are for slides; **live lin
 
 | Metric | Claim |
 |:-------|:------|
-| Mainnet users | **10+** Freighter wallets connected / used Pay3 on Stellar public mainnet |
+| Mainnet users | Active Freighter wallets on production (legacy G-account jars) |
 | Network | Public Global Stellar Network (mainnet) |
 | Product path | Freighter → allocation jar → session → policy → MCP spend |
 

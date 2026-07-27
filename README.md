@@ -49,26 +49,60 @@ You keep the big wallet. The AI spends from a **small pot** with **rules you set
 <details open>
 <summary><strong>Table of contents</strong></summary>
 
-1. [What is Pay3?](#what-is-pay3)
-2. [Live on mainnet](#live-on-mainnet)
-3. [Demo proof & traction](#demo-proof--traction)
-4. [What’s new](#whats-new)
-5. [Pitch deck (PPT)](#pitch-deck-ppt)
-6. [Why it exists](#why-it-exists)
-7. [System design](#system-design)
-8. [Request lifecycle](#request-lifecycle)
-9. [Monorepo map](#monorepo-map)
-10. [Custody model](#custody-model)
-11. [MCP tools](#mcp-tools)
-12. [Security house rules](#security-house-rules)
-13. [Tech stack](#tech-stack)
-14. [Quick start](#quick-start)
-15. [Production](#production)
-16. [Community & links](#community--links)
-17. [Documentation](#documentation)
-18. [Status](#status)
+1. [Project Title](#project-title)
+2. [Project Description](#project-description)
+3. [Contract Address](#contract-address)
+4. [What is Pay3?](#what-is-pay3)
+5. [Live on mainnet](#live-on-mainnet)
+6. [Demo proof & traction](#demo-proof--traction)
+7. [What’s new](#whats-new)
+8. [Pitch deck](#pitch-deck)
+9. [Why it exists](#why-it-exists)
+10. [System design](#system-design)
+11. [Request lifecycle](#request-lifecycle)
+12. [Monorepo map](#monorepo-map)
+13. [Custody model](#custody-model)
+14. [MCP tools](#mcp-tools)
+15. [Security house rules](#security-house-rules)
+16. [Tech stack](#tech-stack)
+17. [Quick start](#quick-start)
+18. [Production](#production)
+19. [Community & links](#community--links)
+20. [Documentation](#documentation)
+21. [Status](#status)
 
 </details>
+
+---
+
+## Project Title
+
+**Pay3** — *Delegate. Validate. Execute.*
+
+---
+
+## Project Description
+
+Pay3 is a **policy-gated payment layer for AI agents on Stellar**. Users connect Freighter on **public mainnet**, fund a separate **allocation jar**, set spending rules, and let Cursor/Claude call MCP tools (`transfer`, `get_balance`, `get_history`, swap, x402) — without handing the model their main wallet keys.
+
+Every payment passes the **policy engine** (AUTO / APPROVAL / REJECT) before settling on-chain. Optional **Zipper Soroban smart-account** custody (`contracts/smart-account`) adds on-chain session caps via CAP-71 `__check_auth`.
+
+**Live:** [paythreewallet.vercel.app](https://paythreewallet.vercel.app) · **Network:** Stellar public mainnet
+
+---
+
+## Contract Address
+
+| Contract | Network | Address | Status |
+|:---------|:--------|:--------|:-------|
+| **Native XLM (SAC)** | Stellar mainnet | `CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA` | ✅ Stellar standard — used for jar funding / transfers |
+| **Native USDC (SAC)** | Stellar mainnet | `CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75` | ✅ Soroswap / asset path when enabled |
+| **Pay3 Smart Account (Zipper)** | Stellar mainnet | *Not deployed yet* | 🟡 Code + tests + CI ready; opt-in via `npm run canary:deploy` |
+| **User allocation jar** | Stellar mainnet | Per-user `G…` address | ✅ Default custody today (legacy G-account, encrypted at rest) |
+
+> **Honest status (checked 2026-07-27):** Production uses **legacy G-account jars** for all users. No Soroban `C…` contract is deployed in production yet. After canary deploy, paste the `contractId` here and enable via `POST /smart-account/enable-contract-custody`. See [`docs/SOROBAN_SETUP.md`](docs/SOROBAN_SETUP.md).
+
+**WASM hash (Zipper build):** `842c28f0f4db756cfbe259553993fd1045c0df32966b4bebff9d94720490e5e0`
 
 ---
 
@@ -130,7 +164,7 @@ Judge / demo snapshot (Stellar **mainnet**):
 
 | Proof | Detail |
 |:------|:-------|
-| **10+ mainnet users** | **10+** Freighter wallets have connected and used Pay3 on public mainnet (jar link / session / policy path) |
+| **Active mainnet users** | Production wallets linked on Stellar public mainnet (Freighter → jar → session path) |
 | **Live product** | Dashboard + API healthy in production |
 | **AI spend path** | MCP `transfer` / balance / history against the allocation pot |
 | **On-chain canary** | Zipper Soroban smart-account contract + Rust tests + CI |
@@ -160,7 +194,7 @@ Presentation for demos, hackathons, and viva / judges:
 
 **[Pay3 — Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing)**
 
-Slides cover: problem → allowance model → mainnet live → 10+ users → architecture → Zipper + policy → MCP demo → what’s next.
+Slides cover: problem → allowance model → mainnet live → active users → architecture → Zipper + policy → MCP demo → what’s next.
 
 Optional proof pack (live links + cards): [`docs/pitch/proof/`](docs/pitch/proof/).
 
@@ -553,14 +587,14 @@ Any Stellar docs page also serves markdown via `Accept: text/markdown` or by app
 
 ## Status
 
-**Live on Stellar public mainnet** — Freighter → jar → contacts → session → policy → MCP pay → approvals / revoke / audit.  
-**Demo traction:** **10+ mainnet users** connected through the production product.
+**Live on Stellar public mainnet** — Freighter → jar → contacts → session → policy → MCP pay → approvals / revoke / audit.
 
 | Area | State |
 |:-----|:------|
 | Off-chain MVP (auth → MCP) | ✅ mainnet |
 | Production web + API | ✅ live |
-| 10+ mainnet users (demo proof) | ✅ |
+| Active mainnet users | ✅ legacy G-account jars |
+| Soroban smart-account deployed | ❌ not yet (canary script ready) |
 | Soroswap quote / execute | ✅ (pools / network dependent) |
 | Zipper WASM + canary path | ✅ code; opt-in deploy |
 | Contract CI (fmt / clippy / test) | ✅ |
