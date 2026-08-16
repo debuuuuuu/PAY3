@@ -130,9 +130,9 @@ const toPush = {
   WEB_ORIGIN: webOrigin,
   STELLAR_NETWORK_PASSPHRASE:
     local.STELLAR_NETWORK_PASSPHRASE ??
-    "Public Global Stellar Network ; September 2015",
+    "Test SDF Network ; September 2015",
   STELLAR_HORIZON_URL:
-    local.STELLAR_HORIZON_URL ?? "https://horizon.stellar.org",
+    local.STELLAR_HORIZON_URL ?? "https://horizon-testnet.stellar.org",
 };
 for (const k of envKeys) {
   if (local[k]) toPush[k] = local[k];

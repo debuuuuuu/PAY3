@@ -20,7 +20,7 @@ import {
 } from "@stellar/stellar-sdk";
 
 export const DEFAULT_SOROBAN_RPC =
-  process.env.STELLAR_RPC_URL ?? "https://mainnet.sorobanrpc.com";
+  process.env.STELLAR_RPC_URL ?? "https://soroban-testnet.stellar.org";
 
 export type SorobanFailureClass =
   | "auth"
@@ -56,7 +56,7 @@ export function stroopsToXlm(stroops: bigint): string {
 }
 
 export function getNetworkPassphrase(): string {
-  return process.env.STELLAR_NETWORK_PASSPHRASE ?? Networks.PUBLIC;
+  return process.env.STELLAR_NETWORK_PASSPHRASE ?? Networks.TESTNET;
 }
 
 export function getNativeSacContractId(

@@ -5,7 +5,7 @@
 import "./env.js";
 
 const DEFAULT_API_URL = "https://api.soroswap.finance";
-const DEFAULT_NETWORK = "mainnet";
+const DEFAULT_NETWORK = "testnet";
 const DEFAULT_SLIPPAGE_BPS = 50;
 
 /** Testnet SAC contract IDs (Soroswap docs). Pools may be empty at times. */

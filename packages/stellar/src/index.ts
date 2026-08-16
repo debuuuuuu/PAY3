@@ -44,7 +44,7 @@ export type AllocationFundMethod = "friendbot" | "create_account" | "none";
 
 export function getNetworkPassphrase(): string {
   return (
-    process.env.STELLAR_NETWORK_PASSPHRASE ?? Networks.PUBLIC
+    process.env.STELLAR_NETWORK_PASSPHRASE ?? Networks.TESTNET
   );
 }
 

@@ -1,19 +1,19 @@
-# Production — Stellar mainnet
+# Production — Stellar testnet
 
-Pay3 ships on **Stellar public mainnet**. Freighter must be set to **mainnet**. Only fund allocation pots with XLM you accept spending.
+Pay3 ships on **Stellar testnet**. Freighter must be set to **testnet**. Fund pots with Friendbot / play XLM.
 
 ## Architecture
 
 ```
 Vercel web — https://paythreewallet.vercel.app
   NEXT_PUBLIC_API_URL=/api
-  NEXT_PUBLIC_STELLAR_NETWORK=Public Global Stellar Network ; September 2015
+  NEXT_PUBLIC_STELLAR_NETWORK=Test SDF Network ; September 2015
   API_PROXY_ORIGIN=https://pay3-api.vercel.app
         ↓ rewrites /api/*
 Vercel API (bundled Express) — https://pay3-api.vercel.app
         ↓
 Neon Postgres (DATABASE_URL + DIRECT_URL)
-Horizon mainnet + Soroban RPC mainnet
+Horizon testnet + Soroban RPC testnet
 ```
 
 Same-origin `/api` proxy keeps Freighter session cookies first-party.
@@ -30,14 +30,12 @@ WEB_ORIGIN=https://paythreewallet.vercel.app
 DATABASE_URL=...
 DIRECT_URL=...
 SMART_ACCOUNT_ENCRYPTION_KEY=<long-random-secret>
-STELLAR_NETWORK_PASSPHRASE=Public Global Stellar Network ; September 2015
-STELLAR_HORIZON_URL=https://horizon.stellar.org
-STELLAR_RPC_URL=https://mainnet.sorobanrpc.com
-SOROSWAP_NETWORK=mainnet
+STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
+STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
+STELLAR_RPC_URL=https://soroban-testnet.stellar.org
+SOROSWAP_NETWORK=testnet
 # SOROSWAP_API_KEY=...
-# Optional: seed new jars via createAccount (otherwise user funds from Freighter)
 # RELAYER_SECRET=S...
-# MAINNET_JAR_SEED_XLM=2
 ```
 
 ## Required env (Web)
@@ -45,22 +43,18 @@ SOROSWAP_NETWORK=mainnet
 ```env
 NEXT_PUBLIC_API_URL=/api
 NEXT_PUBLIC_SITE_URL=https://paythreewallet.vercel.app
-NEXT_PUBLIC_STELLAR_NETWORK=Public Global Stellar Network ; September 2015
+NEXT_PUBLIC_STELLAR_NETWORK=Test SDF Network ; September 2015
 API_PROXY_ORIGIN=https://pay3-api.vercel.app
 ```
 
-## Linking a jar on mainnet
+## Linking a jar on testnet
 
-1. Connect Freighter (**mainnet**).
+1. Connect Freighter (**testnet**).
 2. Link smart account → Pay3 creates a G-address.
-3. **Friendbot is disabled.** Without `RELAYER_SECRET`, the jar is unfunded until you send XLM from Freighter (createAccount on first payment).
-4. With `RELAYER_SECRET`, Pay3 can seed ~2 XLM via `createAccount` automatically.
+3. Friendbot funds new allocation accounts when no relayer is set.
+4. Old **mainnet** allocation accounts will not work on testnet Horizon — re-link / fund a new jar.
 
-## Cutover notes
-
-- Old **testnet** allocation accounts will not work on mainnet Horizon — users must re-link / fund a new jar.
-- Switch Freighter network to mainnet before signing.
-- WalletConnect uses CAIP chain `stellar:pubnet`.
-- Explorer links use `stellar.expert/explorer/public/...`.
+WalletConnect uses CAIP chain `stellar:testnet`.  
+Explorer links use `stellar.expert/explorer/testnet/...`.
 
 Health: `GET https://pay3-api.vercel.app/health` → `{"ok":true,...}`

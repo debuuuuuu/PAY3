@@ -152,7 +152,7 @@ export default function DashboardOverviewPage() {
                   Link smart account
                 </h2>
                 <p className="mt-2 max-w-md text-[14px] leading-relaxed text-white/45">
-                  Creates a dedicated mainnet jar. Primary Freighter key never
+                  Creates a dedicated testnet jar. Primary Freighter key never
                   leaves your wallet.
                 </p>
                 <button
@@ -176,7 +176,7 @@ export default function DashboardOverviewPage() {
                     <AddressQr publicKey={account.publicKey} size={140} />
                   ) : null}
                   <p className="text-center text-[10px] leading-snug text-white/30 sm:text-left">
-                    Scan · Freighter mainnet
+                    Scan · Freighter testnet
                   </p>
                 </div>
 
@@ -185,7 +185,8 @@ export default function DashboardOverviewPage() {
                     Fund the jar
                   </h2>
                   <p className="mt-1.5 text-[13px] leading-relaxed text-white/40">
-                    Only funds here are available to AI sessions.
+                    Only funds here are available to AI sessions. First deposit
+                    must be at least 1 XLM (creates the jar on testnet).
                   </p>
 
                   <div className="mt-5">

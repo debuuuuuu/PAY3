@@ -93,9 +93,9 @@ export function FlowSection() {
         </p>
         <h2
           data-flow-title
-          className="mt-3 max-w-2xl font-display text-3xl font-bold tracking-tight md:text-5xl"
+          className="mt-3 max-w-2xl font-display text-[clamp(2.25rem,5vw,3.5rem)] font-bold tracking-[-0.04em] leading-[1.05]"
         >
-          One command. Five layers of validation. Then it settles on Stellar.
+          One command. Five layers of validation. Then it settles — in the currency you chose.
         </h2>
 
         <div className="relative mt-16 md:mt-20">
@@ -121,7 +121,7 @@ export function FlowSection() {
                   )}
                 </div>
 
-                <article className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-5 backdrop-blur-sm transition-colors duration-300 group-hover:border-white/20 group-hover:from-white/[0.08]">
+                <article className="glass-sheet relative overflow-hidden rounded-[22px] p-5 transition-transform duration-200 group-hover:scale-[1.02] active:scale-[0.98]">
                   <span
                     className="pointer-events-none absolute -right-1 -top-2 font-display text-6xl font-bold leading-none text-white/[0.04]"
                     aria-hidden

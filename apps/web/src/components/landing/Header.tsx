@@ -85,7 +85,7 @@ export function Header() {
       className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-5 md:px-8 md:pt-6"
     >
       <div
-        className={`glass-nav flex w-full max-w-6xl items-center gap-2 rounded-full border border-white/[0.1] px-3.5 py-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.35)] sm:gap-3 sm:px-5 sm:py-3${scrolled ? " glass-nav--scrolled" : ""}`}
+        className={`glass-nav flex min-h-14 w-full max-w-6xl items-center gap-2 rounded-full border border-white/15 px-3.5 py-2 sm:gap-3 sm:px-5 sm:py-2.5${scrolled ? " glass-nav--scrolled" : ""}`}
       >
         <Link
           href="/"
@@ -112,7 +112,7 @@ export function Header() {
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[15px] text-white/55 transition-colors duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="flex min-h-11 items-center gap-1.5 rounded-full px-4 text-[15px] text-white/60 transition-colors duration-200 hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {link.label}
                 <ExternalIcon />
@@ -121,7 +121,7 @@ export function Header() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="rounded-full px-3.5 py-2 text-[15px] text-white/55 transition-colors duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="flex min-h-11 items-center rounded-full px-4 text-[15px] text-white/60 transition-colors duration-200 hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {link.label}
               </Link>
@@ -135,7 +135,7 @@ export function Header() {
           <Link
             href="/dashboard?connect=freighter"
             data-nav-item
-            className="btn-primary relative z-[60] hidden !px-6 !py-2.5 text-[15px] sm:inline-flex"
+            className="btn-primary relative z-[60] hidden sm:inline-flex"
           >
             Get Started
           </Link>
@@ -163,7 +163,7 @@ export function Header() {
 
       {menuOpen ? (
         <nav
-          className="absolute left-4 right-4 top-[calc(100%+8px)] mx-auto max-w-6xl overflow-hidden rounded-2xl border border-white/10 bg-black/80 p-4 backdrop-blur-xl lg:hidden"
+          className="glass-sheet absolute left-4 right-4 top-[calc(100%+10px)] mx-auto max-w-6xl overflow-hidden rounded-[28px] p-3 lg:hidden"
           aria-label="Mobile"
         >
           <div className="flex flex-col gap-1">
@@ -174,7 +174,7 @@ export function Header() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-white/75 transition-colors hover:bg-white/[0.06] hover:text-white"
+                  className="flex min-h-11 items-center justify-between rounded-2xl px-4 text-[17px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
@@ -184,7 +184,7 @@ export function Header() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="rounded-xl px-3 py-2.5 text-sm text-white/75 transition-colors hover:bg-white/[0.06] hover:text-white"
+                  className="flex min-h-11 items-center rounded-2xl px-4 text-[17px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}

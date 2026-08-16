@@ -15,22 +15,22 @@ export const GUIDE_PAGES = [
     href: "/guide/safety",
     title: "Safety & limits",
     description:
-      "What Pay3 never holds, how revoke works, approvals, and mainnet scope.",
+      "What Pay3 never holds, how revoke works, approvals, and testnet scope.",
   },
 ] as const;
 
 export const GETTING_STARTED_STEPS = [
   {
     title: "Connect Freighter",
-    body: "Open the dashboard and connect Freighter on Stellar mainnet. Your primary wallet key stays in Freighter — Pay3 never stores it.",
+    body: "Open the dashboard and connect Freighter on Stellar testnet. Your primary wallet key stays in Freighter — Pay3 never stores it.",
   },
   {
     title: "Link your allocation pot",
     body: "Pay3 creates a separate allocation account (the “pot”). Only funds here are available to AI sessions.",
   },
   {
-    title: "Fund with mainnet XLM",
-    body: "Send a small amount of real XLM into the allocation account from Freighter (createAccount on first fund). Only put what you accept the AI spending.",
+    title: "Fund with testnet XLM",
+    body: "Send testnet XLM into the allocation account from Freighter (Friendbot can fund new accounts). Only put what you accept the AI spending.",
   },
   {
     title: "Add a contact",
@@ -116,7 +116,7 @@ export const SAFETY_POINTS = [
     body: "Revoke one session or all sessions in the dashboard. MCP tokens stop working immediately.",
   },
   {
-    title: "Mainnet — real value",
-    body: "Pay3 runs on Stellar mainnet. Only fund the allocation pot with amounts you accept spending. DeFi: get_swap_quote is read-only; execute_swap is opt-in per session and requires matching Soroswap + Stellar networks.",
+    title: "Testnet — play money",
+    body: "Pay3 runs on Stellar testnet. Fund the allocation pot with Friendbot XLM. DeFi: get_swap_quote is read-only; execute_swap is opt-in per session and requires matching Soroswap + Stellar networks.",
   },
 ] as const;

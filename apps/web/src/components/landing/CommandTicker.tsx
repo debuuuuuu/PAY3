@@ -49,8 +49,8 @@ export function CommandTicker() {
   );
 
   return (
-    <div ref={containerRef} className="mt-6 border-l border-white/10 pl-4 md:mt-7">
-      <p className="text-[10px] uppercase tracking-widest text-white/30">Try saying</p>
+    <div ref={containerRef} className="mt-8 pl-0 md:mt-10">
+      <p className="text-[13px] font-medium text-white/35">Try saying</p>
       <p
         ref={textRef}
         aria-live="polite"

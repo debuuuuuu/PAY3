@@ -6,12 +6,28 @@ import { useRef } from "react";
 import { Pay3Logo } from "@/components/ui/Logo";
 import { NAV_LINKS } from "@/lib/content";
 
-const SECURITY_ITEMS = [
-  { deny: true, text: "Cannot access the private key" },
-  { deny: true, text: "Cannot exceed spending limits" },
-  { deny: true, text: "Cannot use unknown contracts" },
-  { deny: true, text: "Cannot transfer outside policies" },
-  { deny: false, text: "Can only execute approved actions" },
+function CheckIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path
+        d="M2.5 7.2 5.4 10l6.5-6.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+const FEATURES = [
+  "Keys stay in Freighter — never in Pay3",
+  "AI spends only from the funded jar",
+  "Pay in XLM, USDC, and more currencies as we add them",
+  "Daily and per-tx caps on every session",
+  "Pay contacts by name — never guess an address",
+  "Only approved actions go on-chain",
+  "Revoke a session in one tap",
 ] as const;
 
 export function SecuritySection() {
@@ -32,40 +48,41 @@ export function SecuritySection() {
   );
 
   return (
-    <section ref={sectionRef} className="bg-pay3-gray-900 py-24 md:py-28">
+    <section ref={sectionRef} className="section-dark py-24 md:py-28">
+      <div
+        className="section-glow pointer-events-none absolute right-[8%] top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.14),transparent)] blur-3xl md:h-[28rem] md:w-[28rem]"
+        aria-hidden
+      />
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 md:grid-cols-2 md:px-12">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-white/35">
             Security first
           </p>
-          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight md:text-5xl">
+          <h2 className="mt-3 font-display text-[clamp(2.25rem,5vw,3.5rem)] font-bold tracking-[-0.04em] leading-[1.05]">
             The AI proposes.
             <br />
             Your policy decides.
           </h2>
-          <p className="mt-4 max-w-md text-white/50">
-            Every transaction is validated before execution. Session keys expire.
-            Limits are enforced on-chain through Soroban custom authentication.
+          <p className="mt-5 max-w-md text-[17px] leading-[1.47] text-white/55">
+            Every spend hits policy before it hits the chain. Sessions expire.
+            Ambiguous names wait for you. Revoke in one tap. XLM and USDC now;
+            more currencies on the same rails.
           </p>
         </div>
 
-        <ul className="space-y-3">
-          {SECURITY_ITEMS.map((item) => (
+        <ul className="glass-sheet overflow-hidden rounded-[28px]">
+          {FEATURES.map((text, i) => (
             <li
-              key={item.text}
+              key={text}
               data-security-item
-              className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.02] px-4 py-3"
+              className={`flex min-h-14 items-center gap-3.5 px-5 py-3.5 ${
+                i < FEATURES.length - 1 ? "border-b border-white/8" : ""
+              }`}
             >
-              <span
-                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs ${
-                  item.deny
-                    ? "bg-red-500/15 text-red-400"
-                    : "bg-white/10 text-white/80"
-                }`}
-              >
-                {item.deny ? "✕" : "✓"}
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#30D158]/15 text-[#30D158]">
+                <CheckIcon />
               </span>
-              <span className="text-sm text-white/70">{item.text}</span>
+              <span className="text-[17px] leading-snug text-white/85">{text}</span>
             </li>
           ))}
         </ul>
@@ -84,7 +101,7 @@ export function Footer() {
           <div className="flex flex-col items-center md:items-start">
             <Pay3Logo size={40} className="h-10 w-10 opacity-90" />
             <p className="mt-4 max-w-xs text-center text-sm text-white/40 md:text-left">
-              MCP-powered AI financial infrastructure on Stellar.
+              MCP-powered AI payments. XLM and USDC on testnet; more currencies next.
             </p>
           </div>
 
@@ -108,7 +125,7 @@ export function Footer() {
         </div>
 
         <p className="mt-12 text-center text-xs text-white/25 md:text-left">
-          © {year} Pay3. Built on Stellar · Soroban · MCP.
+          © {year} Pay3. XLM · USDC · more currencies coming · MCP.
         </p>
       </div>
     </footer>

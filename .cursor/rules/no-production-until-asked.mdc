@@ -1,0 +1,10 @@
+---
+description: Do not deploy or push to production unless the user explicitly asks.
+alwaysApply: true
+---
+
+# No production until asked
+
+Never push git remotes, never `vercel deploy --prod`, never run `deploy-api-vercel.mjs` / `vercel-push-web-env.mjs`, and never change production env unless the user explicitly asks to ship, deploy, or push production.
+
+Local `npm run dev` is fine.

@@ -530,7 +530,7 @@ export function ConnectWallet({
               freighterIssue === "missing"
                 ? "Install Freighter, refresh, then connect."
                 : freighterIssue === "insecure"
-                  ? "Freighter Settings → Preferences → Advanced → allow non-HTTPS. Set network to Mainnet. Or open the HTTPS site instead."
+                  ? "Freighter Settings → Preferences → Advanced → allow non-HTTPS. Set network to Testnet. Or open the HTTPS site instead."
                   : redundantFreighterMessage(error)
                     ? "Approve the Freighter popup, or use your phone."
                     : error
@@ -663,7 +663,7 @@ export function ConnectWallet({
         )}
 
         <p className="mt-4 text-center font-[family-name:var(--font-jetbrains-mono)] text-[10px] text-white/25">
-          Stellar mainnet · Freighter required for desktop
+          Stellar testnet · Freighter required for desktop
         </p>
       </div>
     </div>

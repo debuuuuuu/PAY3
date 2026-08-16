@@ -5,14 +5,14 @@ import { GUIDE_PAGES } from "@/lib/guide-content";
 export const metadata: Metadata = {
   title: "Guide — Pay3",
   description:
-    "How to use Pay3 on Stellar mainnet: Freighter, allocation pot, sessions, and Cursor MCP.",
+    "How to use Pay3 on Stellar testnet: Freighter, allocation pot, sessions, and Cursor MCP.",
 };
 
 export default function GuideIndexPage() {
   return (
     <article>
       <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/40">
-        Mainnet
+        Testnet
       </p>
       <h1 className="mt-3 font-[family-name:var(--font-space-grotesk)] text-4xl font-semibold tracking-tight md:text-5xl">
         How to use Pay3

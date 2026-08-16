@@ -137,7 +137,7 @@ async function signAuthMessage(
     address: publicKey,
     networkPassphrase:
       process.env.NEXT_PUBLIC_STELLAR_NETWORK ??
-      "Public Global Stellar Network ; September 2015",
+      "Test SDF Network ; September 2015",
   });
 
   if (signed.error || !signed.signedMessage) {
@@ -253,8 +253,8 @@ export async function signMessageWithFreighter(
 
 /**
  * Fund the AI jar directly from the primary Freighter wallet.
- * Builds a native payment (sourceWallet -> jar), signs it in Freighter, and
- * submits to Horizon. Returns the transaction hash on success.
+ * New testnet jars are not on Horizon until the first createAccount —
+ * so we use createAccount when the destination is missing (min 1 XLM).
  */
 export async function fundJarFromFreighter(
   destination: string,
@@ -269,25 +269,81 @@ export async function fundJarFromFreighter(
   const amountStr = amount.toFixed(7).replace(/\.?0+$/, "");
 
   const server = new Horizon.Server(HORIZON_URL);
-  const source = await server.loadAccount(sourcePublicKey);
-  const tx = new TransactionBuilder(source, {
-    fee: BASE_FEE,
-    networkPassphrase: STELLAR_NETWORK,
-  })
-    .addOperation(
-      Operation.payment({
+  let source;
+  try {
+    source = await server.loadAccount(sourcePublicKey);
+  } catch (err: unknown) {
+    const status =
+      err && typeof err === "object" && "response" in err
+        ? (err as { response?: { status?: number } }).response?.status
+        : undefined;
+    if (status === 404) {
+      throw new Error(
+        "Your Freighter account is not on testnet yet (or Freighter is on the wrong network). Switch Freighter to Testnet and fund it first."
+      );
+    }
+    throw err;
+  }
+
+  let destinationExists = true;
+  try {
+    await server.loadAccount(destination);
+  } catch (err: unknown) {
+    const status =
+      err && typeof err === "object" && "response" in err
+        ? (err as { response?: { status?: number } }).response?.status
+        : undefined;
+    if (status === 404) destinationExists = false;
+    else throw err;
+  }
+
+  // ponytail: first fund must createAccount; Stellar min ≈ 1 XLM base reserve
+  if (!destinationExists && amount < 1) {
+    throw new Error(
+      "This jar is new on testnet — send at least 1 XLM the first time to create the account."
+    );
+  }
+
+  const op = destinationExists
+    ? Operation.payment({
         destination,
         asset: Asset.native(),
         amount: amountStr,
       })
-    )
+    : Operation.createAccount({
+        destination,
+        startingBalance: amountStr,
+      });
+
+  const tx = new TransactionBuilder(source, {
+    fee: BASE_FEE,
+    networkPassphrase: STELLAR_NETWORK,
+  })
+    .addOperation(op)
     .setTimeout(120)
     .build();
 
-  const signedXdr = await signTransactionWithFreighter(tx.toXDR(), sourcePublicKey);
+  const signedXdr = await signTransactionWithFreighter(
+    tx.toXDR(),
+    sourcePublicKey
+  );
   const signed = TransactionBuilder.fromXDR(signedXdr, STELLAR_NETWORK);
-  const result = await server.submitTransaction(signed);
-  return result.hash;
+  try {
+    const result = await server.submitTransaction(signed);
+    return result.hash;
+  } catch (err: unknown) {
+    const detail =
+      err && typeof err === "object" && "response" in err
+        ? (err as { response?: { data?: { detail?: string; title?: string; extras?: { result_codes?: unknown } } } })
+            .response?.data
+        : undefined;
+    if (detail?.detail || detail?.title) {
+      throw new Error(
+        detail.detail ?? detail.title ?? "Horizon rejected the funding transaction"
+      );
+    }
+    throw err;
+  }
 }
 
 /** Sign a Soroban/classic transaction XDR (add_session / revoke_session). */
@@ -299,7 +355,7 @@ export async function signTransactionWithFreighter(
     address: publicKey,
     networkPassphrase:
       process.env.NEXT_PUBLIC_STELLAR_NETWORK ??
-      "Public Global Stellar Network ; September 2015",
+      "Test SDF Network ; September 2015",
   });
   if (signed.error || !signed.signedTxXdr) {
     throw new Error(

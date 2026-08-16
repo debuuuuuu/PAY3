@@ -19,12 +19,15 @@ export function HowItWorks() {
         scrollTrigger: { trigger: sectionRef.current, start: "top 80%" },
       });
 
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
       gsap.utils.toArray<HTMLElement>("[data-how-card]").forEach((card, i) => {
         gsap.from(card, {
-          y: 50,
+          y: reduced ? 0 : 40,
+          scale: reduced ? 1 : 0.96,
           opacity: 0,
-          duration: 0.7,
-          delay: i * 0.1,
+          duration: reduced ? 0.2 : 0.75,
+          delay: i * 0.08,
           ease: "power3.out",
           scrollTrigger: { trigger: card, start: "top 85%" },
         });
@@ -37,44 +40,47 @@ export function HowItWorks() {
     <section
       id="how-it-works"
       ref={sectionRef}
-      className="section-light py-24 md:py-32"
+      className="section-light relative overflow-hidden py-28 md:py-36"
     >
+      <div
+        className="section-glow pointer-events-none absolute left-1/2 top-10 h-72 w-[min(42rem,90vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.95),rgba(210,216,230,0.35)_55%,transparent)] blur-2xl"
+        aria-hidden
+      />
       <div className="mx-auto max-w-7xl px-6 md:px-12">
         <h2
           data-how-title
-          className="text-center font-display text-4xl font-bold tracking-tight md:text-5xl"
+          className="text-center font-display text-[clamp(2.25rem,5vw,3.5rem)] font-bold tracking-[-0.04em] text-black"
         >
           Connect Pay3 in three steps
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-center text-sm text-black/45">
-          From MCP config to live Stellar transactions — under a minute.
+        <p className="mx-auto mt-4 max-w-md text-center text-[17px] leading-[1.47] text-black/45">
+          Fund a jar. Set limits. Let the agent pay — in the currency you allow.
         </p>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
+        <div className="mt-14 grid items-stretch gap-4 md:grid-cols-3 md:gap-5">
           {HOW_IT_WORKS.map((item) => (
             <article
               key={item.step}
               data-how-card
-              className="flex flex-col rounded-3xl border border-black/8 bg-white p-6 shadow-sm md:p-8"
+              className="flex flex-col overflow-hidden rounded-[32px] bg-white shadow-[0_1px_0_rgba(255,255,255,1)_inset,0_12px_40px_rgba(0,0,0,0.06)]"
             >
-              <div className="flex items-start justify-between">
-                <span className="font-mono text-sm text-black/40">{item.step}</span>
-                {"badge" in item && item.badge && (
-                  <span className="rounded-full bg-black px-3 py-1 text-[10px] font-medium text-white">
-                    {item.badge}
+              <div className="px-7 pt-7 md:px-8 md:pt-8">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-[13px] font-semibold text-white">
+                    {item.step}
                   </span>
-                )}
+                  <span className="text-[13px] font-medium text-black/40">{item.kicker}</span>
+                </div>
+                <h3 className="mt-5 font-display text-[1.65rem] font-bold leading-[1.15] tracking-[-0.03em] text-black">
+                  {item.title}
+                </h3>
+                <p className="mt-2.5 min-h-[4.5rem] text-[15px] leading-[1.45] text-black/50">
+                  {item.description}
+                </p>
               </div>
 
-              <h3 className="mt-6 font-display text-xl font-bold leading-snug text-black md:text-2xl">
-                {item.title}
-              </h3>
-              <p className="mt-3 text-sm leading-relaxed text-black/55">
-                {item.description}
-              </p>
-
-              <div className="mt-8 flex flex-1 items-end">
-                <FeaturePanel screen={item.screen as PanelScreen} className="max-w-none" />
+              <div className="mt-auto px-4 pb-4 pt-2 md:px-5 md:pb-5">
+                <FeaturePanel screen={item.screen as PanelScreen} nested />
               </div>
             </article>
           ))}

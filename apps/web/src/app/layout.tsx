@@ -25,9 +25,9 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ??
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
   ),
-  title: "Pay3 — AI-Native Finance on Stellar",
+  title: "Pay3 — AI-Native Finance",
   description:
-    "Pay3 is the MCP-powered bridge between AI assistants and Stellar finance. Session keys, policy engine, DeFi integrations, and autonomous payments.",
+    "Pay3 is the MCP-powered bridge between AI assistants and crypto payments. XLM and USDC today, more currencies next — session keys, policy engine, autonomous spend.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -40,15 +40,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Pay3 — Delegate. Validate. Execute.",
     description:
-      "MCP-powered AI financial infrastructure on Stellar. Session keys, policy engine, DeFi integrations.",
+      "MCP-powered AI payments in XLM, USDC, and more. Session keys, policy engine, autonomous spend.",
     images: [{ url: "/pay3-logo.png", width: 512, height: 512, alt: "Pay3" }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pay3 — AI-Native Finance on Stellar",
+    title: "Pay3 — AI-Native Finance",
     description:
-      "Give AI assistants financial superpowers on Stellar — inside programmable policies.",
+      "Give AI assistants financial superpowers — XLM, USDC, and more — inside programmable policies.",
     images: ["/pay3-logo.png"],
     creator: "@PAYThreeWallet",
   },

@@ -2,7 +2,7 @@
 
 export const STELLAR_NETWORK =
   process.env.NEXT_PUBLIC_STELLAR_NETWORK ??
-  "Public Global Stellar Network ; September 2015";
+  "Test SDF Network ; September 2015";
 
 export const IS_MAINNET = STELLAR_NETWORK.includes("Public");
 

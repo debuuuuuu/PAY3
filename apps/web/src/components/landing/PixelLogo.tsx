@@ -6,7 +6,7 @@ import { extractLogoPixels, type PixelGrid } from "@/lib/pixel-logo";
 import Image from "next/image";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-const ORBIT_LABELS = ["MCP", "Stellar", "Soroban", "Policy", "Session Keys"] as const;
+const ORBIT_LABELS = ["MCP", "XLM", "USDC", "Policy", "Session Keys"] as const;
 
 type PixelLogoProps = {
   pixelSize?: number;

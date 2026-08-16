@@ -36,14 +36,14 @@ function PanelBody({ screen, compact = false }: { screen: PanelScreen; compact?:
           <p className="text-center text-white/25">↓ mcp tool call</p>
           <div className="rounded-lg border border-white/12 bg-white/[0.04] p-3">
             <p className="text-white/90">pay3.wallet.transfer()</p>
-            <p className="mt-1 text-white/50">amount: 5 USDC · to: john.stellar</p>
+            <p className="mt-1 text-white/50">amount: 5 USDC · to: john</p>
           </div>
           <p className="text-center text-white/25">↓ policy engine</p>
           <div className="rounded-lg border border-white/12 bg-white/[0.04] p-3">
             <p className="text-white/80">✓ within daily budget</p>
             <p className="text-white/80">✓ session key valid</p>
           </div>
-          <p className="text-center text-white/25">↓ stellar</p>
+          <p className="text-center text-white/25">↓ settle</p>
           <div className="rounded-lg border border-white/8 bg-white/[0.03] p-3">
             <p className="text-white/80">TX confirmed · 3.2s</p>
           </div>
@@ -154,7 +154,7 @@ function PanelBody({ screen, compact = false }: { screen: PanelScreen; compact?:
           </div>
           <div className="mt-3 flex items-center gap-2 text-[10px]">
             <span className="rounded bg-white/10 px-2 py-0.5 text-white/70">policy ✓</span>
-            <span className="text-white/40">→ settled on Stellar</span>
+            <span className="text-white/40">→ settled · USDC</span>
           </div>
         </div>
       );
@@ -179,47 +179,71 @@ function PanelBody({ screen, compact = false }: { screen: PanelScreen; compact?:
       );
     case "config":
       return (
-        <div className="font-mono text-[10px]">
-          <p className="text-white/40">claude_desktop_config.json</p>
-          <pre className="mt-3 overflow-hidden rounded-lg bg-black/40 p-3 text-white/75 leading-relaxed">
-            {`{
-  "mcpServers": {
-    "pay3": {
-      "command": "npx",
-      "args": ["-y", "@pay3/mcp"]
-    }
-  }
-}`}
-          </pre>
+        <div>
+          <p className="text-[11px] font-medium text-white/40">Allocation jar</p>
+          <p className="mt-1 font-mono text-[11px] text-white/35">GABC…XOQ4</p>
+          <div className="mt-3 space-y-2">
+            {[
+              { asset: "XLM", amount: "12.40" },
+              { asset: "USDC", amount: "5.00" },
+            ].map((row) => (
+              <div
+                key={row.asset}
+                className="flex items-center justify-between rounded-xl bg-white/[0.06] px-3 py-2.5"
+              >
+                <span className="text-[13px] font-medium text-white/90">{row.asset}</span>
+                <span className="font-mono text-[13px] text-white/70">{row.amount}</span>
+              </div>
+            ))}
+          </div>
         </div>
       );
     case "policy-setup":
       return (
-        <div className="font-mono text-[10px]">
-          <p className="text-white/40">policy-engine — create session</p>
-          <div className="mt-3 space-y-2">
-            {["spend_limit: 2000 USDC/day", "protocols: [blend, phoenix]", "expires: 24h"].map(
-              (line) => (
-                <div key={line} className="rounded-md border border-dashed border-white/15 px-3 py-2 text-white/60">
-                  {line}
-                </div>
-              )
-            )}
+        <div>
+          <p className="text-[11px] font-medium text-white/40">Allowed assets</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {["XLM", "USDC"].map((asset) => (
+              <span
+                key={asset}
+                className="rounded-full bg-white/15 px-3 py-1 text-[12px] font-medium text-white"
+              >
+                {asset}
+              </span>
+            ))}
+            <span className="rounded-full bg-white/[0.06] px-3 py-1 text-[12px] font-medium text-white/40">
+              + more
+            </span>
           </div>
-          <p className="mt-4 text-white/60">→ session key issued</p>
+          <div className="mt-3 space-y-2 text-[12px]">
+            <div className="flex justify-between rounded-xl bg-white/[0.06] px-3 py-2.5">
+              <span className="text-white/45">Daily cap</span>
+              <span className="text-white/85">2,000</span>
+            </div>
+            <div className="flex justify-between rounded-xl bg-white/[0.06] px-3 py-2.5">
+              <span className="text-white/45">Per tx</span>
+              <span className="text-white/85">200</span>
+            </div>
+          </div>
         </div>
       );
     case "ready":
       return (
-        <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/[0.06] text-white/80">
-            ✓
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-[11px] text-white">
+              ✓
+            </span>
+            <p className="text-[13px] font-medium text-white/90">Agent connected</p>
           </div>
-          <p className="mt-4 font-display text-sm font-semibold">Agent connected</p>
-          <p className="mt-2 font-mono text-[10px] text-white/45">
-            pay3-mcp-server · listening on stdio
-          </p>
-          <p className="mt-4 font-mono text-[10px] text-white/60">&gt; awaiting commands_</p>
+          <div className="mt-3 space-y-2 font-mono text-[11px]">
+            <p className="rounded-xl bg-white/[0.06] px-3 py-2.5 text-white/70">
+              &gt; pay Hurain 0.5 XLM
+            </p>
+            <p className="rounded-xl bg-white/[0.06] px-3 py-2.5 text-white/70">
+              &gt; pay Debjit 5 USDC
+            </p>
+          </div>
         </div>
       );
     default:
@@ -232,11 +256,13 @@ export function FeaturePanel({
   title,
   className = "",
   embedded = false,
+  nested = false,
 }: {
   screen: PanelScreen;
   title?: string;
   className?: string;
   embedded?: boolean;
+  nested?: boolean;
 }) {
   const labels: Record<PanelScreen, string> = {
     flow: "pay3 — live transaction",
@@ -246,28 +272,28 @@ export function FeaturePanel({
     defi: "defi-integrations",
     payments: "merchant-payments",
     network: "agent-network",
-    config: "mcp-config",
-    "policy-setup": "policy-setup",
-    ready: "pay3-mcp-server",
+    config: "jar",
+    "policy-setup": "session",
+    ready: "cursor",
   };
 
+  const shell = nested
+    ? `w-full overflow-hidden rounded-[22px] bg-[#1c1c1e] ${className}`
+    : embedded
+      ? `w-full overflow-hidden rounded-xl border border-white/10 bg-black/40 ${className}`
+      : `w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-pay3-gray-900 shadow-2xl ${className}`;
+
   return (
-    <div
-      className={
-        embedded
-          ? `w-full overflow-hidden rounded-xl border border-white/10 bg-black/40 ${className}`
-          : `w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-pay3-gray-900 shadow-2xl ${className}`
-      }
-    >
-      <div className="flex items-center gap-2 border-b border-white/8 bg-white/[0.03] px-4 py-3">
-        <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-        <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
-        <span className="ml-2 font-mono text-[10px] text-white/40">
+    <div className={shell}>
+      <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-4 py-2.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+        <span className="ml-2 text-[12px] font-medium tracking-[-0.01em] text-white/40">
           {title ?? labels[screen]}
         </span>
       </div>
-      <div className={embedded ? "p-3" : "p-5"}>
+      <div className={embedded ? "p-3" : nested ? "min-h-[11.5rem] p-4" : "p-5"}>
         <PanelBody screen={screen} compact={embedded && screen === "flow"} />
       </div>
     </div>
