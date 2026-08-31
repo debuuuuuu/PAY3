@@ -1,45 +1,54 @@
 <div align="center">
 
-<img src="docs/assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute. MCP-powered finance on Stellar" width="100%" />
+<img src="docs/assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute. The Security Layer Between AI and Money" width="100%" />
 
 # Pay3
 
 ### Delegate. Validate. Execute.
 
-**Safe allowance for AI money on Stellar** — MCP-powered finance without handing your Freighter key to a model.
+**The security and payment infrastructure for AI agents across multiple blockchains.**  
+Policy-gated AI finance via Model Context Protocol (MCP) without handing your primary wallet keys to an AI model.
 
-You keep the big wallet. The AI spends from a **small pot** with **rules you set**.
+<br/>
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  CURRENT STATUS: Stellar Mainnet (Live) • Algorand Mainnet & x402 (Target Architecture)          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
 
 <br/>
 
 <a href="https://paythreewallet.vercel.app"><img src="https://img.shields.io/badge/Web-Live%20on%20Mainnet-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Web" /></a>
 <a href="https://pay3-api.vercel.app/health"><img src="https://img.shields.io/badge/API-Healthy-111111?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="API" /></a>
-<a href="https://stellar.org"><img src="https://img.shields.io/badge/Stellar-Public%20Mainnet-7D00FF?style=for-the-badge&logo=stellar&logoColor=white" alt="Mainnet" /></a>
+<a href="https://stellar.org"><img src="https://img.shields.io/badge/Stellar-Public%20Mainnet%20(Live)-7D00FF?style=for-the-badge&logo=stellar&logoColor=white" alt="Stellar Live" /></a>
+<a href="docs/ALGORAND_X402.md"><img src="https://img.shields.io/badge/Algorand-Mainnet%20(Target%20Spec)-000000?style=for-the-badge&logo=algorand&logoColor=white" alt="Algorand Target" /></a>
+<a href="docs/ALGORAND_X402.md"><img src="https://img.shields.io/badge/x402-GoPlausible%20(Target%20Spec)-222222?style=for-the-badge" alt="x402 Target" /></a>
 <a href="https://x.com/PAYThreeWallet"><img src="https://img.shields.io/badge/X-@PAYThreeWallet-000000?style=for-the-badge&logo=x&logoColor=white" alt="X / Twitter" /></a>
-<a href="https://github.com/debuuuuuu/PAY3"><img src="https://img.shields.io/badge/GitHub-debuuuuuu%2FPAY3-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
 <a href="https://pay3.mintlify.site"><img src="https://img.shields.io/badge/Docs-pay3.mintlify.site-000000?style=for-the-badge" alt="Docs" /></a>
-<a href="https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing"><img src="https://img.shields.io/badge/Pitch-Slides%20deck-C43E1C?style=for-the-badge&logo=googleslides&logoColor=white" alt="Pitch deck" /></a>
-<a href="docs/WHAT_IS_PAY3.md"><img src="https://img.shields.io/badge/Guide-Kid%20friendly-222222?style=for-the-badge" alt="Guide" /></a>
-<a href="docs/readme.html"><img src="https://img.shields.io/badge/HTML-CSS%20README-333333?style=for-the-badge" alt="HTML README" /></a>
 
 <br/>
 
 <p>
-  <a href="https://paythreewallet.vercel.app"><strong>Website</strong></a>
+  <a href="https://paythreewallet.vercel.app"><strong>Live App</strong></a>
   ·
-  <a href="https://pay3-api.vercel.app/health"><strong>API</strong></a>
+  <a href="https://pay3-api.vercel.app/health"><strong>API Health</strong></a>
   ·
-  <a href="https://x.com/PAYThreeWallet"><strong>X @PAYThreeWallet</strong></a>
+  <a href="docs/ARCHITECTURE.md"><strong>Architecture</strong></a>
   ·
-  <a href="https://github.com/debuuuuuu/PAY3"><strong>GitHub</strong></a>
+  <a href="docs/MULTI_CHAIN.md"><strong>Multi-Chain Spec</strong></a>
   ·
-  <a href="mailto:pay3wallet@gmail.com"><strong>Contact</strong></a>
+  <a href="docs/ALGORAND_X402.md"><strong>Algorand & x402 Spec</strong></a>
   ·
-  <a href="https://pay3.mintlify.site"><strong>Docs</strong></a>
+  <a href="docs/SECURITY.md"><strong>Security Threat Model</strong></a>
   ·
-  <a href="https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing"><strong>Pitch deck</strong></a>
+  <a href="docs/REVENUE_MODEL.md"><strong>Revenue Model</strong></a>
   ·
-  <a href="docs/readme.html"><strong>HTML README</strong></a>
+  <a href="docs/MCP_SETUP.md"><strong>MCP Setup</strong></a>
+  ·
+  <a href="docs/STATUS_REPORT.md"><strong>Status Matrix</strong></a>
+  ·
+  <a href="docs/ROADMAP.md"><strong>Roadmap</strong></a>
 </p>
 
 </div>
@@ -47,586 +56,509 @@ You keep the big wallet. The AI spends from a **small pot** with **rules you set
 ---
 
 <details open>
-<summary><strong>Table of contents</strong></summary>
+<summary><strong>Table of Contents</strong></summary>
 
-1. [Project Title](#project-title)
-2. [Project Description](#project-description)
-3. [Contract Address](#contract-address)
-4. [What is Pay3?](#what-is-pay3)
-5. [Live on mainnet](#live-on-mainnet)
-6. [Demo proof & traction](#demo-proof--traction)
-7. [What’s new](#whats-new)
-8. [Pitch deck](#pitch-deck)
-9. [Why it exists](#why-it-exists)
-10. [System design](#system-design)
-11. [Request lifecycle](#request-lifecycle)
-12. [Monorepo map](#monorepo-map)
-13. [Custody model](#custody-model)
-14. [MCP tools](#mcp-tools)
-15. [Security house rules](#security-house-rules)
-16. [Tech stack](#tech-stack)
-17. [Quick start](#quick-start)
-18. [Production](#production)
-19. [Community & links](#community--links)
-20. [Documentation](#documentation)
-21. [Status](#status)
+1. [What is Pay3?](#what-is-pay3)
+2. [Why Pay3 Exists](#why-pay3-exists)
+3. [Architectural Comparison: Why Pay3?](#architectural-comparison-why-pay3)
+4. [The AI Jar Model (Core Security Primitive)](#the-ai-jar-model-core-security-primitive)
+5. [End-to-End Example: AI Agent Paying for an API](#end-to-end-example-ai-agent-paying-for-an-api)
+6. [Multi-Chain Vision](#multi-chain-vision)
+7. [Deterministic Chain Selection](#deterministic-chain-selection)
+8. [MCP: The Unified AI Interface](#mcp-the-unified-ai-interface)
+9. [x402 Protocol & GoPlausible Facilitator](#x402-protocol--goplausible-facilitator)
+10. [x402 Dual Capability: Pay & Receive](#x402-dual-capability-pay--receive)
+11. [Security Architecture & Permissions Boundary](#security-architecture--permissions-boundary)
+12. [Security House Rules](#security-house-rules)
+13. [Unknown ASA Approval Governance](#unknown-asa-approval-governance)
+14. [Revenue Model & Business Architecture](#revenue-model--business-architecture)
+15. [What Pay3 Does NOT Do](#what-pay3-does-not-do)
+16. [Tech Stack](#tech-stack)
+17. [Quick Start (Local Development)](#quick-start-local-development)
+18. [Production & Mainnet Status Matrix](#production--mainnet-status-matrix)
+19. [Documentation Suite](#documentation-suite)
+20. [Roadmap](#roadmap)
 
 </details>
 
 ---
 
-## Project Title
-
-**Pay3** — *Delegate. Validate. Execute.*
-
----
-
-## Project Description
-
-Pay3 is a **policy-gated payment layer for AI agents on Stellar**. Users connect Freighter on **public mainnet**, fund a separate **allocation jar**, set spending rules, and let Cursor/Claude call MCP tools (`transfer`, `get_balance`, `get_history`, swap, x402) — without handing the model their main wallet keys.
-
-Every payment passes the **policy engine** (AUTO / APPROVAL / REJECT) before settling on-chain. Optional **Zipper Soroban smart-account** custody (`contracts/smart-account`) adds on-chain session caps via CAP-71 `__check_auth`.
-
-**Live:** [paythreewallet.vercel.app](https://paythreewallet.vercel.app) · **Network:** Stellar public mainnet
-
----
-
-## Contract Address
-
-| Contract | Network | Address | Status |
-|:---------|:--------|:--------|:-------|
-| **Native XLM (SAC)** | Stellar mainnet | `CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA` | ✅ Stellar standard — used for jar funding / transfers |
-| **Native USDC (SAC)** | Stellar mainnet | `CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75` | ✅ Soroswap / asset path when enabled |
-| **Pay3 Smart Account (Zipper)** | Stellar mainnet | [`CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO`](https://stellar.expert/explorer/public/contract/CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO) | ✅ Deployed — opt-in via `POST /smart-account/enable-contract-custody` |
-| **User allocation jar** | Stellar mainnet | Per-user `G…` address | ✅ Default custody today (legacy G-account, encrypted at rest) |
-
-> **Honest status (checked 2026-07-27):** Production still defaults to **legacy G-account jars** for all users. The Zipper canary contract is **deployed on mainnet** (`CAIID…T3OO`); opt-in per user via `POST /smart-account/enable-contract-custody`. Verify: `node scripts/verify-contract.mjs`. See [`docs/SOROBAN_SETUP.md`](docs/SOROBAN_SETUP.md).
-
-**WASM hash (Zipper build):** `842c28f0f4db756cfbe259553993fd1045c0df32966b4bebff9d94720490e5e0`
-
----
-
 ## What is Pay3?
 
-<table>
-<tr>
-<td width="55%">
+**Pay3 is the security and payment infrastructure for AI agents across multiple blockchains.**
 
-**One sentence:** Pay3 is the **security layer between AI and money**.
+Pay3 provides autonomous AI agents (in Cursor, Claude Desktop, or custom agent frameworks) with policy-gated access to on-chain capital via the **Model Context Protocol (MCP)**—without ever exposing the user's primary wallet private keys to an LLM.
 
-Someone can tell Cursor or Claude: *“Pay Alice 1 XLM”* — and funds move on Stellar **only** if:
-
-- the money is in the **AI jar** (not your main wallet),
-- the **session** allows it,
-- the **policy engine** says AUTO (or you approve),
-- the **recipient** is unambiguous.
-
-</td>
-<td width="45%">
-
-| Actor | Role |
-|:------|:-----|
-| **You** | Own Freighter, set rules, fund jar |
-| **AI** | Calls MCP tools with a hall-pass token |
-| **Pay3 API** | Auth, policy, signing, audit |
-| **Stellar** | Settlement |
-
-</td>
-</tr>
-</table>
-
-> **Docs site:** **[https://pay3.mintlify.site](https://pay3.mintlify.site)**  
-> New here? Also read the plain-language story: **[`docs/WHAT_IS_PAY3.md`](docs/WHAT_IS_PAY3.md)**  
-> Prefer a glossy local page? Open **[`docs/readme.html`](docs/readme.html)** in a browser.  
-> Pitch / judges deck: **[Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing)**
-
----
-
-## Live on mainnet
-
-**Pay3 is live on Stellar public mainnet** — not testnet-only.
-
-| | |
-|:--|:--|
-| **Network** | `Public Global Stellar Network ; September 2015` |
-| **Web** | [paythreewallet.vercel.app](https://paythreewallet.vercel.app) |
-| **API** | [pay3-api.vercel.app](https://pay3-api.vercel.app/health) |
-| **Freighter** | Switch to **Mainnet** before connect / fund |
-| **Ops** | [`docs/PRODUCTION.md`](docs/PRODUCTION.md) |
-
-Native XLM transfers settle on mainnet Horizon. Soroswap quote/execute follows mainnet pools when enabled. Only fund the AI jar with amounts you accept spending.
-
----
-
-## Demo proof & traction
-
-Judge / demo snapshot (Stellar **mainnet**):
-
-| Proof | Detail |
-|:------|:-------|
-| **Active mainnet users** | Production wallets linked on Stellar public mainnet (Freighter → jar → session path) |
-| **Live product** | Dashboard + API healthy in production |
-| **AI spend path** | MCP `transfer` / balance / history against the allocation pot |
-| **On-chain canary** | Zipper Soroban smart-account contract + Rust tests + CI |
-
-> Proof pack for judges: **[`docs/pitch/proof/`](docs/pitch/proof/)** (live links, traction cards, optional tx hashes).
-
----
-
-## What’s new
-
-Recent additions on top of the core Freighter → jar → policy → MCP flow:
-
-| Area | What’s in |
-|:-----|:----------|
-| **Mainnet production** | Horizon + Soroban RPC mainnet; Freighter mainnet UX |
-| **Zipper smart account** | Soroban `Pay3SmartAccount` — CAP-71 delegates, spend caps, `add_session` / `revoke_session` / `get_session` |
-| **Contract CI** | GitHub Actions: `cargo fmt` + `clippy` + `test` on `contracts/smart-account` |
-| **x402 payments** | MCP path for pay-per-request HTTP `402` flows |
-| **Soroswap** | `get_swap_quote` + opt-in `execute_swap` |
-| **Pitch deck** | Slides for demos / judges — [Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing) |
-
----
-
-## Pitch deck
-
-Presentation for demos, hackathons, and viva / judges:
-
-**[Pay3 — Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing)**
-
-Slides cover: problem → allowance model → mainnet live → active users → architecture → Zipper + policy → MCP demo → what’s next.
-
-Optional proof pack (live links + cards): [`docs/pitch/proof/`](docs/pitch/proof/).
-
----
-
-## Why it exists
-
-AI agents can chat — but payment rails were built for humans with credit cards and monthly SaaS.
-
-| Old world | Pay3 world |
-|:----------|:-----------|
-| Give the bot your whole wallet | Give the bot a **limited jar** |
-| Guess who “Alex” is | **Reject** ambiguous names |
-| Hope the model behaves | **Policy** + expiry + revoke |
-| Keys in prompts / frontends | Keys **encrypted at rest**, used only in API memory |
-
-**Production today = Stellar public mainnet.** Fund only what you are willing to let the AI spend.
-
----
-
-## System design
-
-<div align="center">
-<img src="docs/assets/pay3-system.png" alt="Pay3 system design diagram" width="100%" />
-</div>
-
-### High-level boxes
-
-```mermaid
-flowchart TB
-  subgraph Clients
-    WEB[Next.js Web + Dashboard]
-    AI[Cursor / Claude via MCP]
-    FW[Freighter Wallet]
-  end
-
-  subgraph Edge["API Edge — Express on Vercel"]
-    AUTH[Wallet auth / cookies]
-    SES[AI sessions + tokens]
-    MCP[Hosted MCP HTTP]
-    REST[REST: contacts, history, approvals]
-  end
-
-  subgraph Control["Off-chain control plane"]
-    POL[Policy Engine<br/>AUTO · APPROVAL · REJECT]
-    TX[Transaction Engine<br/>idempotency · smart retry]
-    REC[Recipient Resolver<br/>never guess]
-    SWAP[Soroswap quote / execute]
-  end
-
-  subgraph Data
-    DB[(Neon Postgres + Prisma)]
-    ENC[AES-GCM secret vault]
-  end
-
-  subgraph Chain["Stellar"]
-    G[Allocation G-account]
-    C[Zipper smart account C — canary]
-    HOR[Horizon / RPC]
-  end
-
-  FW --> WEB
-  WEB --> AUTH
-  AI --> MCP
-  AUTH --> SES
-  MCP --> POL
-  REST --> POL
-  POL --> TX
-  POL --> REC
-  TX --> SWAP
-  SES --> ENC
-  ENC --> DB
-  TX --> G
-  TX --> C
-  G --> HOR
-  C --> HOR
+```
+                          PAY3 IN ONE SENTENCE
+"Pay3 gives AI agents a dedicated spending allowance with strict,
+user-controlled policy rules across Stellar and Algorand, keeping
+the user's primary wallet completely isolated from the AI."
 ```
 
-### Deployment topology
-
-```mermaid
-flowchart LR
-  U[User browser] --> VWeb[Vercel Web<br/>paythreewallet.vercel.app]
-  VWeb -->|/api proxy| VApi[Vercel API<br/>pay3-api.vercel.app]
-  AI[AI host] -->|Bearer token| VApi
-  VApi --> Neon[(Neon)]
-  VApi --> Stellar[Stellar public mainnet]
-  VApi --> Soro[Soroswap API]
-```
-
-Same-origin `/api` proxy keeps Freighter session cookies first-party.
+- **Current Live Foundation**: Deployed on **Stellar Mainnet** with SEP-53 wallet authentication, isolated G-account jar custody, off-chain 3-level policy engine, and opt-in Zipper Soroban Smart Account execution.
+- **Next Production Target**: Expanding into a **Chain-Agnostic Core** with **Algorand Mainnet** settlement (native ALGO & USDC ASA `31566704`), **GoPlausible x402 facilitation**, and a unified multi-chain MCP contract.
 
 ---
 
-## Request lifecycle
+## Why Pay3 Exists
 
-### Human login
+AI models are increasingly tasked with autonomous workflows: booking infrastructure, calling paid data APIs, purchasing compute, and transacting with other agents. 
+
+However, connecting an AI agent to crypto capital today presents an unacceptable tradeoff:
+
+```
+                              THE DANGEROUS STATUS QUO
+┌────────────────────────┐                                            ┌────────────────────────┐
+│        AI AGENT        │ ──[ Gives Private Key to LLM ]───────────► │  PRIMARY CRYPTO WALLET │
+│ (Cursor, Claude, Auto) │                                            │   (User's Life Savings)│
+└────────────────────────┘                                            └────────────────────────┘
+                                                                                  │
+                                Prompt Injection / Model Hallucination / Bug      ▼
+                                                                        [ TOTAL ACCOUNT DRAIN ]
+```
+
+1. **Prompt Injections & Jailbreaks**: A compromised prompt or malicious webpage can instruct an agent to sweep its wallet.
+2. **Model Hallucinations & Infinite Loops**: A buggy reasoning loop can drain thousands of dollars in unmetered micro-transactions.
+3. **No Granular Delegation**: Traditional crypto wallets operate on binary trust—either you hold the private key and sign manually, or you give the bot raw signing authority.
+
+**Pay3 solves this by acting as the security boundary between AI and money.**
+
+---
+
+## Architectural Comparison: Why Pay3?
+
+| Capability | Traditional Crypto Wallet | AI Bot with Raw Keys | Pay3 Infrastructure |
+| :--- | :--- | :--- | :--- |
+| **Primary Wallet Key Isolation** | N/A (Manual human signing) | ❌ **No** (Key exposed to LLM) | ✅ **Yes** (Never stored or exposed) |
+| **AI Operates from Isolated Jar** | ❌ No | ❌ No (Direct wallet access) | ✅ **Yes** (Dedicated allowance account) |
+| **Enforced Policy Engine** | ❌ No (All-or-nothing) | ❌ No | ✅ **Yes** (AUTO / APPROVAL / REJECT) |
+| **Token-Denominated Limits** | ❌ No | ❌ No | ✅ **Yes** (Per-tx & daily budget caps) |
+| **Scoped & Revocable Sessions** | ❌ No | ❌ No | ✅ **Yes** (Time-bound, instant revocation)|
+| **Multi-Chain Abstraction** | Varies (Manual switching) | ❌ Chain-specific scripts | ✅ **Yes** (`ChainAdapter` Core) |
+| **Integrated x402 Micropayments**| ❌ No | ❌ Custom implementation | ✅ **Yes** (Client fetch + Receiving) |
+| **Automatic Primary Wallet Pulls**| Depends | ⚠️ **Dangerous** (Can drain all) | 🚫 **Strictly Prohibited** (Manual only) |
+| **Immutable Audit Logging** | Basic explorer history | ❌ Limited / None | ✅ **Yes** (Cryptographic event trail) |
+
+---
+
+## The AI Jar Model (Core Security Primitive)
+
+The central design pattern of Pay3 is the **AI Jar**:
+
+```
+                    ┌──────────────────────────────────────────────┐
+                    │    User's Primary Wallet (Freighter/Pera)    │
+                    │         • Holds user's main capital          │
+                    │         • Signs auth challenges only         │
+                    └──────────────────────┬───────────────────────┘
+                                           │
+                             Manual On-Chain Funding Only
+                            (User chooses amount to delegate)
+                                           │
+                                           ▼
+                    ┌──────────────────────────────────────────────┐
+                    │          Dedicated AI Spending Jar           │
+                    │   • Stellar G... / Algorand 58-char account  │
+                    │   • Contains strictly limited balance        │
+                    │   • CANNOT pull funds from primary wallet    │
+                    └──────────────────────┬───────────────────────┘
+                                           │
+                                           ▼
+                    ┌──────────────────────────────────────────────┐
+                    │                  PAY3 CORE                   │
+                    │    • Intercepts every MCP action             │
+                    │    • Evaluates session scope & expiry        │
+                    │    • Enforces token-denominated policy caps  │
+                    │    • Prevents replay via idempotency keys    │
+                    └──────────────────────┬───────────────────────┘
+                                           │
+                                           ▼
+                    ┌──────────────────────────────────────────────┐
+                    │         AI Agent (Cursor / Claude)           │
+                    │         • Spends within authorized rules     │
+                    │         • Zero access to private keys        │
+                    └──────────────────────────────────────────────┘
+```
+
+- **User retains ultimate control**: The user's primary wallet is safe.
+- **AI blast radius is strictly capped**: An AI can never lose more than the small balance in its dedicated jar.
+- **Zero Key Exfiltration**: Private keys/mnemonics are encrypted with AES-256-GCM at rest, loaded ephemerally into backend memory only during transaction signing, and are **never** returned in API or MCP responses.
+
+---
+
+## End-to-End Example: AI Agent Paying for an API
+
+Here is how an AI agent autonomously consumes a paywalled resource through Pay3 without handling raw cryptographic transactions:
+
+```
+Scenario: The user instructs Cursor or Claude:
+"Analyze the data from api.marketresearch.com/report and pay up to 2 USDC if required."
+```
 
 ```mermaid
 sequenceDiagram
-  participant U as User
-  participant W as Web
-  participant A as API
-  participant F as Freighter
-  participant D as Neon
-
-  U->>W: Open dashboard
-  W->>A: POST /auth/challenge {publicKey}
-  A->>D: Store nonce
-  A-->>W: nonce + message
-  W->>F: Sign message (not a payment)
-  F-->>W: signature
-  W->>A: POST /auth/verify
-  A->>D: Mark used · upsert user
-  A-->>W: httpOnly session cookies
+    autonumber
+    actor AI as AI Agent (MCP Client)
+    participant Pay3 as Pay3 Core Engine
+    participant API as Paywalled API Provider
+    participant Facilitator as GoPlausible / Algorand
+    
+    AI->>Pay3: x402_fetch(url="https://api.marketresearch.com/report", max_amount="2.00")
+    Pay3->>API: HTTP GET /report (Unauthenticated)
+    API-->>Pay3: HTTP 402 Payment Required (Price: 1.50 USDC, PayTo: ALGO_ADDR, Facilitator: GoPlausible)
+    Note over Pay3: 1. Parse x402 challenge<br/>2. Evaluate Policy: 1.50 <= 2.00 max AND <= daily budget<br/>3. Policy Decision: AUTO_EXECUTE
+    Pay3->>Facilitator: Execute 1.50 USDC ASA transfer on Algorand Mainnet
+    Facilitator-->>Pay3: Settlement Confirmed (TxID: 0x7a8f...)
+    Pay3->>API: HTTP GET /report + Header "X-Payment: algorand-tx=0x7a8f..."
+    API->>Facilitator: Verify TxID on-chain
+    Facilitator-->>API: Valid & Settled
+    API-->>Pay3: HTTP 200 OK + Market Report Data
+    Pay3-->>AI: Returns Report Data + Audit Receipt
 ```
 
-### AI payment (MCP)
+*The AI never touches a private key, never calculates gas, and cannot exceed the configured spending ceiling.*
 
-```mermaid
-sequenceDiagram
-  participant AI as AI agent
-  participant M as MCP / API
-  participant P as Policy
-  participant T as Tx Engine
-  participant S as Stellar
+---
 
-  AI->>M: transfer(recipient, amount)
-  M->>P: Evaluate session + limits + contacts
-  alt REJECT
-    P-->>AI: error (no spend)
-  else APPROVAL
-    P-->>AI: waiting for human approve
-  else AUTO
-    P->>T: Execute (idempotent key)
-    T->>S: Sign from jar / contract auth
-    S-->>T: tx hash
-    T-->>AI: success + receipt
-  end
+## Multi-Chain Vision
+
+Pay3 does not require an AI agent to use chain-specific tools like `stellar_pay()` or `algorand_pay()`. 
+
+**One unified Pay3 agent operates seamlessly across multiple blockchains:**
+
+```
+                                ONE AI AGENT
+                                     │
+                                     ▼
+                                 PAY3 CORE
+                                 /       \
+                      Stellar Adapter   Algorand Adapter
+                            │                  │
+                      XLM  /  USDC       ALGO  /  USDC
 ```
 
-### Policy decisions
-
-| Result | Meaning |
-|:-------|:--------|
-| **AUTO** | Within limits → execute |
-| **APPROVAL** | Needs human tap (expires ~2 min) |
-| **REJECT** | Hard no — **do not** financial-retry |
-
-Technical / RPC blips may retry (capped). Insufficient funds, policy deny, expired session → **no auto money retry**.
+> **Multi-Chain Principle**: Multi-chain capability is a core infrastructure primitive, not a separate product per blockchain. Adding a new blockchain to Pay3 expands agent capability without altering the AI-facing MCP tool contract.
 
 ---
 
-## Monorepo map
+## Deterministic Chain Selection
 
-```text
-pay3/
-├── apps/
-│   ├── web/              Next.js — landing (GSAP), dashboard, guide
-│   ├── api/              Express — auth, sessions, MCP HTTP, swaps
-│   └── mcp-server/       stdio MCP for local Cursor / Claude Desktop
-├── packages/
-│   ├── database/         Prisma schema → Neon
-│   ├── policy-engine/    3-level AUTO / APPROVAL / REJECT
-│   ├── session-manager/  AI session lifecycle
-│   ├── transaction-engine/
-│   ├── recipient-resolver/
-│   ├── stellar/          Horizon, Friendbot, Soroban helpers
-│   └── shared/           types & constants
-├── contracts/
-│   └── smart-account/    Soroban Zipper (Protocol 27 / CAP-71)
-├── docs/                 WHAT_IS_PAY3, architecture, security, …
-│   ├── assets/           Animated SVG banners + system diagram
-│   └── readme.html       Full CSS interactive README
-└── scripts/              deploy, smoke, canary
+When an AI agent invokes `pay()`, Pay3 resolves the target blockchain using a **strict 4-tier deterministic priority**:
+
+```
+1. Explicit Chain in Request   ──► e.g. pay(..., chain="algorand") selects Algorand
+               │ (if omitted)
+               ▼
+2. Asset-Specific Preference   ──► e.g. User preference: "USDC" defaults to Algorand
+               │ (if no asset rule)
+               ▼
+3. Global Default Preference   ──► e.g. User global default is Stellar
+               │ (if no preference)
+               ▼
+4. Prompt User / Reject        ──► "Ambiguous routing: please specify chain."
+                                   PAY3 NEVER GUESSES A FINANCIAL PARAMETER
 ```
 
-| Path | Responsibility |
-|:-----|:---------------|
-| `apps/web` | UI only — no business secrets |
-| `apps/api` | Trust boundary for money |
-| `packages/*` | Engines reusable / testable |
-| `contracts/smart-account` | On-chain `__check_auth` + sessions as Zipper delegates |
+*Safety Rule: Explicit chain selection directs routing, but **never** bypasses policy limits.*
 
 ---
 
-## Custody model
+## MCP: The Unified AI Interface
 
-<div align="center">
+Pay3 exposes an intentionally simple, unified toolset via the **Model Context Protocol (MCP v1.18.0)**:
 
-| Layer | What | Default today |
-|:------|:-----|:--------------|
-| **Primary** | Freighter G-address | Never stored by Pay3 |
-| **AI jar (legacy)** | Separate G-account, secret AES-GCM in Neon | ✅ Default |
-| **AI jar (Zipper)** | Soroban C-account, CAP-71 delegates | 🟡 Opt-in canary — [`CAIID…T3OO`](https://stellar.expert/explorer/public/contract/CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO) deployed |
+### Target Unified MCP Contract
 
-</div>
+```typescript
+// 1. Unified Payment Execution Tool
+pay({
+  recipient: string;              // Contact name ("Alice") or G... / 58-char Algorand address
+  amount: string;                 // Decimal amount e.g. "5.00"
+  asset: string;                  // Symbol: "USDC", "ALGO", "XLM"
+  chain?: "algorand" | "stellar"; // Optional (resolved via preference hierarchy)
+  idempotency_key?: string;       // Replay prevention deduplication key
+})
 
-```text
-Freighter (you)  ──manual fund──►  Allocation G… or Contract C…
-                                         │
-                                         ▼
-                              AI session (encrypted key + policy + expiry)
-                                         │
-                                         ▼
-                              MCP tools (balance / transfer / swap / history)
+// 2. Multi-Chain Unified Balance Tool
+get_balance({
+  chain?: "algorand" | "stellar"; // Optional filter (omitted = multi-chain overview)
+  asset?: string;                 // Optional asset filter
+})
+
+// 3. Multi-Chain Transaction History Tool
+get_history({
+  chain?: "algorand" | "stellar"; // Optional chain filter
+  limit?: number;                 // Maximum records (default 20)
+})
+
+// 4. Automatic x402 HTTP Resource Fetch Tool
+x402_fetch({
+  url: string;                    // Target paywalled URL
+  max_amount?: string;            // Maximum authorized payment upon 402 challenge
+  chain?: "algorand" | "stellar"; // Optional preferred settlement chain
+  idempotency_key?: string;
+})
 ```
 
-Rebuild WASM → refresh `PAY3_ALLOWED_WASM_HASHES`. See [`docs/SOROBAN_SETUP.md`](docs/SOROBAN_SETUP.md).
+*For complete client setup with Cursor and Claude Desktop, see [`docs/MCP_SETUP.md`](docs/MCP_SETUP.md).*
 
 ---
 
-## MCP tools
+## x402 Protocol & GoPlausible Facilitator
 
-Hosted: `POST https://pay3-api.vercel.app/mcp` with `Authorization: Bearer <session token>`.
+Pay3 integrates the open **x402 payment standard** to allow autonomous micro-settlement for web services:
 
-| Tool | Kind | Notes |
-|:-----|:-----|:------|
-| `get_balance` | Read | Jar balance |
-| `get_transaction_history` | Read | Recent txs |
-| `transfer` | Spend | Contacts / address; policy gated |
-| `get_swap_quote` | Read | Soroswap quote |
-| `execute_swap` | Spend | **Opt-in** permission; network must align |
+1. **Detection**: Client issues an HTTP request; receiving server responds with `HTTP 402 Payment Required`.
+2. **Interpretation**: Pay3 decodes the required amount, asset, recipient `payTo`, and facilitator.
+3. **Policy Gate**: Pay3 verifies the payment does not violate session scopes or token budgets.
+4. **Settlement**: Pay3 executes settlement on **Algorand Mainnet** coordinated via the **GoPlausible Facilitator**.
+5. **Proof Delivery**: Pay3 retries the original request with the `X-Payment: algorand-tx=<txid>` proof header.
+6. **Delivery**: The paid service verifies the transaction on-chain and delivers the resource.
 
-Setup: [`docs/MCP_SETUP.md`](docs/MCP_SETUP.md)
-
----
-
-## Security house rules
-
-These are non-negotiable (see [`docs/SECURITY.md`](docs/SECURITY.md)):
-
-<table>
-<tr><td>🚫</td><td>Never store the user's <strong>primary</strong> Freighter private key</td></tr>
-<tr><td>🚫</td><td>Never expose AI session secrets to frontend, models, or API responses</td></tr>
-<tr><td>🚫</td><td>Never guess ambiguous recipients — reject and ask</td></tr>
-<tr><td>🚫</td><td>Never auto-retry financial failures (funds / policy / expired session)</td></tr>
-<tr><td>✅</td><td>Every session expires and is individually revocable</td></tr>
-<tr><td>✅</td><td>Every spend passes policy; transfers are idempotent</td></tr>
-<tr><td>✅</td><td>Main wallet funds stay isolated from the AI jar</td></tr>
-</table>
+*Deep technical details: [`docs/ALGORAND_X402.md`](docs/ALGORAND_X402.md).*
 
 ---
 
-## Tech stack
+## x402 Dual Capability: Pay & Receive
 
-<table>
-<tr>
-<td>
+Pay3 provides bidirectional x402 infrastructure:
 
-**Product**
-- Next.js (App Router)
-- Express API
-- Prisma + Neon Postgres
-- Freighter wallet auth
+```
+┌──────────────────────────────────────────────┐  ┌──────────────────────────────────────────────┐
+│             PAY (Outbound Spend)             │  │            RECEIVE (Monetization)            │
+├──────────────────────────────────────────────┤  ├──────────────────────────────────────────────┤
+│ AI Agent needs to consume external data/API. │  │ Developer or AI Agent sells their own API.   │
+│                                              │  │                                              │
+│ AI ──► Pay3 ──► HTTP 402 ──► Settle ──► Data │  │ Client ──► Pay3 Endpoint ──► 402 ──► Receive │
+└──────────────────────────────────────────────┘  └──────────────────────────────────────────────┘
+```
 
-</td>
-<td>
-
-**Money**
-- Stellar **public mainnet**
-- Horizon + Soroban RPC
-- Soroswap aggregator
-- Zipper / Protocol 27 contract
-
-</td>
-<td>
-
-**AI**
-- MCP (stdio + hosted HTTP)
-- Session tokens
-- Policy + approvals UX
-
-</td>
-</tr>
-</table>
+- **Receiving Flow**: Pay3 services emit standard `HTTP 402` challenges, verify incoming client payment proofs automatically on Algorand Mainnet / Stellar, and serve paid responses without requiring manual human approval for every micro-transaction.
 
 ---
 
-## Quick start
+## Security Architecture & Permissions Boundary
 
-### Local
+```
+┌───────────────────────────────────┬───────────────────────────────────┬───────────────────────────────────┐
+│       WHAT THE AI CAN DO          │      WHAT THE AI CANNOT DO        │        WHAT PAY3 CONTROLS         │
+├───────────────────────────────────┼───────────────────────────────────┼───────────────────────────────────┤
+│ • Request payments via MCP        │ • Access primary wallet keys      │ • AI Session Lifecycles & Tokens  │
+│ • Query multi-chain jar balances  │ • Bypass configured policy rules  │ • 3-Level Policy Engine Gate      │
+│ • Query transaction history       │ • Increase its own budget limit   │ • Token-Denominated Spend Caps    │
+│ • Access authorized x402 APIs     │ • Self-approve unknown ASAs       │ • Multi-Chain Routing & Adapters  │
+│ • Operate within session duration │ • Pull funds from primary wallet  │ • Replay Protection (Idempotency) │
+│ • Resolve saved contacts          │ • Silently guess ambiguous chains │ • Immutable Audit Logging & Proofs│
+└───────────────────────────────────┴───────────────────────────────────┴───────────────────────────────────┘
+```
 
+---
+
+## Security House Rules
+
+1. **Primary wallet keys are never stored or requested.**
+2. **AI spending accounts are physically separate from primary wallets.**
+3. **AI accounts can never automatically pull funds from primary wallets.**
+4. **Every financial operation must pass policy evaluation.**
+5. **Explicit user prompts never bypass a stricter security policy.**
+6. **AI sessions are time-bound, scoped, and individually revocable.**
+7. **Unknown ASAs require explicit human approval (AI cannot self-approve).**
+8. **All financial operations are idempotent.**
+9. **Ambiguous recipients or chains are never guessed.**
+10. **Financial failures are never blindly retried.**
+
+*Threat model details: [`docs/SECURITY.md`](docs/SECURITY.md).*
+
+---
+
+## Unknown ASA Approval Governance
+
+To protect users against asset phishing on Algorand:
+
+```
+AI requests spend on unknown ASA ID
+               │
+               ▼
+   Is ASA in Approved Registry?
+         /           \
+    YES /             \ NO
+       /               \
+      ▼                 ▼
+Standard Policy     Operation Paused (PENDING_APPROVAL)
+  Evaluation                    │
+                                ▼
+                     Human Authorization Screen
+                     ├─ Scope: Account-Wide OR Session-Only
+                     └─ Duration: Permanent OR Expiring (e.g. 24h)
+                                │
+                                ▼
+                     Added to Approved Registry
+```
+
+---
+
+## Revenue Model & Business Architecture
+
+> **Core Philosophy**: *"We don't get paid more when the AI spends more. We monetize delegated trust, agent capability, and security infrastructure—not transaction volume."*
+
+Pay3 rejects volume take-rates (no 2-3% tax on AI payments). Furthermore, **users are never charged extra simply for enabling another blockchain.**
+
+```
+┌──────────────────────────┬──────────────────────────┬──────────────────────────┐
+│         STARTER          │        PRO AGENT         │       POWER BUNDLE       │
+│         $0 / mo          │   $19 / mo (Proposed)    │   $49 / mo (Proposed)    │
+├──────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ • 1 Active MCP Agent     │ • Up to 5 Active Agents  │ • Unlimited AI Agents    │
+│ • $100 / mo Jar Limit    │ • $2,500 / mo Jar Limit  │ • $25,000 / mo Limit     │
+│ • Stellar & Algorand     │ • Multi-Chain Routing    │ • Multi-Chain Routing    │
+│ • Standard Policy Engine │ • Advanced Policy Engine │ • Custom Approval Rules  │
+│ • Basic x402 Intercept   │ • Included x402 Fetch    │ • Dedicated Webhooks     │
+│ • 7-Day Audit Log        │ • 90-Day Audit Log       │ • 1-Year Compliance Logs │
+└──────────────────────────┴──────────────────────────┴──────────────────────────┘
+```
+
+- **Builder Infrastructure Tiers**: Hosted MCP endpoints, high-throughput session routing, SLAs, and enterprise dedicated VPC deployments for teams embedding Pay3.
+- **x402 Monetization**: Basic x402 payments and receiving are included; premium marketplace discovery and corporate tax compliance tools provide future revenue streams.
+
+*Full commercial specification: [`docs/REVENUE_MODEL.md`](docs/REVENUE_MODEL.md).*
+
+---
+
+## What Pay3 Does NOT Do
+
+- 🚫 **Does NOT give AI unrestricted wallet access.**
+- 🚫 **Does NOT expose primary wallet private keys.**
+- 🚫 **Does NOT allow AI prompts to bypass security policies.**
+- 🚫 **Does NOT automatically pull funds from primary wallets.**
+- 🚫 **Does NOT allow AI models to self-approve unknown tokens.**
+- 🚫 **Does NOT guess ambiguous recipients or blockchains.**
+- 🚫 **Does NOT charge a percentage take-rate on transaction volume.**
+- 🚫 **Does NOT charge users extra simply for adding another blockchain.**
+
+---
+
+## Tech Stack
+
+### Current Production Stack (Live)
+- **Frontend & Dashboard**: Next.js 16 (App Router), React 19, Vanilla CSS Design System.
+- **Backend API**: Node.js, Express 5, TypeScript, Zod.
+- **Database**: PostgreSQL (Neon Serverless), Prisma ORM.
+- **AI Interface**: Model Context Protocol (`@modelcontextprotocol/sdk` v1.18.0).
+- **Blockchain (Stellar)**: `@stellar/stellar-sdk` v14.0.0, Horizon API, Soroban RPC.
+- **Smart Accounts**: Soroban Rust Contract (`contracts/smart-account`), CAP-71 `__check_auth`.
+- **DeFi Aggregation**: Soroswap Aggregator API.
+
+### Target Multi-Chain Stack (Specified)
+- **Blockchain (Algorand)**: `algosdk` v3.7.0, Algod v2 REST, Indexer v2 REST.
+- **x402 Facilitator**: GoPlausible Facilitator Interface.
+- **Target Assets**: Algorand Standard Assets (Mainnet USDC ASA ID `31566704`).
+
+---
+
+## Quick Start (Local Development)
+
+### 1. Prerequisites
+- Node.js 20+
+- PostgreSQL database (Neon or local instance)
+
+### 2. Installation & Setup
 ```bash
+git clone https://github.com/debuuuuuu/PAY3.git
+cd PAY3
 npm install
-cp .env.example apps/api/.env    # DATABASE_URL + SMART_ACCOUNT_ENCRYPTION_KEY
+
+# Configure local environment files
+cp .env.example apps/api/.env
 cp .env.example apps/web/.env
 
+# Generate Prisma client and push schema
 npm run db:generate
 npm run db:push
-
-npm run dev          # http://localhost:3000
-npm run dev:api      # http://localhost:4000
 ```
 
-### MCP (Cursor)
-
+### 3. Run Development Servers
 ```bash
-npm run build:mcp
-copy .cursor\mcp.json.example .cursor\mcp.json   # paste pay3_… token
-$env:PAY3_MCP_TOKEN="pay3_…"
-npm run smoke:mcp
+# Terminal 1: Run Next.js Web Dashboard
+npm run dev
+
+# Terminal 2: Run Express API Backend
+npm run dev:api
 ```
 
-### Smokes
-
-```bash
-node scripts/smoke-prod.mjs
-npm run smoke:stellar
+### 4. Connect Cursor or Claude Desktop via MCP
+1. Open the dashboard at `http://localhost:3000` (or `3002`), log in with Freighter.
+2. Navigate to **Sessions** → **Create Session** → Copy the generated token (`pay3_...`).
+3. Add to `.cursor/mcp.json`:
+```json
+{
+  "mcpServers": {
+    "pay3": {
+      "url": "http://localhost:4000/mcp",
+      "headers": {
+        "Authorization": "Bearer pay3_YOUR_SESSION_TOKEN_HERE"
+      }
+    }
+  }
+}
 ```
 
----
-
-## Production
-
-| Service | URL |
-|:--------|:----|
-| Web | https://paythreewallet.vercel.app |
-| API | https://pay3-api.vercel.app |
-| Health | https://pay3-api.vercel.app/health |
-
-Deploy notes: [`docs/PRODUCTION.md`](docs/PRODUCTION.md)  
-API deploy helper: `node scripts/deploy-api-vercel.mjs`
+> *Note: Algorand Mainnet local execution will be available upon completion of Phase 2 implementation. See [`docs/ALGORAND_X402.md`](docs/ALGORAND_X402.md).*
 
 ---
 
-## Community & links
+## Production & Mainnet Status Matrix
 
-<div align="center">
+| Component / Layer | Network / Protocol | Status | Verification Reference |
+| :--- | :--- | :--- | :--- |
+| **Web Dashboard** | Vercel Edge | **Live** | [paythreewallet.vercel.app](https://paythreewallet.vercel.app) |
+| **API Orchestrator** | Vercel Serverless | **Live** | [pay3-api.vercel.app](https://pay3-api.vercel.app) |
+| **API Health Check** | HTTP REST | **Healthy (200 OK)** | [pay3-api.vercel.app/health](https://pay3-api.vercel.app/health) |
+| **Stellar G-Account Jar Custody** | Stellar Mainnet | **Live** | In active production |
+| **Soroban Smart Account Contract** | Stellar Mainnet | **Mainnet Verified** | [`CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO`](https://stellar.expert/explorer/public/contract/CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO) |
+| **Three-Level Policy Engine** | Pay3 Core | **Implemented & Tested** | In active production |
+| **MCP stdio & HTTP Tools** | Cursor / Claude | **Implemented & Tested** | Tested via `npm run smoke:mcp` |
+| **Soroswap DEX Swaps** | Stellar Mainnet | **Implemented & Tested** | Live quote aggregation |
+| **Multi-Chain ChainAdapter Core** | Pay3 Core | **Target Specification** | Specified in [`docs/MULTI_CHAIN.md`](docs/MULTI_CHAIN.md) |
+| **Algorand Mainnet Adapter** | Algorand Mainnet | **Target Specification** | Specified in [`docs/ALGORAND_X402.md`](docs/ALGORAND_X402.md) |
+| **GoPlausible x402 Facilitator** | Facilitator Layer | **Target Specification** | Specified in [`docs/ALGORAND_X402.md`](docs/ALGORAND_X402.md) |
+| **Unknown ASA Approval Flow** | Governance | **Target Specification** | Specified in [`docs/SECURITY.md`](docs/SECURITY.md) |
+| **EVM & Solana Adapters** | EVM L2s / Solana | **Future Roadmap** | Slated for Phase 3 |
 
-| | |
-|:--|:--|
-| **X (Twitter)** | [@PAYThreeWallet](https://x.com/PAYThreeWallet) |
-| **GitHub** | [debuuuuuu/PAY3](https://github.com/debuuuuuu/PAY3) · branch `deb` |
-| **Website** | [paythreewallet.vercel.app](https://paythreewallet.vercel.app) |
-| **API** | [pay3-api.vercel.app](https://pay3-api.vercel.app/health) |
-| **Email** | [pay3wallet@gmail.com](mailto:pay3wallet@gmail.com) |
-| **Docs site** | [pay3.mintlify.site](https://pay3.mintlify.site) |
-| **Pitch deck** | [Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing) |
-| **Interactive HTML** | [`docs/readme.html`](docs/readme.html) |
-
-<br/>
-
-<a href="https://x.com/PAYThreeWallet">
-  <img src="docs/assets/pay3-logo.png" alt="Follow Pay3 on X" width="72" />
-</a>
-
-<p><sub>Follow product updates → <a href="https://x.com/PAYThreeWallet">x.com/PAYThreeWallet</a></sub></p>
-
-</div>
+*Detailed status report: [`docs/STATUS_REPORT.md`](docs/STATUS_REPORT.md).*
 
 ---
 
-## Documentation
+## Documentation Suite
 
-| Doc | Audience |
-|:----|:---------|
-| **[pay3.mintlify.site](https://pay3.mintlify.site)** | **Official docs** (Mintlify) |
-| [Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing) | **Pitch / judges deck** |
-| [pay3.mintlify.site/llms.txt](https://pay3.mintlify.site/llms.txt) | AI / LLM docs index |
-| [`docs/readme.html`](docs/readme.html) | Interactive HTML + CSS overview |
-| [`docs/WHAT_IS_PAY3.md`](docs/WHAT_IS_PAY3.md) | Anyone (kid-friendly) |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System flow |
-| [`docs/STATUS_REPORT.md`](docs/STATUS_REPORT.md) | What’s built |
-| [`docs/SECURITY.md`](docs/SECURITY.md) | Checklist |
-| [`docs/MCP_SETUP.md`](docs/MCP_SETUP.md) | Connect AI |
-| [`docs/DATABASE.md`](docs/DATABASE.md) | Neon / Prisma |
-| [`docs/SOROBAN_SETUP.md`](docs/SOROBAN_SETUP.md) | Contract build |
-| [`docs/TECHNICAL_VALIDATION.md`](docs/TECHNICAL_VALIDATION.md) | Soroban decisions |
-| [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md) | Long-term vision |
-| [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) | Phases |
-
-### Stellar docs (for humans + AI)
-
-Official machine-readable index: **[developers.stellar.org/llms.txt](https://developers.stellar.org/llms.txt)**  
-Full dump: [llms-full.txt](https://developers.stellar.org/llms-full.txt) · live docs MCP: [Raven](https://raven.stellar.buzz/mcp)
-
-| Topic Pay3 cares about | Link |
-|:------------------------|:-----|
-| Contract accounts | [guides/contract-accounts](https://developers.stellar.org/docs/build/guides/contract-accounts.md) |
-| Contract authorization | [guides/auth](https://developers.stellar.org/docs/build/guides/auth.md) |
-| Freighter | [guides/freighter](https://developers.stellar.org/docs/build/guides/freighter.md) |
-| SAC / tokens | [tokens/stellar-asset-contract](https://developers.stellar.org/docs/tokens/stellar-asset-contract.md) |
-| Building with AI | [build/building-with-ai](https://developers.stellar.org/docs/build/building-with-ai.md) |
-| Smart contracts start | [smart-contracts/getting-started](https://developers.stellar.org/docs/build/smart-contracts/getting-started.md) |
-
-Any Stellar docs page also serves markdown via `Accept: text/markdown` or by appending `.md` to the URL.
+| Document | Purpose & Scope |
+| :--- | :--- |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Comprehensive System Architecture, Component Breakdown & Custody Design. |
+| [`docs/MULTI_CHAIN.md`](docs/MULTI_CHAIN.md) | ChainAdapter Interface Specification, Chain Selection Hierarchy & Multi-Chain Model. |
+| [`docs/ALGORAND_X402.md`](docs/ALGORAND_X402.md) | Algorand Mainnet Integration, GoPlausible Facilitator, x402 Pay/Receive Flows & ASA Governance. |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | Multi-Chain Threat Model, Key Isolation, Policy Boundaries & ASA Approval Lifecycle. |
+| [`docs/REVENUE_MODEL.md`](docs/REVENUE_MODEL.md) | Commercial Monetization Architecture, Pricing Tiers & Builder Infrastructure. |
+| [`docs/MCP_SETUP.md`](docs/MCP_SETUP.md) | Unified MCP Tool Contract, Cursor/Claude Client Setup & Session Scoping Rules. |
+| [`docs/STATUS_REPORT.md`](docs/STATUS_REPORT.md) | Plain-English Status Matrix & Honest Feature Verification Scorecard. |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Strategic Three-Phase Evolution (Foundation Live → Multi-Chain Target → Ecosystem Future). |
 
 ---
 
-## Status
+## Roadmap
 
-**Live on Stellar public mainnet** — Freighter → jar → contacts → session → policy → MCP pay → approvals / revoke / audit.
-
-| Area | State |
-|:-----|:------|
-| Off-chain MVP (auth → MCP) | ✅ mainnet |
-| Production web + API | ✅ live |
-| Active mainnet users | ✅ legacy G-account jars |
-| Soroban smart-account deployed | ✅ [`CAIID…T3OO`](https://stellar.expert/explorer/public/contract/CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO) (opt-in custody) |
-| Soroswap quote / execute | ✅ (pools / network dependent) |
-| Zipper WASM + canary path | ✅ code; opt-in deploy |
-| Contract CI (fmt / clippy / test) | ✅ |
-| Pitch deck | 📄 [Google Slides](https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing) |
-| Contract custody default | ❌ not yet (legacy jar default) |
+- **Phase 1: Foundation (Live in Production)**: Stellar Mainnet payments, Freighter SEP-53 login, AI Jar custody, 3-level policy engine, Soroswap quotes/swaps, Cursor/Claude MCP server.
+- **Phase 2: Multi-Chain & x402 (Current Target)**: `ChainAdapter` abstraction, Algorand Mainnet integration, GoPlausible x402 engine, unified MCP `pay()` tool, unknown ASA governance.
+- **Phase 3: Ecosystem Scale (Future Roadmap)**: EVM L2 adapters (Base/Arbitrum), Solana adapter, agent monetization marketplace, enterprise compliance audit exports.
 
 ---
 
 <div align="center">
 
-<img src="docs/assets/pay3-banner.png" width="100%" alt="Pay3 — Delegate. Validate. Execute." />
+### Pay3 — Delegate. Validate. Execute.
+**The security layer between AI and money.**
 
 <br/>
 
-**If unsure, Pay3 says no — that is a feature.**
-
-<br/>
-
-<a href="https://pay3.mintlify.site">Docs</a>
-·
-<a href="https://docs.google.com/presentation/d/1lIRI_BQ3Oz0NHWHPUerb9lBNeEy86r_FoH3Lmch54g8/edit?usp=sharing">Pitch deck</a>
-·
-<a href="https://x.com/PAYThreeWallet">X</a>
-·
-<a href="https://github.com/debuuuuuu/PAY3">GitHub</a>
-·
-<a href="https://paythreewallet.vercel.app">Website</a>
-·
-<a href="docs/readme.html">HTML README</a>
-
-<br/><br/>
-
-<sub>Full docs → <a href="https://pay3.mintlify.site">pay3.mintlify.site</a>. Live on Stellar mainnet → <a href="https://paythreewallet.vercel.app">paythreewallet.vercel.app</a>.</sub>
+<a href="https://paythreewallet.vercel.app">Website</a> · <a href="https://pay3-api.vercel.app/health">API</a> · <a href="https://x.com/PAYThreeWallet">X @PAYThreeWallet</a> · <a href="mailto:pay3wallet@gmail.com">Contact</a> · <a href="https://pay3.mintlify.site">Docs</a>
 
 </div>

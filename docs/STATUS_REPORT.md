@@ -1,221 +1,55 @@
-# Pay3 — Plain-English Status Report
+# Pay3 Status Report & Feature Verification Matrix
 
-<div align="center">
-
-<img src="assets/pay3-banner.png" alt="Pay3 — Delegate. Validate. Execute." width="100%" />
-
-<p><a href="https://pay3.mintlify.site">Docs — pay3.mintlify.site</a> · <a href="https://x.com/PAYThreeWallet">X @PAYThreeWallet</a></p>
-
-</div>
-
-> Full kid-friendly overview of the whole product: [`WHAT_IS_PAY3.md`](./WHAT_IS_PAY3.md).
-
-**Date:** 27 Jul 2026 — **Live on Stellar public mainnet** (legacy G-account jar default; Zipper contract opt-in)  
-**Audience:** You (founder / builder) — not engineers only  
-**Goal of this doc:** Explain *what* we built, *why*, and *where you are* without jargon overload.
-
-> **Note:** Some step-by-step sections below were written during the testnet build phase. For the current live status, see the root [`README.md`](../README.md).
+> **Status:** Official Status Matrix  
+> **Positioning:** Delegate. Validate. Execute. — The security layer between AI and money.  
+> **Policy on Claims:** No feature is marked as "Mainnet Live" or "Verified" without live on-chain evidence.
 
 ---
 
-## 1. What is Pay3 (in one sentence)?
+## 1. Feature Status Matrix
 
-Pay3 lets someone say to an AI like Claude: *“Pay 5 USDC to Hurain”* — and money moves on Stellar **safely**, without giving the AI your main wallet keys.
-
-We are **not** building “another chat wallet.”  
-We are building the **security layer between AI and money**.
-
----
-
-## 2. Why all this complexity?
-
-If you give an AI your private key, it can drain everything. That’s unacceptable.
-
-So Pay3’s design is:
-
-```
-Your main Freighter wallet  →  keeps most of your money
-         ↓ (you choose to send a little)
-A separate “AI money pot”   →  only this pot can be used by AI
-         ↓
-Rules + approvals           →  AI can only do what you allowed
-         ↓
-Claude / Cursor via MCP     →  AI asks Pay3; Pay3 decides & executes
-```
-
-Phases 0–7 are live on testnet XLM (interim G-account, not Soroban yet). MCP `transfer` to a saved contact has been proven end-to-end.
+| Component / Feature | Current Codebase Status | Target Release Status | Implementation & Verification Notes |
+| :--- | :--- | :--- | :--- |
+| **SEP-53 Wallet Authentication** | **Mainnet Live** | Mainnet Live | Freighter challenge/response signature login verified on Stellar |
+| **Stellar AI Jar Custody (G-account)** | **Mainnet Live** | Mainnet Live | AES-256-GCM encrypted secret key in PostgreSQL |
+| **Soroban Smart Account Contract** | **Mainnet Verified** | Mainnet Verified | Deployed on Stellar Mainnet (`CAIIDPX4...T3OO`), opt-in CAP-71 auth |
+| **Three-Level Policy Engine** | **Implemented & Tested** | Implemented & Tested | Off-chain `AUTO_EXECUTE`, `PENDING_APPROVAL`, `REJECTED` |
+| **MCP stdio & HTTP Server** | **Implemented & Tested** | Implemented & Tested | Connects Cursor & Claude to Pay3 backend |
+| **Soroswap DeFi Quotes & Swaps** | **Implemented & Tested** | Implemented & Tested | Live quote aggregation on Stellar mainnet |
+| **Multi-Chain ChainAdapter Interface** | **Specified (Target)** | Target Release | Fully specified in `docs/MULTI_CHAIN.md` |
+| **Algorand Mainnet Adapter** | **Specified (Target)** | Target Release | Algod/Indexer integration specified in `docs/ALGORAND_X402.md` |
+| **Algorand AI Jar Key Management** | **Specified (Target)** | Target Release | 25-word mnemonic / 32-byte seed AES-256-GCM encrypted storage |
+| **Unified MCP `pay()` Tool** | **Specified (Target)** | Target Release | Replaces chain-specific calls with preference-routed `pay()` |
+| **Deterministic Chain Selection** | **Specified (Target)** | Target Release | 4-tier hierarchy: Explicit → Asset → Global → Ask |
+| **GoPlausible x402 Facilitator** | **Specified (Target)** | Target Release | Facilitator interface and verification logic specified |
+| **Automatic 402 HTTP Interceptor** | **Specified (Target)** | Target Release | Multi-chain `x402_fetch` with automatic payment & retry |
+| **x402 Receiving Endpoint** | **Specified (Target)** | Target Release | Paid endpoint returning 402 challenge on Algorand Mainnet |
+| **Unknown ASA Approval Flow** | **Specified (Target)** | Target Release | Human review for unapproved ASAs (scope + expiry) |
+| **Multi-Chain Web Dashboard UI** | **Specified (Target)** | Target Release | Multi-jar overview and unified history table |
+| **EVM Chain Adapters (Base, Arb)** | **Future Roadmap** | Future Roadmap | Post-Algorand release scope |
+| **Agent Marketplace & Discovery** | **Future Roadmap** | Future Roadmap | Monetized MCP tool registry |
 
 ---
 
-## 3. What exists on your computer right now?
+## 2. Status Label Definitions
 
-Think of the repo as **three apps + a database**:
-
-| Piece | What it is | URL / place |
-|-------|------------|-------------|
-| **Landing page** | Marketing site (the pretty Pay3 homepage) | https://paythreewallet.vercel.app |
-| **Dashboard** | Your control panel after login | https://paythreewallet.vercel.app/dashboard |
-| **API** | Backend brain (auth, accounts, balances) | https://pay3-api.vercel.app |
-| **Neon database** | Cloud Postgres — remembers users & accounts | Neon (internet) |
-
-You run **two terminals**:
-
-1. `npm run dev` → website  
-2. `npm run dev:api` → backend  
-
-Without the API, Connect Wallet / Link smart account will fail.
+- **Mainnet Live**: Deployed to production public mainnet with live transactions executed by users.
+- **Mainnet Verified**: Contract bytecode or transaction hash confirmed on a public mainnet blockchain explorer.
+- **Implemented & Tested**: Source code complete and verified through automated test suites and local integration checks.
+- **Specified (Target)**: Architecturally documented and specified in full detail; pending code implementation phase.
+- **Planned / In Development**: Active development underway but not yet passing full integration verification.
+- **Future Roadmap**: High-level strategic capability slated for subsequent release cycles.
 
 ---
 
-## 4. What you can do today (user journey so far)
+## 3. Production Infrastructure Reference
 
-### Step A — Visit the site
-Open the landing page. This is marketing only.
-
-### Step B — Connect Freighter (or phone QR)
-Go to **Dashboard** → **Connect Freighter**, or **Scan with phone** to open `/login/qr/…` on mobile (Freighter / WalletConnect). Desktop polls and claims the session cookies.
-
-**What happens:**
-
-1. Freighter gives Pay3 your **public** address (safe to share).  
-2. Pay3 asks you to **sign a short message** (not a payment).  
-3. Backend checks the signature → you’re logged in.  
-4. Your user row is saved in **Neon**.
-
-**Why:** Prove “this wallet is yours” without ever taking your private key.
-
-### Step C — Link smart account
-On Overview, click **Link smart account**.
-
-**What happens:**
-
-1. Pay3 creates a **new Stellar testnet address** (a separate money pot).  
-2. Friendbot gives it a tiny bit of test XLM so the account exists on-chain.  
-3. The **secret key** for that pot is **encrypted** and stored in Neon.  
-4. The browser only ever sees the **public address** (+ QR).
-
-**Why:** AI (later) should spend from this pot, not from your main Freighter balance.
-
-> **Important honesty:** This is an *interim* design. The final product wants a **Soroban smart contract** account. We haven’t built that contract yet. For now we use a normal Stellar account as a stand-in so we can keep building the product.
-
-### Step D — Fund it (optional)
-Copy address or scan **QR** → send testnet XLM from Freighter → **Refresh balances**.
-
-**Why:** Only money you put in this pot can later be used by AI.
-
-### Step E — History
-**History** tab shows on-chain payments for that pot (from Stellar’s Horizon API).
-
----
-
-## 5. What is *not* working yet (and that’s OK)
-
-| Feature | Status | Why not yet |
-|---------|--------|-------------|
-| Claude / Cursor paying someone (testnet XLM) | ✅ | Proven via MCP `transfer` + contact resolve |
-| Contacts (“debu” / Hurain → address) | ✅ | Dashboard Contacts + resolver |
-| Policy engine (auto / approve / reject) | ✅ | Off-chain three-level engine |
-| Real Soroban smart contract | ❌ | Phase 9 — interim G-account for now |
-| Mainnet XLM | ✅ | Production on **public mainnet** |
-| Mainnet USDC / Soroswap | ✅ | When pools enabled |
-| Zipper Soroban contract | ✅ | Deployed opt-in — `CAIID…T3OO` |
-
-What’s left for product polish: Phase 8 (approvals UX / emergency controls) and Phase 9 (on-chain Soroban limits).
-
----
-
-## 6. Why we did things in this order
-
-From the product spec (`maincontext.md`):
-
-1. Landing → people understand the product  
-2. Wallet login → identity without passwords  
-3. Separate money pot → safety boundary  
-4. Contacts → don’t guess who “Hurain” is  
-5. AI sessions + permission screen → you approve what AI can do  
-6. Policy + transaction engine → safe execution  
-7. MCP → Claude can call Pay3  
-
-**We skipped ahead to MCP earlier in planning, then corrected:** sessions must come **before** MCP, or AI would have nothing safe to attach to.
-
----
-
-## 7. Folder map (only what matters)
-
-```
-pay3-deb/
-├── apps/web/          Website + dashboard (what you see)
-├── apps/api/          Backend (auth, smart account, history)
-├── packages/database/ Database schema (Prisma → Neon)
-├── packages/stellar/  Talks to Stellar testnet
-├── packages/shared/   Shared types
-├── docs/              Plans & this report
-├── maincontext.md     Full product bible (long)
-└── context.md         Short marketing copy
-```
-
----
-
-## 8. Common confusion → clear answers
-
-**“Why Neon / database?”**  
-So when you refresh or restart the API, your user + smart account still exist.
-
-**“Why Freighter?”**  
-It’s a Stellar browser wallet. Pay3 doesn’t invent a new login; you prove ownership with a signature.
-
-**“Why QR code?”**  
-So you (or a phone wallet) can fund the pot by scanning instead of only copying the address. It’s for **funding your pot**, not for “anyone pays Pay3 as a merchant” yet.
-
-**“Why do I see errors like api/ext/404?”**  
-Those are usually from the **Freighter extension**, not from Pay3. Ignore them unless `/auth` or `/smart-account` fails.
-
-**“Why testnet?”**  
-So we can break things without losing real money.
-
-**“What does Overview ‘pending’ / ‘linked’ mean?”**  
-- **pending** = user exists, pot not created yet  
-- **linked** = pot address created and ready to fund  
-
----
-
-## 9. Progress scorecard
-
-| Phase | Name | Status |
-|-------|------|--------|
-| 0 | Foundation (monorepo, API, Neon, docs) | ✅ Done |
-| 1 | Wallet auth + dashboard shell | ✅ Done |
-| 2 | Smart account + fund + QR + history | ✅ Done (interim G-account) |
-| 3 | Contacts (“Hurain”) | ✅ Done |
-| 4 | AI sessions + permission review | ✅ Done |
-| 5 | Policy engine | ✅ Done |
-| 6 | Transaction engine | ✅ Done |
-| 7 | MCP (Claude / Cursor) | ✅ Done — see `docs/MCP_SETUP.md` |
-| 8 | Approvals + emergency revoke | ✅ Done |
-| 10 | Dashboard completion (audit + usage) | ✅ Done |
-| 9 | Soroban technical validation + scaffold | ✅ |
-| 9b | Contract source + local WASM build | ✅ Built (`artifacts/pay3_smart_account.wasm`) |
-| 9c | Harden + RPC/relayer + canary wiring | ✅ Code complete — opt-in canary; default still legacy |
-
-**Roughly:** Off-chain MVP complete on **mainnet** + Phase 9c Soroban path wired. Production defaults to interim G-account; Zipper contract deployed for opt-in custody. See `docs/SOROBAN_SETUP.md`.
-
----
-
-## 10. What you should do next (simple)
-
-1. Apply Prisma migration `20260717120000_phase9c_custody_onchain`.  
-2. Set `STELLAR_RPC_URL` + `RELAYER_SECRET`; run `node scripts/canary-deploy.mjs` for one account.  
-3. Security review before making contract custody the default.  
-
----
-
-## 11. Bottom line
-
-**What’s happening:** Pay3 on **mainnet** — Freighter → pot → contacts → session → policy → MCP pay → approvals / revoke / audit; Zipper Soroban contract deployed for opt-in custody.
-
-**Why it’s happening this way:** Security first — separate pot, encrypted session material, off-chain policy; on-chain `__check_auth` for opt-in Zipper accounts.
-
-**Where you are:** Product is **live on mainnet**. Legacy G-account jar is default; contract custody is opt-in per user.
-
-If one sentence for a teammate:  
-> *“Mainnet live: MCP payments on legacy G-account jars; Zipper contract deployed for opt-in on-chain session caps.”*
+| Service | Environment | Endpoint URL | Status |
+| :--- | :--- | :--- | :--- |
+| **Pay3 Web Application** | Production | `https://paythreewallet.vercel.app` | Active |
+| **Pay3 Backend API** | Production | `https://pay3-api.vercel.app` | Active |
+| **Pay3 API Health Check** | Production | `https://pay3-api.vercel.app/health` | Active (`HTTP 200 OK`) |
+| **Hosted MCP Server** | Production | `https://pay3-api.vercel.app/mcp` | Active |
+| **Documentation Portal** | Production | `https://pay3.mintlify.site` | Active |
+| **Soroban Smart Account** | Stellar Mainnet | `CAIIDPX4S3U7E66IAF4RHTVWBXIJOCEZC45Z546V3FLAUAYSFNOCT3OO` | Verified |
+| **Algorand Mainnet Node** | Target Production | `https://mainnet-api.algonode.cloud` | Verified Public RPC |
